@@ -78,6 +78,7 @@ select.unit{border:1px solid var(--line);background:var(--panel);color:var(--ink
 .thumb{aspect-ratio:16/10;background:var(--soft);position:relative;overflow:hidden;border-bottom:4px solid var(--c)}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .thumb .n{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.66);color:#fff;font-size:12px;padding:3px 9px;border-radius:999px;font-weight:600}
+.thumb .own{position:absolute;left:10px;top:10px;background:var(--brand);color:#fff;font-size:12px;padding:3px 9px;border-radius:999px;font-weight:700}
 .thumb .play{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity .15s;background:rgba(0,0,0,.18)}
 .thumb .play span{width:56px;height:56px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 4px 16px rgba(0,0,0,.25)}
 .card:hover .play{opacity:1}
@@ -236,6 +237,7 @@ function card(s) {
   return `<button class="card" style="--c:var(--${s.subject})" data-id="${s.id}">
     <div class="thumb"><img src="${thumbOf(s)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
       ${n > 1 ? `<span class="n">실험 ${n}개</span>` : ''}
+      ${s.own ? '<span class="own">NEW · 클릭 실험실</span>' : ''}
       <div class="play"><span><svg width="22" height="22" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#111"/></svg></span></div></div>
     <div class="body">
       <div class="meta">${SUBJ[s.subject].name} <span>· ${esc(s.unit)} · ${esc(s.grade)}</span></div>

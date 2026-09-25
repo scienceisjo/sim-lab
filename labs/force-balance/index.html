@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>합력과 힘의 평형 · CLICK SCIENCE</title>
+<meta name="description" content="두 힘의 크기와 방향을 바꾸며 합력과 힘의 평형을 찾는 가상 실험실">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Cpath d='M11 7l12 9-5.5 1.2 3.3 6.3-2.6 1.4-3.3-6.3L11 22z' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../_kit/kit.css">
+</head>
+<body data-subject="phys">
+<script src="../_kit/kit.js"></script>
+<script>
+/* 합력과 힘의 평형
+ * 계산: 1차원(가로). 상자 1개 5 kg, 2개면 10 kg. 무게 = 질량 × 9.8 N/kg.
+ * 마찰력 최댓값 = 무게 × 바닥 값(얼음 0, 나무 0.5, 사포 0.9). 멈춰 있을 때와 미끄러질 때를 한 값으로 둔다(화면에는 내지 않음).
+ * 멈춰 있을 때 당기는 힘의 합력이 최댓값 이하면 마찰력이 반대쪽으로 같은 크기 → 그대로 멈춰 있다.
+ * 모든 가로 힘의 합력 = 당기는 두 힘의 합력 + 마찰력. 운동은 이 값으로만 바뀐다.
+ */
+const G = 9.8, MU = { ice: 0, wood: 0.5, sand: 0.9 };
+const FLOOR_NAME = { ice: '얼음 바닥(마찰력이 없다고 가정)', wood: '나무 바닥', sand: '사포 바닥' };
+const K = 2.2;           // 화살표 축척: 1 N = 2.2 px
+const PPM = 80;          // 바닥 눈금: 1 m = 80 px
+const CX = 480, FLOOR_Y = 440, BOX = 120, DT = 1 / 120;
+const LIM = { t: 8, x: 20, v: 10 };   // 재생을 멈추는 때: 8초, 20 m, 10 m/s
+const C = {
+  push: Lab.color('--f-push'), gravity: Lab.color('--f-gravity'), normal: Lab.color('--f-normal'),
+  friction: Lab.color('--f-friction'), net: Lab.color('--f-net'),
+};
+
+const sim = { x: 0, v: 0, cam: 0, time: 0, acc: 0, ghosts: [], prev: [], nextGhost: 0.5, ended: '' };
+const flags = { played: false, f80: false, f20: false, eq: false, slide: false, fric: false, eqT: 0, slideT: 0, fricT: 0, predRun: false };
+let noteEl = null;
+
+const S = s => {
+  const F = s.f1 * s.d1 + s.f2 * s.d2;
+  const m = 5 * s.n, W = m * G, fmax = MU[s.floor] * W;
+  return { F, m, W, fmax };
+};
+// 지금 작용하는 마찰력(오른쪽 +)
+function friction(s) {
+  const { F, fmax } = S(s);
+  if (fmax === 0) return 0;
+  if (sim.v === 0) return Math.abs(F) <= fmax ? -F : -Math.sign(F) * fmax;
+  return -Math.sign(sim.v) * fmax;
+}
+const netAll = s => { const v = S(s).F + friction(s); return Math.abs(v) < 1e-9 ? 0 : v; };
+const dirTxt = v => v > 0 ? '→' : v < 0 ? '←' : '';
+const nf = v => (+Math.abs(v).toFixed(1)).toString();
+const fmtF = v => Math.abs(v) < 0.05 ? '0 N' : `${nf(v)} N ${dirTxt(v)}`;
+const boxX = () => CX + (sim.x - sim.cam) * PPM;    // 상자 가운데의 화면 x
+
+function restart(lab, keepPrev) {
+  if (!keepPrev) sim.prev = [];
+  sim.x = 0; sim.cam = 0; sim.v = lab.state.start === 'moving' ? 2 : 0;
+  sim.time = 0; sim.acc = 0; sim.ghosts = []; sim.nextGhost = 0.5; sim.ended = '';
+  flags.eqT = flags.slideT = flags.fricT = 0;
+  lab.t = 0;
+}
+function setMission(lab, st) { Object.assign(lab.state, st); lab.setRunning(false); restart(lab); if (noteEl) noteEl.textContent = ''; }
+function syncM2() {
+  const a = document.getElementById('m2a'), b = document.getElementById('m2b');
+  const done = window.lab && window.lab.done[1];
+  if (a) a.textContent = flags.f80 || done ? '✅' : '☐';
+  if (b) b.textContent = flags.f20 || done ? '✅' : '☐';
+}
+
+Lab.init({
+  id: 'force-balance', title: '합력과 힘의 평형', subject: 'phys', unit: '힘의 작용', grade: '중1', updated: '2026-09-26',
+  board: { w: 960, h: 600 },
+  state: { f1: 40, d1: 1, f2: 20, d2: -1, floor: 'ice', n: 1, start: 'rest', showNet: true, showVert: false, showGhost: true },
+  teacher: `
+    <h4>이 실험실이 맡는 개념</h4>
+    <ul><li>힘의 3요소(작용점·방향·크기)와 화살표 표현</li><li>나란한 두 힘의 합력(같은 방향은 더하고, 반대 방향은 큰 힘에서 작은 힘을 뺌)</li>
+    <li>힘의 평형(크기가 같고 방향이 반대) · 멈춰 있는 물체에도 힘이 작용함</li><li>마찰력의 방향(미끄러지는·미끄러지려는 방향의 반대), 바닥이 물체를 떠받치는 힘</li></ul>
+    <p>성취기준 [9과05-01] [9과05-04], 마찰력의 방향은 [9과05-02]. 비상교육 기준 p.159–161, p.170–171, p.183입니다. 미션 4는 p.160 보충과 p.178–179(모든 힘의 합력이 0이면 운동 상태가 변하지 않음)로 이어지므로, 알짜힘 차시에 다시 써도 좋습니다.</p>
+    <h4>용어</h4>
+    <p>교과서처럼 합력과 알짜힘을 엄밀히 나누지 않았습니다. 당기는 두 힘만 더한 값은 「당기는 두 힘의 합력」, 마찰력까지 더한 값은 「모든 힘의 합력(알짜힘)」으로 적고, 실험판의 점선 화살표는 늘 모든 힘의 합력입니다.</p>
+    <h4>화면 뒤의 계산</h4>
+    <p>상자 1개는 5 kg, 무게는 49 N입니다. 마찰력의 최댓값은 무게에 비례하게 두었고(사포 &gt; 나무), 멈춰 있을 때와 미끄러질 때를 한 값으로 둡니다. 얼음 바닥은 마찰력이 없다고 가정한 바닥이고, 공기 저항은 없습니다. 상자가 20 m를 가거나 속력이 10 m/s를 넘거나 8초가 지나면 재생을 멈춥니다.</p>
+    <p>같은 쪽의 두 힘은 겹치지 않게 조금 띄워 그렸을 뿐, 같은 작용선 위의 힘으로 계산합니다. 쌓은 두 상자는 한 물체로 봅니다.</p>
+    <h4>수업에서</h4>
+    <ul><li>화살표 끝을 손가락으로 끌어 힘을 바꿀 수 있어 전자칠판 시연에 좋습니다. 크기가 0인 힘은 상자 옆의 ＋ 손잡이를 끌어 되살립니다.</li>
+    <li>멈춰 있을 때 마찰력은 당기는 힘과 같은 크기라서 바닥에 따라 달라 보이지 않습니다. 거칠기 비교는 힘을 10 N씩 올려 상자가 움직이기 시작하는 힘(나무 30 N, 사포 50 N)으로 해 보세요.</li>
+    <li>「합력으로 바꾸기」를 누르면 두 힘이 같은 효과를 내는 힘 하나로 바뀌고, 바꾸기 전 자국이 회색으로 남습니다.</li>
+    <li>미션 없이 쓰려면 주소 끝에 <b>?missions=off</b>를 붙입니다. 공용 기기라면 미션 칸의 「다시 하기」로 진행을 지웁니다.</li></ul>
+    <h4>다루지 않는 것</h4>
+    <p>나란하지 않은 두 힘의 합성과 회전, 마찰 계수, 정지·운동 마찰력의 구분, 가속도와 F = ma, 관성이라는 이름.</p>`,
+  missions: [
+    { kind: '둘러보기', title: '마음대로 당겨 보기',
+      text: '두 힘의 크기와 방향, 바닥을 마음대로 바꾸고 <b>▶ 재생</b>해 보세요. 실험판의 빨간 화살표 끝을 끌어도 됩니다.',
+      check: (s, lab) => lab.touches >= 3 && flags.played, ok: '좋아요. 이제 하나씩 해 봐요.' },
+    { kind: '해 보기', title: '50 N과 30 N으로 합력 만들기',
+      text: '얼음 바닥에서 50 N과 30 N 두 힘만 써서 합력을 만들어 보세요.<br><span id="m2a">☐</span> 합력 80 N<br><span id="m2b">☐</span> 합력 20 N',
+      enter: lab => setMission(lab, { floor: 'ice', start: 'rest', f1: 0, f2: 0 }),
+      check: s => {
+        const pair = (s.f1 === 50 && s.f2 === 30) || (s.f1 === 30 && s.f2 === 50);
+        if (s.floor === 'ice' && pair && s.d1 === s.d2) flags.f80 = true;
+        if (s.floor === 'ice' && pair && s.d1 !== s.d2) flags.f20 = true;
+        syncM2();
+        return flags.f80 && flags.f20;
+      },
+      ok: '같은 방향이면 두 힘을 더하고, 합력의 방향은 두 힘의 방향과 같아요. 반대 방향이면 큰 힘에서 작은 힘을 빼고, 합력의 방향은 큰 힘의 방향이에요.' },
+    { kind: '해 보기', title: '당겨도 꼼짝 않는 상자',
+      text: '얼음 바닥에서 멈춰 있는 상자에 두 힘을 모두 걸고 <b>▶ 재생</b>하세요. 상자가 1초 넘게 그대로 멈춰 있게 만들어 보세요.',
+      enter: lab => setMission(lab, { floor: 'ice', start: 'rest', f1: 0, f2: 0, showVert: true }),
+      check: () => flags.eq,
+      ok: '크기가 같고 방향이 반대인 두 힘은 합력이 0이에요. 이것을 힘의 평형이라고 합니다. 멈춰 있어도 두 힘은 여전히 작용하고 있어요. 「위아래 힘」을 켜면 중력과 바닥이 떠받치는 힘도 보여요.' },
+    { kind: '예상', title: '미끄러지는 상자를 양쪽에서 당기면?',
+      text: '마찰력이 없다고 가정한 얼음 위를 오른쪽으로 미끄러지는 상자를 양쪽에서 똑같이 40 N씩 당깁니다. 재생하면 상자는 어떻게 될까요?',
+      enter: lab => { setMission(lab, { f1: 40, d1: 1, f2: 40, d2: -1, floor: 'ice', start: 'moving', showGhost: true }); flags.slide = false; },
+      predict: { options: ['① 그 자리에서 바로 멈춘다', '② 점점 느려지다가 멈춘다', '③ 같은 속력으로 계속 간다'], answer: 2 },
+      check: () => flags.slide,
+      ok: '이 얼음 바닥은 마찰력이 없다고 가정했기 때문에 상자에 작용하는 모든 힘의 합력(알짜힘)이 0이에요. 모든 힘의 합력이 0이면 운동 상태가 변하지 않아서, 움직이던 상자는 같은 속력으로 계속 갑니다. 속력계와 자국 간격을 확인해 보세요.' },
+    { kind: '해 보기', title: '나무 바닥에서 살살 당기기',
+      text: '나무 바닥에서 멈춰 있는 상자를 한쪽으로만 <b>20 N</b> 당기고 <b>▶ 재생</b>해 보세요. 상자가 움직이지 않는 까닭이 되는 힘을 실험판에서 찾아보세요.',
+      enter: lab => setMission(lab, { floor: 'wood', start: 'rest', f1: 0, f2: 0, showVert: true }),
+      check: () => flags.fric,
+      ok: '마찰력이 당기는 힘과 같은 크기로 반대 방향에 작용해 모든 힘의 합력이 0이 돼요. 마찰력은 상자가 미끄러지려는 방향의 반대로 작용합니다. 「위아래 힘」을 켜면 중력과 바닥이 떠받치는 힘도 평형인 것이 보여요.' },
+    { kind: '찾아내기', title: '힘의 평형 정리하기', text: '실험한 결과로 문장을 완성해 보세요.',
+      sentence: '두 힘이 평형을 이루려면 크기가 {다르고|같고}, 방향이 {반대여야|같아야} 합니다. 물체에 작용하는 모든 힘의 합력이 0이면 멈춰 있던 물체는 {움직이기 시작하고|계속 멈춰 있고}, 움직이던 물체는 {같은 속력으로 같은 방향으로 계속 움직입니다|점점 느려지다가 멈춥니다}.',
+      blanks: [1, 0, 1, 0], ok: '잘 정리했어요! 이 규칙은 「알짜힘과 운동」 실험실에서 다시 만나요.' },
+  ],
+
+  setup(lab) {
+    const ui = lab.ui;
+    ui.group('실험 조건');
+    ui.choice({ key: 'floor', label: '바닥', options: [['ice', '얼음'], ['wood', '나무'], ['sand', '사포']], onChange: (v, l) => { if (!l.running) restart(l); } });
+    ui.choice({ key: 'start', label: '처음 상태', options: [['rest', '멈춰 있음'], ['moving', '오른쪽으로 미끄러지는 중']], onChange: (v, l) => { l.setRunning(false); restart(l); } });
+    ui.choice({ key: 'n', label: '상자', options: [[1, '1개(5 kg)'], [2, '2개(10 kg)']] });
+
+    ui.group('힘 ① (당기는 힘)', C.push);
+    ui.slider({ key: 'f1', label: '크기', min: 0, max: 100, step: 10, unit: 'N' });
+    ui.choice({ key: 'd1', options: [[-1, '← 왼쪽'], [1, '오른쪽 →']] });
+    ui.group('힘 ② (당기는 힘)', C.push);
+    ui.slider({ key: 'f2', label: '크기', min: 0, max: 100, step: 10, unit: 'N' });
+    ui.choice({ key: 'd2', options: [[-1, '← 왼쪽'], [1, '오른쪽 →']] });
+    ui.button({ label: '합력으로 바꾸기', onClick: l => {
+      const s = l.state, F = S(s).F;
+      if (F === 0) { noteEl.textContent = '두 힘의 합력이 0 N이라 하나로 바꿀 힘이 없어요. 두 힘은 여전히 작용하고 있어요.'; return; }
+      if (Math.abs(F) > 100) { noteEl.textContent = '합력이 100 N을 넘어서 힘 하나로 나타낼 수 없어요.'; return; }
+      const had = sim.ghosts.length > 0;
+      sim.prev = sim.ghosts.slice();
+      s.f1 = Math.abs(F); s.d1 = F < 0 ? -1 : 1; s.f2 = 0;
+      l.setRunning(false); restart(l, true);
+      noteEl.textContent = had ? '두 힘을 같은 효과를 내는 힘 하나로 바꿨어요. ▶ 재생해서 회색 자국(바꾸기 전)과 견주어 보세요.'
+        : '두 힘을 같은 효과를 내는 힘 하나로 바꿨어요. 다음에는 먼저 재생한 뒤 바꿔 보세요. 자국을 견줄 수 있어요.';
+    } });
+    noteEl = ui.note('');
+
+    ui.group('측정값');
+    ui.readout({ label: '당기는 두 힘의 합력', get: s => fmtF(S(s).F) });
+    ui.readout({ label: '마찰력', get: s => MU[s.floor] ? fmtF(friction(s)) : '없음', color: C.friction });
+    ui.readout({ label: '모든 힘의 합력(알짜힘)', get: s => { const n = netAll(s); return n === 0 && (s.f1 || s.f2) ? '0 N <small>(힘의 평형)</small>' : fmtF(n); } });
+    ui.readout({ label: '속력', get: () => `${Math.abs(sim.v).toFixed(2)} m/s ${dirTxt(sim.v)}` });
+
+    ui.group('보기');
+    ui.toggle({ key: 'showNet', label: '모든 힘의 합력 화살표' });
+    ui.toggle({ key: 'showVert', label: '위아래 힘(중력·바닥이 떠받치는 힘)' });
+    ui.toggle({ key: 'showGhost', label: '0.5초마다 자국 남기기' });
+
+    restart(lab);
+    syncM2();
+    lab.update();
+  },
+
+  onPlay(lab) {
+    flags.played = true;
+    flags.predRun = lab.prediction != null;   // 예상을 고른 뒤에 시작한 재생인지
+    if (sim.ended) restart(lab, true);
+  },
+  rewind(lab) { restart(lab, true); if (noteEl) noteEl.textContent = ''; },
+  reset(lab) { restart(lab); if (noteEl) noteEl.textContent = ''; },
+  onMissionsReset() { Object.assign(flags, { played: false, f80: false, f20: false, eq: false, slide: false, fric: false }); syncM2(); },
+
+  step(dt, lab) {
+    const s = lab.state;
+    sim.acc += dt;
+    while (sim.acc >= DT && !sim.ended) {
+      sim.acc -= DT;
+      const { F, m, fmax } = S(s);
+      const a = (F + friction(s)) / m;
+      const v0 = sim.v;
+      let v = v0 + a * DT;
+      // 마찰이 있는 바닥에서 속도가 0을 지나려 하면 그 자리에서 멈춘다(다음 단계에서 다시 판정)
+      if (fmax > 0 && v0 !== 0 && Math.sign(v) !== Math.sign(v0)) v = 0;
+      if (Math.abs(v) < 1e-9) v = 0;
+      const x0 = sim.x;
+      sim.x += (v0 + v) / 2 * DT;
+      sim.v = v;
+      sim.time += DT;
+      // 0.5초 자국: 물리 시각 기준, 경계에서 위치를 보간
+      if (sim.time >= sim.nextGhost) {
+        const f = 1 - (sim.time - sim.nextGhost) / DT;
+        sim.ghosts.push(x0 + (sim.x - x0) * f);
+        sim.nextGhost += 0.5;
+      }
+      // 미션 판정용 누적 시간
+      const both = s.f1 > 0 && s.f2 > 0;
+      flags.eqT = s.floor === 'ice' && both && F === 0 && sim.v === 0 ? flags.eqT + DT : 0;
+      flags.slideT = s.floor === 'ice' && both && F === 0 && sim.v !== 0 && flags.predRun ? flags.slideT + DT : 0;
+      const oneSide = (s.f1 === 20 && s.f2 === 0) || (s.f2 === 20 && s.f1 === 0);
+      flags.fricT = s.floor === 'wood' && oneSide && sim.v === 0 ? flags.fricT + DT : 0;
+      if (flags.eqT >= 1) flags.eq = true;
+      if (flags.slideT >= 2) flags.slide = true;
+      if (flags.fricT >= 1) flags.fric = true;
+      // 멈추는 때
+      if (sim.time >= LIM.t - 1e-9) sim.ended = `${LIM.t}초가 지나 재생을 멈췄어요. ▶ 재생을 누르면 처음 자리에서 다시 시작해요.`;
+      else if (Math.abs(sim.x) >= LIM.x) sim.ended = '상자가 20 m를 가서 재생을 멈췄어요. ▶ 재생을 누르면 처음 자리에서 다시 시작해요.';
+      else if (Math.abs(sim.v) >= LIM.v) sim.ended = '상자가 너무 빨라져서 재생을 멈췄어요. ▶ 재생을 누르면 처음 자리에서 다시 시작해요.';
+    }
+    // 카메라: 상자가 화면 가운데 부분(300~660 px)을 벗어날 때만 따라간다
+    const bx = boxX();
+    if (bx > 660) sim.cam = sim.x - (660 - CX) / PPM;
+    if (bx < 300) sim.cam = sim.x - (300 - CX) / PPM;
+    lab.t = sim.time;
+    if (sim.ended) lab.setRunning(false);
+    lab.update();
+  },
+
+  pointer: {
+    // 빨간 화살표 끝(또는 크기 0인 힘의 ＋ 손잡이)을 끌면 그 힘의 크기와 방향이 바뀐다
+    down(p, lab) {
+      const hit = handles(lab).find(t => Math.hypot(p.x - t.x, p.y - t.y) < 34);
+      if (!hit) return false;
+      lab.dragKey = hit.k;
+    },
+    move(p, lab) {
+      const s = lab.state, bx = boxX(), half = BOX / 2;
+      let d, mag;
+      if (p.x >= bx) { d = 1; mag = (p.x - (bx + half)) / K; } else { d = -1; mag = ((bx - half) - p.x) / K; }
+      mag = Math.max(0, Math.min(100, Math.round(mag / 10) * 10));
+      s['f' + lab.dragKey] = mag; s['d' + lab.dragKey] = d;
+    },
+    up(p, lab) { lab.dragKey = null; },
+    hover(p, lab) { return handles(lab).some(t => Math.hypot(p.x - t.x, p.y - t.y) < 34); },
+  },
+
+  draw(ctx, lab) {
+    const s = lab.state, d = lab.draw, bx = boxX();
+    const top = FLOOR_Y - BOX * s.n, cy = FLOOR_Y - BOX * s.n / 2;
+    const W = S(s).W;
+    drawFloor(ctx, s);
+
+    // 자국: 같은 시간 간격의 위치(바닥 위 세모, 회색은 바꾸기 전)
+    if (s.showGhost) {
+      const mark = (gx, col, y0) => {
+        const sx = CX + (gx - sim.cam) * PPM;
+        if (sx < 8 || sx > 952) return;
+        ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(sx, y0); ctx.lineTo(sx - 7, y0 + 12); ctx.lineTo(sx + 7, y0 + 12); ctx.closePath(); ctx.fill();
+      };
+      sim.prev.forEach(gx => mark(gx, '#9ca3af', FLOOR_Y + 16));
+      sim.ghosts.forEach(gx => {
+        mark(gx, C.push, FLOOR_Y + 2);
+        const sx = CX + (gx - sim.cam) * PPM;
+        ctx.save(); ctx.globalAlpha = 0.22; ctx.strokeStyle = '#8a5a2b'; ctx.lineWidth = 2; ctx.setLineDash([6, 5]);
+        ctx.strokeRect(sx - BOX / 2, top, BOX, BOX * s.n); ctx.restore();
+      });
+    }
+    drawBoxes(ctx, bx, s.n);
+
+    // 당기는 힘: 줄은 당기는 쪽 면에 묶인다
+    const fs = forces(lab);
+    fs.forEach(f => {
+      ctx.save(); ctx.strokeStyle = '#9a7b55'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(f.ax, f.y); ctx.lineTo(f.d > 0 ? 960 : 0, f.y); ctx.stroke(); ctx.restore();
+      const len = f.mag * K;
+      d.arrow(ctx, f.ax, f.y, f.d * len, 0, { color: C.push });
+      const lx = len >= 96 ? f.ax + f.d * len / 2 : f.ax + f.d * (len + 46);
+      const ly = len >= 96 ? f.y + (f.below ? 22 : -22) : f.y;
+      d.tag(ctx, lx, ly, `${f.name} ${f.mag} N`, { color: C.push });
+    });
+    // 크기 0인 힘의 ＋ 손잡이
+    handles(lab).filter(t => t.zero).forEach(t => {
+      ctx.save(); ctx.strokeStyle = C.push; ctx.setLineDash([3, 3]); ctx.lineWidth = 2; ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(t.x, t.y, 11, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.restore();
+      d.text(ctx, t.x, t.y + 1, '+', { align: 'center', base: 'middle', size: 18, weight: 800, color: C.push });
+    });
+
+    // 마찰력: 상자와 바닥이 닿는 면에서, 미끄러지는(미끄러지려는) 방향의 반대로
+    const fr = friction(s);
+    if (Math.abs(fr) > 0.05) {
+      d.arrow(ctx, bx, FLOOR_Y - 8, fr * K, 0, { color: C.friction, width: 5 });
+      d.tag(ctx, bx + Math.sign(fr) * (BOX / 2 + 62), FLOOR_Y - 16, `마찰력 ${nf(fr)} N`, { color: C.friction, size: 15 });
+    }
+
+    // 위아래 힘
+    let netY = top - 42;
+    if (s.showVert) {
+      d.arrow(ctx, bx - 16, cy, 0, W * K, { color: C.gravity });
+      d.arrow(ctx, bx + 16, FLOOR_Y, 0, -W * K, { color: C.normal });
+      d.tag(ctx, bx - 30, cy + W * K * 0.72, `중력 ${nf(W)} N`, { color: C.gravity, align: 'right', size: 15 });
+      d.tag(ctx, bx + 16, FLOOR_Y - W * K - 18, `바닥이 떠받치는 힘 ${nf(W)} N`, { color: C.normal, size: 15 });
+      netY = Math.min(netY, FLOOR_Y - W * K - 58);
+    }
+
+    // 모든 힘의 합력(점선)
+    const net = netAll(s);
+    if (s.showNet && (s.f1 || s.f2 || Math.abs(fr) > 0.05)) {
+      if (net === 0) d.tag(ctx, bx, netY, '모든 힘의 합력 0 N · 힘의 평형', { color: C.net, size: 16 });
+      else {
+        d.arrow(ctx, bx, netY, net * K, 0, { color: C.net, width: 4, dash: [9, 7] });
+        d.tag(ctx, bx + net * K / 2, netY - 22, `모든 힘의 합력 ${nf(net)} N`, { color: C.net, size: 15 });
+      }
+    }
+
+    // 속력계 · 축척 · 바닥 이름 · 멈춘 까닭
+    d.tag(ctx, 940, 30, `속력 ${Math.abs(sim.v).toFixed(2)} m/s ${dirTxt(sim.v)}`, { align: 'right', color: '#111', size: 18 });
+    d.text(ctx, 940, 64, `시간 ${sim.time.toFixed(1)} 초`, { align: 'right', size: 15, color: '#6b7280' });
+    ctx.save(); ctx.strokeStyle = '#374151'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(24, 30); ctx.lineTo(24 + 50 * K, 30); ctx.moveTo(24, 24); ctx.lineTo(24, 36); ctx.moveTo(24 + 50 * K, 24); ctx.lineTo(24 + 50 * K, 36); ctx.stroke(); ctx.restore();
+    d.text(ctx, 24 + 50 * K + 10, 36, '= 50 N (화살표 길이)', { size: 14, color: '#374151' });
+    d.text(ctx, 24, 588, FLOOR_NAME[s.floor], { size: 15, color: '#374151', weight: 700 });
+    if (sim.ended) d.tag(ctx, CX, 104, sim.ended, { size: 15, color: '#4b5563' });
+  },
+});
+
+// 당기는 힘 두 개의 그리기 정보(같은 쪽에 두 힘이 걸리면 위아래로 조금 띄운다)
+function forces(lab) {
+  const s = lab.state, cy = FLOOR_Y - BOX * s.n / 2, half = BOX / 2, bx = boxX();
+  const list = [{ k: 1, mag: s.f1, d: s.d1, name: '①' }, { k: 2, mag: s.f2, d: s.d2, name: '②' }].filter(f => f.mag > 0);
+  const same = list.length === 2 && s.d1 === s.d2;
+  return list.map(f => {
+    const off = same ? (f.k === 1 ? -16 : 16) : 0;
+    return { ...f, ax: bx + f.d * half, y: cy + off, below: off > 0 };
+  });
+}
+function handles(lab) {
+  const out = forces(lab).map(f => ({ k: f.k, x: f.ax + f.d * f.mag * K, y: f.y }));
+  const s = lab.state, cy = FLOOR_Y - BOX * s.n / 2, bx = boxX();
+  [1, 2].forEach(k => { if (!s['f' + k]) out.push({ k, zero: true, x: bx + s['d' + k] * (BOX / 2 + 22), y: cy + (k === 1 ? -22 : 22) }); });
+  return out;
+}
+
+function drawBoxes(ctx, x, n) {
+  for (let i = 0; i < n; i++) {
+    const y = FLOOR_Y - BOX * (i + 1);
+    ctx.save();
+    ctx.fillStyle = '#d9a066'; ctx.strokeStyle = '#8a5a2b'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.roundRect(x - BOX / 2, y, BOX, BOX, 6); ctx.fill(); ctx.stroke();
+    ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(138,90,43,.55)';
+    for (let k = 1; k < 4; k++) { ctx.beginPath(); ctx.moveTo(x - BOX / 2 + 4, y + BOX * k / 4); ctx.lineTo(x + BOX / 2 - 4, y + BOX * k / 4); ctx.stroke(); }
+    ctx.restore();
+  }
+}
+function drawFloor(ctx, s) {
+  const col = { ice: ['#e6f4fb', '#b9def0'], wood: ['#ecd3ad', '#c9a47a'], sand: ['#d8d4cc', '#a9a399'] }[s.floor];
+  ctx.fillStyle = col[0]; ctx.fillRect(0, FLOOR_Y, 960, 600 - FLOOR_Y);
+  ctx.fillStyle = col[1]; ctx.fillRect(0, FLOOR_Y, 960, 4);
+  if (s.floor === 'sand') {
+    ctx.fillStyle = 'rgba(90,85,78,.35)';
+    for (let i = 0; i < 260; i++) { const gx = ((i * 97.3 - sim.cam * PPM) % 960 + 960) % 960; ctx.fillRect(gx, FLOOR_Y + 8 + (i * 37 % 140), 2, 2); }
+  }
+  if (s.floor === 'wood') {
+    ctx.strokeStyle = 'rgba(138,90,43,.25)'; ctx.lineWidth = 2;
+    for (let yy = FLOOR_Y + 40; yy < 600; yy += 40) { ctx.beginPath(); ctx.moveTo(0, yy); ctx.lineTo(960, yy); ctx.stroke(); }
+  }
+  // 1 m 눈금(판 안쪽에 들어오는 것만)
+  const first = Math.floor(sim.cam - CX / PPM) - 1, last = Math.ceil(sim.cam + CX / PPM) + 1;
+  ctx.save(); ctx.strokeStyle = '#6b7280'; ctx.fillStyle = '#4b5563'; ctx.lineWidth = 2;
+  ctx.font = '600 14px Pretendard, sans-serif'; ctx.textAlign = 'center';
+  for (let m = first; m <= last; m++) {
+    const sx = CX + (m - sim.cam) * PPM;
+    if (sx < 22 || sx > 938) continue;
+    ctx.beginPath(); ctx.moveTo(sx, FLOOR_Y + 32); ctx.lineTo(sx, FLOOR_Y + 46); ctx.stroke();
+    ctx.fillText(`${m} m`, sx, FLOOR_Y + 63);
+  }
+  ctx.restore();
+}
+</script>
+</body>
+</html>

@@ -12,6 +12,11 @@ const PM = B + 'propertiesofmatter/';
 const SE = B + 'separationofmixture/';
 
 const SIMS = [
+  // ───────── CLICK SCIENCE 공통 틀로 만든 실험실(own: true → 카드에 NEW 표시)
+  { id:'force-balance', own:true, subject:'phys', unit:'힘의 작용', grade:'중1', tags:['sim'],
+    title:'합력과 힘의 평형', desc:'두 힘의 크기와 방향을 바꿔 합력을 만들고, 당겨도 꼼짝 않는 상자에서 힘의 평형과 마찰력을 찾습니다.',
+    url:B+'sim-lab/labs/force-balance/' },
+
   // ───────── 물리 · 빛과 파동
   { id:'lw01', subject:'phys', unit:'빛과 파동', grade:'중2', tags:['sim','game'],
     title:'빛의 반사와 굴절', desc:'레이저를 쏘아 반사·굴절 법칙을 찾고, 미로·포켓볼·물총고기로 써 봅니다.',
