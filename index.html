@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLICK SCIENCE · 클릭 사이언스</title>
+<meta name="description" content="눌러 보고 바꿔 보며 배우는 중학교 과학 시뮬레이션·가상 실험실 모음">
+<meta property="og:title" content="CLICK SCIENCE · 클릭 사이언스">
+<meta property="og:description" content="눌러 보고 바꿔 보며 배우는 과학 시뮬레이션 모음">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23155eef'/%3E%3Cpath d='M11 7l12 9-5.5 1.2 3.3 6.3-2.6 1.4-3.3-6.3L11 22z' fill='white'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg:#f6f7fb; --panel:#fff; --ink:#111827; --sub:#5b6474; --line:#e5e8ef; --soft:#eef1f7;
+  --brand:#155eef; --brand-ink:#fff;
+  --phys:#2563eb; --chem:#e8590c; --life:#16a34a; --earth:#7c3aed;
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 4px 14px rgba(16,24,40,.06);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#0d1117; --panel:#161b22; --ink:#e8ecf2; --sub:#9aa4b2; --line:#2a313c; --soft:#1d2430;
+  --brand:#4d8dff; --phys:#5b8cff; --chem:#ff8a3d; --life:#34c26b; --earth:#a47cff; --shadow:none;
+}}
+:root[data-theme="dark"]{
+  --bg:#0d1117; --panel:#161b22; --ink:#e8ecf2; --sub:#9aa4b2; --line:#2a313c; --soft:#1d2430;
+  --brand:#4d8dff; --phys:#5b8cff; --chem:#ff8a3d; --life:#34c26b; --earth:#a47cff; --shadow:none;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard Variable",Pretendard,system-ui,-apple-system,"Malgun Gothic",sans-serif;line-height:1.55;word-break:keep-all}
+a{color:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+
+/* 머리 */
+header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:16px;height:60px}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;font-weight:800;letter-spacing:.02em;font-size:19px;white-space:nowrap}
+.logo svg{width:30px;height:30px;flex:none}
+.logo b{color:var(--brand)}
+.search{flex:1;max-width:420px;margin-left:auto;position:relative}
+.search input{width:100%;height:40px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:0 16px 0 40px;font:inherit;font-size:15px}
+.search input:focus{outline:2px solid var(--brand);outline-offset:1px}
+.search svg{position:absolute;left:14px;top:11px;width:18px;height:18px;color:var(--sub)}
+.theme{border:1px solid var(--line);background:var(--panel);color:var(--sub);width:40px;height:40px;border-radius:999px;cursor:pointer;flex:none;display:grid;place-items:center}
+
+/* 첫 화면 */
+.hero{padding:44px 0 26px;display:grid;grid-template-columns:1.2fr 1fr;gap:32px;align-items:center}
+.hero h1{font-size:clamp(30px,4.6vw,50px);line-height:1.18;margin:0 0 14px;letter-spacing:-.02em;font-weight:800}
+.hero h1 em{font-style:normal;color:var(--brand)}
+.hero p{margin:0;color:var(--sub);font-size:17px;max-width:34em}
+.stats{display:flex;gap:26px;margin-top:22px}
+.stats div{font-size:13px;color:var(--sub)}
+.stats b{display:block;font-size:28px;color:var(--ink);font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}
+.subjects{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.subj{border:0;border-radius:18px;padding:18px;text-align:left;cursor:pointer;color:#fff;font:inherit;min-height:104px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .15s}
+.subj:hover{transform:translateY(-2px)}
+.subj strong{font-size:21px;font-weight:800}
+.subj span{font-size:13px;opacity:.9}
+.subj[data-s=phys]{background:var(--phys)} .subj[data-s=chem]{background:var(--chem)}
+.subj[data-s=life]{background:var(--life)} .subj[data-s=earth]{background:var(--earth)}
+
+/* 거르개 */
+.filters{position:sticky;top:60px;z-index:10;background:var(--bg);padding:12px 0;border-bottom:1px solid var(--line);margin-bottom:22px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row+.row{margin-top:8px}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:6px 14px;font:inherit;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.chip:hover{border-color:var(--sub)}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.row .lab{font-size:13px;color:var(--sub);margin-right:2px}
+select.unit{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;font-size:14px}
+.count{margin-left:auto;font-size:13px;color:var(--sub)}
+
+/* 카드 */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;padding-bottom:30px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;cursor:pointer;transition:transform .15s,box-shadow .15s;text-align:left;padding:0;font:inherit;color:inherit}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(16,24,40,.13)}
+.card:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.thumb{aspect-ratio:16/10;background:var(--soft);position:relative;overflow:hidden;border-bottom:4px solid var(--c)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .n{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.66);color:#fff;font-size:12px;padding:3px 9px;border-radius:999px;font-weight:600}
+.thumb .play{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transition:opacity .15s;background:rgba(0,0,0,.18)}
+.thumb .play span{width:56px;height:56px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+.card:hover .play{opacity:1}
+.body{padding:13px 15px 15px;display:flex;flex-direction:column;gap:6px;flex:1}
+.meta{font-size:12.5px;color:var(--c);font-weight:700}
+.meta span{color:var(--sub);font-weight:500}
+.body h3{margin:0;font-size:17px;line-height:1.35;font-weight:750}
+.body p{margin:0;font-size:13.5px;color:var(--sub);line-height:1.5}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
+.tag{font-size:11.5px;padding:2px 8px;border-radius:6px;background:var(--soft);color:var(--sub)}
+.empty{grid-column:1/-1;text-align:center;color:var(--sub);padding:60px 0}
+
+/* 여러 실험 목록 */
+dialog{border:0;border-radius:20px;padding:0;max-width:560px;width:calc(100% - 32px);background:var(--panel);color:var(--ink);box-shadow:0 24px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(10,14,20,.55)}
+.dhead{position:relative}
+.dhead img{width:100%;aspect-ratio:16/8;object-fit:cover;display:block;border-bottom:4px solid var(--c)}
+.dx{position:absolute;right:12px;top:12px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:20px;cursor:pointer}
+.dbody{padding:18px 20px 20px}
+.dbody h2{margin:4px 0 6px;font-size:22px}
+.dbody>p{margin:0 0 14px;color:var(--sub);font-size:14.5px}
+.plist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:46vh;overflow:auto}
+.plist a{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;text-decoration:none;font-size:14.5px;font-weight:600}
+.plist a:hover{border-color:var(--c);color:var(--c)}
+.plist a::after{content:"↗";color:var(--sub);font-weight:400}
+.open-main{display:block;margin-top:14px;text-align:center;background:var(--c);color:#fff;text-decoration:none;padding:12px;border-radius:12px;font-weight:700}
+
+/* 안내 */
+.guide{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:10px 0 40px}
+.guide div{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.guide h4{margin:0 0 6px;font-size:16px}
+.guide p{margin:0;font-size:14px;color:var(--sub)}
+h2.sec{font-size:22px;margin:10px 0 14px}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;padding-top:28px}
+  .guide{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .wrap{padding:0 16px}
+  .logo span.full{display:none}
+  .bar{gap:10px}
+  .filters{position:static}
+  .grid{grid-template-columns:1fr 1fr;gap:10px}
+  .body{padding:10px 11px 12px}
+  .body h3{font-size:15px}
+  .body p{display:none}
+  .plist{grid-template-columns:1fr}
+  .count{margin-left:0;width:100%}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap bar">
+    <a class="logo" href="./" aria-label="CLICK SCIENCE 처음으로">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--brand)"/><circle cx="12" cy="11" r="6.5" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.6"/><path d="M11 7l12 9-5.5 1.2 3.3 6.3-2.6 1.4-3.3-6.3L11 22z" fill="#fff"/></svg>
+      <span><b>CLICK</b> SCIENCE</span>
+    </a>
+    <label class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <input id="q" type="search" placeholder="렌즈, 압력, 달의 위상…" autocomplete="off">
+    </label>
+    <button class="theme" id="theme" title="밝게 / 어둡게" aria-label="밝게 또는 어둡게 보기">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <h1>눌러 보고, 바꿔 보고,<br><em>직접 확인하는</em> 과학</h1>
+      <p>슬라이더를 밀고 물체를 옮기면 결과가 바로 달라집니다. 교과서 그림 속 실험을 화면에서 여러 번 다시 해 보며 규칙을 스스로 찾아보세요.</p>
+      <div class="stats"><div><b id="nSim">0</b>시뮬레이션</div><div><b id="nPart">0</b>실험 화면</div><div><b id="nUnit">0</b>단원</div></div>
+    </div>
+    <div class="subjects" id="subjects"></div>
+  </section>
+
+  <div class="filters" id="filters">
+    <div class="row" id="subjRow"></div>
+    <div class="row" id="tagRow"><span class="lab">방식</span></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <h2 class="sec">이렇게 쓰면 좋아요</h2>
+  <section class="guide">
+    <div><h4>🔎 예상 먼저</h4><p>누르기 전에 결과를 한 줄 적어 두고, 시뮬로 확인하면 틀린 예상에서 더 많이 배웁니다.</p></div>
+    <div><h4>🎚️ 하나만 바꾸기</h4><p>슬라이더를 여러 개 한꺼번에 움직이지 말고, 한 가지만 바꾸며 무엇이 달라지는지 보세요.</p></div>
+    <div><h4>🧑‍🏫 선생님께</h4><p>카드 안 실험마다 주소가 따로 있어서 원하는 화면만 골라 학생에게 바로 보낼 수 있습니다. 태블릿·크롬북에서도 열립니다.</p></div>
+  </section>
+</main>
+
+<dialog id="dlg"></dialog>
+
+<script src="sims.js"></script>
+<script>
+const SUBJ = {
+  phys:{name:'물리', hint:'빛·소리·전기·자기'},
+  chem:{name:'화학', hint:'기체·입자·물질의 특성'},
+  life:{name:'생명', hint:'눈과 귀, 감각'},
+  earth:{name:'지구과학', hint:'태양계·별·암석'},
+};
+const TAGS = { sim:'시뮬레이션', game:'게임형', '3d':'3D', data:'표·그래프', mic:'마이크', cam:'카메라', sensor:'센서' };
+const state = { s:'all', t:new Set(), q:'' };
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const thumbOf = s => 'thumbs/' + s.id + '.jpg';
+const partsOf = s => s.parts || [];
+
+// 숫자
+$('nSim').textContent = SIMS.length;
+$('nPart').textContent = SIMS.reduce((a, s) => a + Math.max(1, partsOf(s).length), 0);
+$('nUnit').textContent = new Set(SIMS.map(s => s.unit)).size;
+
+// 과목 타일
+$('subjects').innerHTML = Object.entries(SUBJ).map(([k, v]) => {
+  const n = SIMS.filter(s => s.subject === k).length;
+  return `<button class="subj" data-s="${k}"><span>${v.hint}</span><strong>${v.name} <small style="font-weight:600;opacity:.8">${n}</small></strong></button>`;
+}).join('');
+$('subjects').onclick = e => { const b = e.target.closest('.subj'); if (!b) return; setSubj(b.dataset.s); $('filters').scrollIntoView({behavior:'smooth'}); };
+
+// 거르개
+$('subjRow').innerHTML = `<button class="chip" data-s="all">전체</button>` +
+  Object.entries(SUBJ).map(([k, v]) => `<button class="chip" data-s="${k}"><i style="background:var(--${k})"></i>${v.name}</button>`).join('') +
+  `<span class="count" id="count"></span>`;
+$('subjRow').onclick = e => { const b = e.target.closest('[data-s]'); if (b) setSubj(b.dataset.s); };
+$('tagRow').insertAdjacentHTML('beforeend', Object.entries(TAGS).map(([k, v]) => `<button class="chip" data-t="${k}" aria-pressed="false">${v}</button>`).join(''));
+$('tagRow').onclick = e => {
+  const b = e.target.closest('[data-t]'); if (!b) return;
+  const t = b.dataset.t; state.t.has(t) ? state.t.delete(t) : state.t.add(t);
+  render();
+};
+$('q').oninput = e => { state.q = e.target.value.trim().toLowerCase(); render(); };
+
+function setSubj(s) { state.s = s; render(); }
+
+function render() {
+  document.querySelectorAll('#subjRow [data-s]').forEach(b => b.setAttribute('aria-pressed', b.dataset.s === state.s));
+  document.querySelectorAll('#tagRow [data-t]').forEach(b => b.setAttribute('aria-pressed', state.t.has(b.dataset.t)));
+  const q = state.q;
+  const list = SIMS.filter(s =>
+    (state.s === 'all' || s.subject === state.s) &&
+    [...state.t].every(t => s.tags.includes(t)) &&
+    (!q || [s.title, s.desc, s.unit, s.grade, ...partsOf(s).map(p => p[0])].join(' ').toLowerCase().includes(q)));
+  $('count').textContent = `${list.length}개`;
+  $('grid').innerHTML = list.length ? list.map(card).join('') :
+    `<div class="empty">찾는 시뮬이 없습니다. 다른 낱말로 찾아보세요.</div>`;
+  const u = new URL(location); state.s === 'all' ? u.searchParams.delete('s') : u.searchParams.set('s', state.s);
+  history.replaceState(null, '', u);
+}
+
+function card(s) {
+  const n = partsOf(s).length;
+  return `<button class="card" style="--c:var(--${s.subject})" data-id="${s.id}">
+    <div class="thumb"><img src="${thumbOf(s)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
+      ${n > 1 ? `<span class="n">실험 ${n}개</span>` : ''}
+      <div class="play"><span><svg width="22" height="22" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#111"/></svg></span></div></div>
+    <div class="body">
+      <div class="meta">${SUBJ[s.subject].name} <span>· ${esc(s.unit)} · ${esc(s.grade)}</span></div>
+      <h3>${esc(s.title)}</h3>
+      <p>${esc(s.desc)}</p>
+      <div class="tags">${s.tags.map(t => `<span class="tag">${TAGS[t]}</span>`).join('')}</div>
+    </div></button>`;
+}
+
+$('grid').onclick = e => {
+  const c = e.target.closest('.card'); if (!c) return;
+  const s = SIMS.find(x => x.id === c.dataset.id);
+  if (partsOf(s).length > 1) openDlg(s); else window.open(s.url, '_blank', 'noopener');
+};
+
+function openDlg(s) {
+  const d = $('dlg');
+  d.style.setProperty('--c', `var(--${s.subject})`);
+  d.innerHTML = `<div class="dhead"><img src="${thumbOf(s)}" alt=""><button class="dx" aria-label="닫기">×</button></div>
+    <div class="dbody">
+      <div class="meta" style="color:var(--c);font-size:13px;font-weight:700">${SUBJ[s.subject].name} · ${esc(s.unit)} · ${esc(s.grade)}</div>
+      <h2>${esc(s.title)}</h2><p>${esc(s.desc)}</p>
+      <ul class="plist">${s.parts.map(p => `<li><a href="${esc(p[1])}" target="_blank" rel="noopener">${esc(p[0])}</a></li>`).join('')}</ul>
+      <a class="open-main" href="${esc(s.url)}" target="_blank" rel="noopener">처음부터 열기</a>
+    </div>`;
+  d.querySelector('.dx').onclick = () => d.close();
+  d.showModal();
+}
+$('dlg').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+
+// 밝게/어둡게
+try { const t = localStorage.getItem('cs-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+$('theme').onclick = () => {
+  const cur = document.documentElement.dataset.theme ||
+    (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('cs-theme', next); } catch (e) {}
+};
+
+state.s = new URLSearchParams(location.search).get('s') || 'all';
+if (state.s !== 'all' && !SUBJ[state.s]) state.s = 'all';
+render();
+</script>
+<footer id="app-credit" style="width:100%;box-sizing:border-box;margin:2.5rem 0 0;padding:14px 12px;text-align:center;font-size:12.5px;line-height:1.6;color:#8a8f98;font-family:system-ui,-apple-system,'Segoe UI','Malgun Gothic',sans-serif;border-top:1px solid rgba(128,128,128,.25);">제작 : 과학을 사랑하는 선생님 · © 2026 · All rights reserved<br><span style="font-size:11px;opacity:.85;">최종 업데이트: 2026-09-25</span></footer>
+</body>
+</html>
