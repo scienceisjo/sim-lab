@@ -28,6 +28,12 @@ const flags = { played: false, dragged1: false, f80: false, f20: false, eq: fals
 // 힘을 바꾸면 늘 멈춘 상자에서 다시 시작한다(움직이는 중에 힘이 바뀌는 장면은 「알짜힘」 실험실 몫)
 function changed(lab) { if (sim.time > 0 || lab.running) { lab.setRunning(false); restart(lab, true); } }
 let noteEl = null;
+let forceRecords;
+function resetEvidence() { Object.assign(flags, { played:false, dragged1:false, f80:false, f20:false, eq:false, eqT:0, armed:null, comb:false, combT:0 }); }
+function sensorPair(lab, fresh = false) {
+  const s = lab.state;
+  return [lab.measure('force1', s.f1, {amplitude:0.2,fresh}), lab.measure('force2', s.f2, {amplitude:0.2,fresh})];
+}
 
 const netF = s => s.f1 * s.d1 + s.f2 * s.d2;
 const dirTxt = v => v > 0 ? '→' : v < 0 ? '←' : '';
@@ -51,9 +57,27 @@ function syncM3() {
 }
 
 Lab.init({
-  id: 'force-balance', version: 2, title: '힘의 표현과 평형', subject: 'phys', unit: '힘의 작용', grade: '중1', updated: '2026-09-26',
+  id: 'force-balance', version: 3, title: '힘의 표현과 평형', subject: 'phys', unit: '힘의 작용', grade: '중1', updated: '2026-09-27',
   board: { w: 960, h: 600 },
   state: { f1: 40, d1: 1, f2: 20, d2: -1, showNet: true, show3: true, showGhost: false, showSpeed: false },
+  assumptions: [
+    '상자는 5 kg이며, 바닥의 마찰력과 공기 저항은 없다고 가정합니다.',
+    '가로로 나란하게 작용하는 힘만 살펴봅니다. 위아래 힘은 평형이며 그림에서 생략했습니다.',
+    '같은 방향의 두 줄은 구별하려고 조금 벌려 그렸지만, 같은 직선 위의 힘으로 계산하여 회전을 다루지 않습니다.',
+    '학습 모드의 센서값에만 최대 0.2 N씩 작은 흔들림을 넣습니다. 화살표와 운동 계산은 설정값을 사용합니다.',
+    '힘을 바꾸면 멈춘 상자에서 다시 시작합니다. 너무 빠르거나 멀리 가면 관찰하기 좋게 재생을 멈춥니다.'
+  ],
+  quiz: [
+    {kind:'진단',question:'같은 직선 위에서 양쪽으로 30 N씩 당기는 상자가 멈춰 있습니다. 가로 방향 힘은 어떤 상태인가요?',
+      options:['두 힘이 사라졌습니다.','두 힘이 작용하면서 합력은 0 N입니다.','오른쪽 힘만 작용합니다.','합력 60 N이 오른쪽으로 작용합니다.'],answer:1,
+      feedback:['멈춰 있어도 양쪽에서 당기는 힘은 계속 작용합니다.','크기가 같고 방향이 반대라 합력이 0 N입니다.','왼쪽에서 당기는 힘도 함께 작용합니다.','반대 방향 힘은 크기를 더하지 않고 비교합니다.']},
+    {kind:'적용',question:'오른쪽 70 N과 왼쪽 20 N의 합력은 무엇인가요?',
+      options:['오른쪽 90 N입니다.','왼쪽 50 N입니다.','오른쪽 50 N입니다.','합력은 0 N입니다.'],answer:2,
+      feedback:['두 힘의 방향이 반대이므로 더하지 않습니다.','합력은 더 큰 힘인 오른쪽을 향합니다.','70에서 20을 빼면 50이며 큰 힘 쪽인 오른쪽을 향합니다.','방향이 반대여도 크기가 다르면 합력이 0이 아닙니다.']},
+    {kind:'새 상황',question:'두 사람이 같은 상자를 같은 방향으로 동시에 20 N씩 당깁니다. 두 힘과 같은 효과를 내는 힘 하나는 무엇인가요?',
+      options:['같은 방향의 40 N입니다.','반대 방향의 40 N입니다.','같은 방향의 20 N입니다.','힘이 필요하지 않습니다.'],answer:0,
+      feedback:['같은 방향의 두 힘은 더합니다. 이 합력을 원래 두 힘에 추가하는 것은 아닙니다.','합력의 방향은 두 힘의 방향과 같습니다.','두 힘을 모두 더해야 같은 효과를 냅니다.','같은 방향의 두 힘은 서로 상쇄되지 않습니다.']}
+  ],
   teacher: `
     <h4>이 실험실이 맡는 개념 (1. 힘의 표현과 평형)</h4>
     <ul><li>힘의 3요소(작용점·방향·크기)와 화살표 표현</li><li>나란한 두 힘의 합력: 같은 방향은 더하고, 반대 방향은 큰 힘에서 작은 힘을 빼며 방향은 큰 힘 쪽</li>
@@ -66,7 +90,9 @@ Lab.init({
     <p>중력 → 탄성력 → 마찰력(물체 올리기·최대 정지 마찰력 그래프) → 부력 → 알짜힘. 힘을 바꾸면 상자는 늘 멈춘 자리에서 다시 시작하므로, 움직이는 물체의 운동 상태 변화는 「알짜힘」 실험실에서 다룹니다.</p>
     <h4>수업에서</h4>
     <ul><li>화살표 끝을 손가락으로 끌어 힘을 바꿀 수 있어 전자칠판 시연에 좋습니다. 크기가 0인 힘은 상자 옆의 ＋ 손잡이를 끌어 되살립니다.</li>
-    <li>미션 없이 쓰려면 주소 끝에 <b>?missions=off</b>를 붙입니다. 공용 기기라면 미션 칸의 「다시 하기」로 진행을 지웁니다.</li></ul>
+    <li>모형 모드는 <b>?mode=model</b>, 학습 모드는 <b>?mode=learn</b>으로 엽니다. 머리글에서도 바꿀 수 있습니다.</li>
+    <li>힘 ①·② 센서에는 각각 ±0.2 N의 흔들림을 넣습니다. 측정 합력은 두 측정값에 방향 부호를 붙여 더합니다. 운동·화살표·평형 판정에는 설정값을 씁니다.</li>
+    <li>학습 모드에는 기존 6미션과 변인 고르기 미션, 확인 문제 3개가 있습니다. 「다시 하기」로 미션·기록·확인 문제를 함께 지웁니다.</li></ul>
     <h4>다루지 않는 것</h4>
     <p>나란하지 않은 두 힘의 합성과 회전(p.157 설명 지양), 가속도와 F = ma, 관성이라는 이름.</p>`,
   missions: [
@@ -74,7 +100,7 @@ Lab.init({
       text: '두 힘의 크기와 방향을 마음대로 바꾸고 <b>▶ 재생</b>해 보세요. 실험판의 빨간 화살표 끝을 끌어도 됩니다.',
       check: (s, lab) => lab.touches >= 3 && flags.played, ok: '좋아요. 이제 하나씩 해 봐요.' },
     { kind: '해 보기', title: '화살표로 힘 나타내기',
-      text: '실험판에서 힘 ①의 화살표 끝을 끌어 <b>왼쪽으로 60 N</b>이 되게 만들어 보세요. 화살표의 시작점, 방향, 길이가 무엇을 나타내는지 살펴보세요.',
+      text: '힘 ①을 <b>왼쪽으로 60 N</b>이 되게 만들어 보세요. 화살표 끝을 끌거나, 조작 패널의 크기와 방향을 키보드로 바꿀 수 있습니다. 시작점, 방향, 길이를 살펴보세요.',
       enter: lab => setMission(lab, { f1: 40, d1: 1, f2: 0, show3: true }),
       check: s => flags.dragged1 && s.f1 === 60 && s.d1 === -1,
       ok: '화살표의 시작점은 힘의 작용점, 화살표의 방향은 힘의 방향, 화살표의 길이는 힘의 크기를 나타내요. 이 세 가지를 힘의 3요소라고 합니다.' },
@@ -103,42 +129,66 @@ Lab.init({
     { kind: '찾아내기', title: '합력과 힘의 평형 정리하기', text: '실험한 결과로 문장을 완성해 보세요.',
       sentence: '같은 방향으로 작용하는 두 힘의 합력은 두 힘을 {빼서|더해서} 구하고, 반대 방향으로 작용하는 두 힘의 합력의 방향은 {작은|큰} 힘의 방향입니다. 두 힘이 평형을 이루려면 크기가 {다르고|같고}, 방향이 {반대여야|같아야} 합니다.',
       blanks: [1, 1, 1, 0], ok: '잘 정리했어요! 다음은 「여러 가지 힘」에서 중력부터 차례로 만나요.' },
+    { kind:'변인 고르기', title:'힘 ①의 크기만 바꾸어 비교하기',
+      text:'힘 ①의 크기에 따라 합력이 어떻게 달라지는지 살펴봅니다. 바꿀 것, 그대로 둘 것, 잴 것을 고른 뒤 서로 다른 크기로 두 번 이상 기록하세요. 기록은 멈춘 상자에서 남깁니다.',
+      variables:{options:[['f1','힘 ①의 설정 크기'],['f2','힘 ②의 설정 크기'],['directions','두 힘의 방향'],['net','센서값으로 구한 합력']],change:'f1',keep:['f2','directions'],measure:'net',recordId:'forces'},
+      ok:'힘 ②의 크기와 두 힘의 방향을 같게 두고, 힘 ①의 크기만 바꾼 기록이 모였습니다.' },
   ],
 
   setup(lab) {
     const ui = lab.ui;
     ui.group('힘 ① (당기는 힘)', C.push);
-    ui.slider({ key: 'f1', label: '크기', min: 0, max: 100, step: 10, unit: 'N', onChange: (v, l) => changed(l) });
-    ui.choice({ key: 'd1', options: [[-1, '← 왼쪽'], [1, '오른쪽 →']], onChange: (v, l) => changed(l) });
+    const changedOne = (v,l) => { changed(l); if(l.mode==='learn' && l.mi===1)flags.dragged1=true; };
+    ui.slider({ key: 'f1', label: '힘 ① 크기', min: 0, max: 100, step: 10, unit: 'N', onChange: changedOne });
+    ui.choice({ key: 'd1', label:'힘 ① 방향', options: [[-1, '← 왼쪽'], [1, '오른쪽 →']], onChange: changedOne });
     ui.group('힘 ② (당기는 힘)', C.push);
-    ui.slider({ key: 'f2', label: '크기', min: 0, max: 100, step: 10, unit: 'N', onChange: (v, l) => changed(l) });
-    ui.choice({ key: 'd2', options: [[-1, '← 왼쪽'], [1, '오른쪽 →']], onChange: (v, l) => changed(l) });
+    ui.slider({ key: 'f2', label: '힘 ② 크기', min: 0, max: 100, step: 10, unit: 'N', onChange: (v, l) => changed(l) });
+    ui.choice({ key: 'd2', label:'힘 ② 방향', options: [[-1, '← 왼쪽'], [1, '오른쪽 →']], onChange: (v, l) => changed(l) });
     ui.button({ label: '합력으로 바꾸기', onClick: l => {
       const s = l.state, F = netF(s);
-      if (!s.f1 && !s.f2) { noteEl.textContent = '지금은 상자에 작용하는 힘이 없어요.'; return; }
+      if (!s.f1 && !s.f2) { noteEl.textContent = '지금은 가로로 당기는 힘이 없어요.'; return; }
       if (!s.f1 || !s.f2) { noteEl.textContent = '이미 힘이 하나예요. 두 힘을 모두 걸고 눌러 보세요.'; return; }
       if (F === 0) { noteEl.textContent = '두 힘의 합력이 0 N이라 하나로 바꿀 힘이 없어요. 두 힘은 여전히 작용하고 있어요.'; return; }
       if (Math.abs(F) > 100) { noteEl.textContent = `합력 ${Math.abs(F)} N은 힘 ① 막대의 끝(100 N)보다 커서 이 실험판에서는 바꿀 수 없어요. 두 힘을 조금 줄여 보세요.`; return; }
       const had = sim.ghosts.length;
-      flags.armed = had >= 1 ? F : null;   // 두 힘으로 재생한 자국이 있어야 견줄 수 있다
+      flags.armed = l.mode === 'learn' && l.mi === 3 && had >= 1 ? F : null;
       sim.prev = sim.ghosts.slice();
       s.f1 = Math.abs(F); s.d1 = F < 0 ? -1 : 1; s.f2 = 0;
       l.setRunning(false); restart(l, true);
       if (!s.showGhost) s.showGhost = true;
       noteEl.textContent = had ? '두 힘을 같은 효과를 내는 힘 하나로 바꿨어요. ▶ 재생해서 회색 자국(바꾸기 전)과 견주어 보세요.'
+        : l.mode==='model' ? '두 힘을 같은 효과를 내는 힘 하나로 바꿨어요. ▶ 재생하여 움직임을 살펴보세요.'
         : '두 힘을 힘 하나로 바꿨어요. 견줄 자국이 없으니, 미션 4의 「이 상황으로 실험판 맞추기」로 두 힘으로 돌아가 ▶ 재생한 뒤 다시 바꿔 보세요.';
     } });
     noteEl = ui.note('');
 
     ui.group('측정값');
-    ui.readout({ label: '두 힘의 합력', get: s => { const F = netF(s); return F === 0 && s.f1 && s.f2 ? '0 N <small>(힘의 평형)</small>' : fmtF(F); } });
+    ui.readout({ label: '합력(모형값)', get: s => { const F = netF(s); return F === 0 && s.f1 && s.f2 ? '0 N <small>(힘의 평형)</small>' : fmtF(F); } });
     ui.readout({ label: '상자', get: s => sim.v === 0 ? '멈춰 있음' : (s.showSpeed ? `${Math.abs(sim.v).toFixed(2)} m/s ${dirTxt(sim.v)}` : `${dirTxt(sim.v)} 쪽으로 움직이는 중`) });
+    ui.readout({label:'실험 안내',get:()=>sim.ended,hide:()=>!sim.ended});
 
-    ui.group('보기');
+    ui.learnOnly(ui.group('보기'));
     ui.toggle({ key: 'show3', label: '힘의 3요소 이름표' });
     ui.toggle({ key: 'showNet', label: '합력 화살표' });
     ui.toggle({ key: 'showGhost', label: '0.5초마다 자국 남기기' });
     ui.toggle({ key: 'showSpeed', label: '속력 숫자' });
+    ui.note('합력 점선은 두 힘과 같은 효과를 뜻합니다. 세 번째 힘이 아닙니다. 0.5초 자국은 같은 시간에 찍힌 위치이며, 회전과 마찰은 다루지 않습니다.');
+
+    ui.learnOnly(ui.group('센서로 여러 번 재기'));
+    ui.readout({label:'센서 ①',get:(s,l)=>sensorPair(l)[0].toFixed(2)+' N'});
+    ui.readout({label:'센서 ②',get:(s,l)=>sensorPair(l)[1].toFixed(2)+' N'});
+    ui.note('센서는 각각 최대 ±0.2 N 흔들립니다. 합력은 오른쪽을 +, 왼쪽을 −로 더합니다. 흔들림을 넣은 측정값과 모형값을 구별해 보세요.');
+    forceRecords=ui.records({id:'forces',version:1,columns:[
+      {key:'f1',label:'① 설정(N)',numeric:true,digits:0},{key:'f2',label:'② 설정(N)',numeric:true,digits:0},
+      {key:'directions',label:'①/② 방향',format:v=>v.split(',').map(d=>d==='1'?'→':'←').join(' / ')},
+      {key:'a',label:'① 측정(N)',numeric:true},{key:'b',label:'② 측정(N)',numeric:true},{key:'net',label:'합력 측정(N, 오른쪽 +)',numeric:true}],
+      conditions:['f1','f2','directions'],measure:'net',x:'f1',y:'net',
+      validate:r=>[r.f1,r.f2].every(v=>v>=0 && v<=100 && v%10===0) && ['1,1','1,-1','-1,1','-1,-1'].includes(r.directions) && Math.abs(r.a-r.f1)<=0.200001 && Math.abs(r.b-r.f2)<=0.200001});
+    ui.button({label:'현재 조건에서 측정·기록',onClick:l=>{
+      if(l.running || sim.time>0){noteEl.textContent='↺ 처음부터로 멈춘 상자에 맞춘 뒤 기록하세요.';return;}
+      const s=l.state,[a,b]=sensorPair(l,true);
+      forceRecords.add({f1:s.f1,f2:s.f2,directions:s.d1+','+s.d2,a:+a.toFixed(2),b:+b.toFixed(2),net:+((+a.toFixed(2))*s.d1+(+b.toFixed(2))*s.d2).toFixed(2)});
+    }});
 
     restart(lab);
     syncM3();
@@ -146,12 +196,14 @@ Lab.init({
   },
 
   onPlay(lab) {
-    flags.played = true;
+    if(lab.mode==='learn' && lab.mi===0) flags.played = true;
     if (sim.ended) restart(lab, true);
   },
   rewind(lab) { restart(lab, true); if (noteEl) noteEl.textContent = ''; },
   reset(lab) { restart(lab); flags.armed = null; if (noteEl) noteEl.textContent = ''; },
-  onMissionsReset() { Object.assign(flags, { played: false, dragged1: false, f80: false, f20: false, eq: false, armed: null, comb: false }); syncM3(); },
+  onMissionsReset(lab) { resetEvidence(); lab.setRunning(false); restart(lab); syncM3(); },
+  onModeChange(lab) { resetEvidence(); restart(lab); },
+  onMissionSelect() { flags.eqT=flags.combT=0; },
 
   step(dt, lab) {
     const s = lab.state;
@@ -171,8 +223,8 @@ Lab.init({
         sim.nextGhost += 0.5;
       }
       // 미션 판정용 누적 시간
-      flags.eqT = s.f1 > 0 && s.f2 > 0 && F === 0 && sim.v === 0 ? flags.eqT + DT : 0;
-      flags.combT = flags.armed != null && s.f2 === 0 && s.f1 * s.d1 === flags.armed ? flags.combT + DT : 0;
+      flags.eqT = lab.mode==='learn' && lab.mi===4 && s.f1 > 0 && s.f2 > 0 && F === 0 && sim.v === 0 ? flags.eqT + DT : 0;
+      flags.combT = lab.mode==='learn' && lab.mi===3 && flags.armed != null && s.f2 === 0 && s.f1 * s.d1 === flags.armed ? flags.combT + DT : 0;
       const mi = window.lab.mi;
       if (flags.eqT >= 1 && mi === 4) flags.eq = true;
       if (flags.combT >= 1.5 && mi === 3 && window.lab.prediction != null) flags.comb = true;
@@ -182,10 +234,12 @@ Lab.init({
       else if (Math.abs(sim.x) >= LIM.x) sim.ended = '상자가 20 m를 가서 재생을 멈췄어요.' + again;
       else if (Math.abs(sim.v) >= LIM.v) sim.ended = '상자가 너무 빨라져서 재생을 멈췄어요.' + again;
     }
-    // 카메라: 상자가 화면 가운데 부분(300~660 px)을 벗어날 때만 따라간다
+    // 화살표 축척은 유지하고, 가장 긴 힘도 판 안에 남도록 카메라 범위를 줄인다.
     const bx = boxX();
-    if (bx > 660) sim.cam = sim.x - (660 - CX) / PPM;
-    if (bx < 300) sim.cam = sim.x - (300 - CX) / PPM;
+    const extent = dir => Math.max(0, ...[1,2].map(k=>s['d'+k]===dir ? 60+s['f'+k]*K+100 : 0), Math.max(0,netF(s)*dir)*K+20);
+    const lo=Math.max(300,extent(-1)), hi=Math.min(660,960-extent(1));
+    if (bx > hi) sim.cam = sim.x - (hi - CX) / PPM;
+    if (bx < lo) sim.cam = sim.x - (lo - CX) / PPM;
     lab.t = sim.time;
     if (sim.ended) lab.setRunning(false);
     lab.update();
@@ -214,10 +268,10 @@ Lab.init({
   draw(ctx, lab) {
     const s = lab.state, d = lab.draw, bx = boxX();
     const top = FLOOR_Y - BOX;
-    drawFloor(ctx);
+    drawFloor(ctx, lab);
 
     // 자국: 같은 시간 간격의 위치(바닥 위 세모, 회색은 바꾸기 전)
-    if (s.showGhost) {
+    if (lab.modelVisible && s.showGhost) {
       const mark = (gx, col, y0) => {
         const sx = CX + (gx - sim.cam) * PPM;
         if (sx < 8 || sx > 952) return;
@@ -237,13 +291,14 @@ Lab.init({
     forces(lab).forEach(f => {
       ctx.save(); ctx.strokeStyle = '#9a7b55'; ctx.lineWidth = 3;
       ctx.beginPath(); ctx.moveTo(f.ax, f.y); ctx.lineTo(f.d > 0 ? 960 : 0, f.y); ctx.stroke(); ctx.restore();
+      if (!lab.modelVisible) return;
       const len = f.mag * K;
       d.arrow(ctx, f.ax, f.y, f.d * len, 0, { color: C.push });
       const lx = len >= 96 ? f.ax + f.d * len / 2 : f.ax + f.d * (len + 46);
-      const ly = len >= 96 ? f.y + (f.below ? 22 : -22) : f.y;
-      d.tag(ctx, lx, ly, `${f.name} ${f.mag} N`, { color: C.push });
+      const ly = lab.px < .5 ? f.y + (f.below ? 45 : -45) : len >= 96 ? f.y + (f.below ? 22 : -22) : f.y;
+      d.tag(ctx, lx, ly, `${f.name} ${f.mag} N`, { color: C.push, size:lab.fs(17) });
       // 힘의 3요소 이름표(힘 ① 에만): 줄 A = 작용점·방향, 줄 B = 길이(크기) 괄호
-      if (s.show3 && f.k === 1) {
+      if (s.show3 && f.k === 1 && lab.px >= 0.5) {
         const sg = f.below ? 1 : -1, rowA = f.y + sg * 50, rowB = f.y + sg * 82;
         const gray = '#475569', al = f.d > 0 ? 'left' : 'right', z = lab.fs(13);
         const tipX = f.ax + f.d * len, labX = f.ax + f.d * 24, dirX = f.ax + f.d * Math.max(len + 12, 100);
@@ -261,7 +316,7 @@ Lab.init({
       }
     });
     // 크기 0인 힘의 ＋ 손잡이
-    handles(lab).filter(t => t.zero).forEach(t => {
+    handles(lab).filter(t => t.zero && lab.modelVisible).forEach(t => {
       ctx.save(); ctx.strokeStyle = C.push; ctx.setLineDash([3, 3]); ctx.lineWidth = 2; ctx.fillStyle = '#fff';
       ctx.beginPath(); ctx.arc(t.x, t.y, 11, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.restore();
       d.text(ctx, t.x, t.y + 1, '+', { align: 'center', base: 'middle', size: 18, weight: 800, color: C.push });
@@ -269,25 +324,28 @@ Lab.init({
 
     // 합력(점선): 두 힘이 모두 있을 때만. 상자 윗면에서 이어지는 점선으로 이 상자의 합력임을 보인다
     const F = netF(s), ny = top - 70;
-    if (s.showNet && s.f1 && s.f2) {
+    if (lab.modelVisible && s.showNet && s.f1 && s.f2) {
       ctx.save(); ctx.strokeStyle = 'rgba(17,24,39,.35)'; ctx.lineWidth = 1.5; ctx.setLineDash([2, 4]);
       ctx.beginPath(); ctx.moveTo(bx, top); ctx.lineTo(bx, ny + 8); ctx.stroke(); ctx.restore();
-      if (F === 0) d.tag(ctx, bx, ny, '합력 0 N · 힘의 평형', { color: C.net, size: 16 });
+      if (F === 0) d.tag(ctx, bx, ny, '합력 0 N · 힘의 평형', { color: C.net, size: lab.fs(16) });
       else {
         d.arrow(ctx, bx, ny, F * K, 0, { color: C.net, width: 4, dash: [9, 7], dot: false });
-        d.tag(ctx, bx + F * K / 2, ny - 22, `합력 ${nf(F)} N`, { color: C.net, size: 15 });
+        d.tag(ctx, bx + F * K / 2, ny - (lab.px<.5?38:22), `합력 ${nf(F)} N`, { color: C.net, size: lab.fs(15) });
       }
     }
 
     // 상자 상태 · 축척 · 바닥 이름 · 멈춘 까닭
     const stateTxt = sim.v === 0 ? '멈춰 있음' : (s.showSpeed ? `속력 ${Math.abs(sim.v).toFixed(2)} m/s ${dirTxt(sim.v)}` : `${dirTxt(sim.v)} 쪽으로 움직이는 중`);
-    d.tag(ctx, 940, 30, stateTxt, { align: 'right', color: '#111', size: 18 });
+    d.tag(ctx, 940, 30, stateTxt, { align: 'right', color: '#111', size: lab.fs(18) });
     if (s.showSpeed) d.text(ctx, 940, 64, `시간 ${sim.time.toFixed(1)} 초`, { align: 'right', size: lab.fs(15), color: '#6b7280' });
+    if (lab.modelVisible) {
     ctx.save(); ctx.strokeStyle = '#374151'; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.moveTo(24, 30); ctx.lineTo(24 + 50 * K, 30); ctx.moveTo(24, 24); ctx.lineTo(24, 36); ctx.moveTo(24 + 50 * K, 24); ctx.lineTo(24 + 50 * K, 36); ctx.stroke(); ctx.restore();
     d.text(ctx, 24 + 50 * K + 10, 36, '= 50 N (화살표 길이)', { size: lab.fs(14), color: '#374151' });
+    if (s.show3 && lab.px < 0.5) d.text(ctx,24,92,'시작점 = 작용점 · 방향 = 힘의 방향 · 길이 = 크기',{size:lab.fs(13)});
+    }
     d.text(ctx, 24, 588, '매끄러운 바닥(마찰력이 없다고 가정)', { size: lab.fs(15), color: '#374151', weight: 700 });
-    if (sim.ended) d.tag(ctx, CX, 104, sim.ended, { size: 15, color: '#4b5563' });
+    if (sim.ended && lab.px>=.5) d.tag(ctx, CX, 104, sim.ended, { size: 15, color: '#4b5563' });
   },
 });
 
@@ -316,17 +374,18 @@ function drawBox(ctx, x) {
   for (let k = 1; k < 4; k++) { ctx.beginPath(); ctx.moveTo(x - BOX / 2 + 4, y + BOX * k / 4); ctx.lineTo(x + BOX / 2 - 4, y + BOX * k / 4); ctx.stroke(); }
   ctx.restore();
 }
-function drawFloor(ctx) {
+function drawFloor(ctx, lab) {
   ctx.fillStyle = '#eef3f8'; ctx.fillRect(0, FLOOR_Y, 960, 600 - FLOOR_Y);
   ctx.fillStyle = '#c5d3e2'; ctx.fillRect(0, FLOOR_Y, 960, 4);
   const first = Math.floor(sim.cam - CX / PPM) - 1, last = Math.ceil(sim.cam + CX / PPM) + 1;
   ctx.save(); ctx.strokeStyle = '#6b7280'; ctx.fillStyle = '#4b5563'; ctx.lineWidth = 2;
-  ctx.font = '600 14px Pretendard, sans-serif'; ctx.textAlign = 'center';
+  ctx.font = `600 ${lab.fs(14)}px Pretendard, sans-serif`; ctx.textAlign = 'center';
   for (let m = first; m <= last; m++) {
     const sx = CX + (m - sim.cam) * PPM;
     if (sx < 22 || sx > 938) continue;
     ctx.beginPath(); ctx.moveTo(sx, FLOOR_Y + 32); ctx.lineTo(sx, FLOOR_Y + 46); ctx.stroke();
-    ctx.fillText(`${m} m`, sx, FLOOR_Y + 63);
+    const label=`${m} m`, half=ctx.measureText(label).width/2;
+    if ((lab.px>=.5 || m%2===0) && sx-half>=12 && sx+half<=948) ctx.fillText(label, sx, FLOOR_Y + 63);
   }
   ctx.restore();
 }

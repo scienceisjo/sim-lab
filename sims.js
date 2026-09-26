@@ -13,10 +13,10 @@ const SE = B + 'separationofmixture/';
 
 const SIMS = [
   // ───────── CLICK SCIENCE 공통 틀로 만든 실험실(own: true → 카드에 NEW 표시)
-  { id:'force-balance', own:true, subject:'phys', unit:'힘의 작용', grade:'중1', tags:['sim'],
+  { id:'force-balance', own:true, version:3, missions:7, subject:'phys', unit:'힘의 작용', grade:'중1', tags:['sim','data'],
     title:'힘의 표현과 평형', desc:'힘을 화살표로 나타내고, 두 힘의 합력을 만든 뒤 당겨도 꼼짝 않는 상자에서 힘의 평형을 찾습니다.',
     url:B+'sim-lab/labs/force-balance/' },
-  { id:'friction', own:true, subject:'phys', unit:'힘의 작용', grade:'중1', tags:['sim','data'],
+  { id:'friction', own:true, version:3, missions:7, subject:'phys', unit:'힘의 작용', grade:'중1', tags:['sim','data'],
     title:'마찰력', desc:'접촉면을 바꾸고 나무 도막 위에 추를 올려 움직이기 시작하게 하는 힘을 재고, 힘 센서 그래프에서 봉우리를 찾습니다.',
     url:B+'sim-lab/labs/friction/' },
 

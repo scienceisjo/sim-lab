@@ -112,6 +112,18 @@ dialog::backdrop{background:rgba(10,14,20,.55)}
 .guide h4{margin:0 0 6px;font-size:16px}
 .guide p{margin:0;font-size:14px;color:var(--sub)}
 h2.sec{font-size:22px;margin:10px 0 14px}
+.path{margin:0 0 28px;padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:16px}
+.path h2{font-size:21px;margin:0 0 8px}.path p{font-size:14px;color:var(--sub);margin:0 0 14px}
+.path ol{padding:0;margin:0;list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.path li{padding:12px;border:1px solid var(--line);border-radius:10px;min-width:0}
+.path li strong{display:block;font-size:15px}.path .pending{color:var(--sub)}
+.progress-dots{display:flex;gap:5px;align-items:center;margin-top:10px;font-size:12px;color:var(--sub)}
+.progress-dots i{display:inline-block;width:9px;height:9px;border-radius:50%;border:1px solid var(--sub)}
+.progress-dots i.done{background:#168348;border-color:#168348}
+.mode-actions{display:flex;gap:8px;padding:0 14px 14px}.mode-actions a,.path a{display:inline-block;text-decoration:none;border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-size:13px;background:var(--soft);margin-top:6px}
+.mode-actions a:last-child{background:var(--brand);color:white;border-color:var(--brand)}
+.body h3 a{text-decoration:none}.body .progress-dots{margin-top:3px}
+@media(max-width:760px){.path ol{grid-template-columns:1fr 1fr}.mode-actions{gap:5px;padding:0 8px 10px}.mode-actions a{font-size:12px;padding:5px 8px}.path{padding:14px}}
 
 @media (max-width:860px){
   .hero{grid-template-columns:1fr;padding-top:28px}
@@ -158,6 +170,7 @@ h2.sec{font-size:22px;margin:10px 0 14px}
     <div class="subjects" id="subjects"></div>
   </section>
 
+  <section class="path" id="inquiryPath" aria-label="단원별 탐구 경로"></section>
   <div class="filters" id="filters">
     <div class="row" id="subjRow"></div>
     <div class="row" id="tagRow"><span class="lab">방식</span></div>
@@ -234,23 +247,43 @@ function render() {
 
 function card(s) {
   const n = partsOf(s).length;
-  return `<button class="card" style="--c:var(--${s.subject})" data-id="${s.id}">
+  const tag=s.own?'article':'button';
+  return `<${tag} class="card" style="--c:var(--${s.subject})" data-id="${s.id}">
     <div class="thumb"><img src="${thumbOf(s)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
       ${n > 1 ? `<span class="n">실험 ${n}개</span>` : ''}
       ${s.own ? '<span class="own">NEW · 클릭 실험실</span>' : ''}
       <div class="play"><span><svg width="22" height="22" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#111"/></svg></span></div></div>
     <div class="body">
       <div class="meta">${SUBJ[s.subject].name} <span>· ${esc(s.unit)} · ${esc(s.grade)}</span></div>
-      <h3>${esc(s.title)}</h3>
+      <h3>${s.own?`<a href="labs/${s.id}/">${esc(s.title)}</a>`:esc(s.title)}</h3>
       <p>${esc(s.desc)}</p>
       <div class="tags">${s.tags.map(t => `<span class="tag">${TAGS[t]}</span>`).join('')}</div>
-    </div></button>`;
+      ${s.own?progressDots(s):''}
+    </div>${s.own?`<div class="mode-actions"><a href="labs/${s.id}/?mode=model" aria-label="${esc(s.title)} 모형 모드">모형</a><a href="labs/${s.id}/?mode=learn" aria-label="${esc(s.title)} 학습 모드">학습</a></div>`:''}</${tag}>`;
 }
 
+function progressDots(s){
+  let done=[];try{const v=JSON.parse(localStorage.getItem(`cs-lab-${s.id}-v${s.version}`));if(Array.isArray(v))done=v;}catch(e){}
+  const count=Array.from({length:s.missions||0},(_,i)=>!!done[i]).filter(Boolean).length;
+  return `<div class="progress-dots" aria-label="미션 ${s.missions}개 중 ${count}개 완료">${Array.from({length:s.missions||0},(_,i)=>`<i aria-hidden="true" class="${done[i]?'done':''}"></i>`).join('')}<span>${count}/${s.missions}</span></div>`;
+}
+function renderPath(){
+  const route=[['force-balance','힘의 표현과 평형','157–161'],['gravity','중력','164–165'],['elasticity','탄성력','166–169'],['friction','마찰력','170–171'],['buoyancy','부력','172–173'],['net-force','알짜힘과 운동 상태 변화','178–184']];
+  $('inquiryPath').innerHTML='<h2>탐구 경로 · 힘의 작용</h2><p>교과서 순서대로 살펴보세요. 점 하나는 미션 하나이며, 이 기기의 학습 진행을 보여 줍니다.</p><ol>'+route.map(([id,title,pages],i)=>{
+    const s=SIMS.find(s=>s.id===id&&s.own);
+    return `<li class="${s?'':'pending'}"><strong>${i+1}. ${title}</strong><small>교과서 p.${pages}</small>${s?`<div><a href="labs/${id}/?mode=model">모형</a> <a href="labs/${id}/?mode=learn">학습</a></div>${progressDots(s)}`:'<p>준비 중입니다.</p>'}</li>`;
+  }).join('')+'</ol>';
+}
+window.addEventListener('storage',()=>{renderPath();render();});
+window.addEventListener('pageshow',()=>{renderPath();render();});
+window.addEventListener('focus',()=>{renderPath();render();});
+renderPath();
+
 $('grid').onclick = e => {
+  if(e.target.closest('a'))return;
   const c = e.target.closest('.card'); if (!c) return;
   const s = SIMS.find(x => x.id === c.dataset.id);
-  if (partsOf(s).length > 1) openDlg(s); else window.open(s.url, '_blank', 'noopener');
+  if (partsOf(s).length > 1) openDlg(s); else window.open(s.own ? `labs/${s.id}/` : s.url, '_blank', 'noopener');
 };
 
 function openDlg(s) {

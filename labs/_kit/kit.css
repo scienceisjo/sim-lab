@@ -177,3 +177,68 @@ dialog.teach::backdrop{background:rgba(10,14,20,.5)}
   .lab-missions{top:54px;width:88vw}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* 모형과 학습은 같은 판을 쓰고 활동 층만 바꾼다. */
+[hidden]{display:none!important}
+button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid #b45309;outline-offset:3px}
+button:disabled{cursor:not-allowed;opacity:.5}
+.mode-switch{display:flex;flex:none;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.mode-switch button{border:0;border-radius:999px;background:transparent;font-size:14px;padding:5px 12px;white-space:nowrap}
+.mode-switch button[aria-pressed=true]{background:var(--c);color:#fff;font-weight:700}
+.lab[data-mode=model] .learn-only,.lab[data-mode=model] .lab-missions,.lab[data-mode=model] .m-now,.lab[data-mode=model] .m-toggle{display:none!important}
+.lab[data-mode=model] .lab-main{grid-template-columns:minmax(0,1fr) 290px}
+.lab[data-mode=model] .lab-stage{grid-column:1}
+.lab[data-mode=model] .lab-panel{grid-column:2}
+.lab-stage{grid-template-rows:auto minmax(0,1fr) auto auto}
+.scene-note{grid-row:4;margin:0;padding:6px 14px;font-size:12px;color:var(--sub);background:var(--panel)}
+.model-view{font-size:13px}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mode-cards button{display:flex;flex-direction:column;gap:12px;padding:24px 18px;border:1px solid var(--c);border-radius:14px;background:var(--c-soft);text-align:left}
+.mode-cards strong{font-size:20px;color:var(--c)}
+.mode-cards span{font-size:15px;line-height:1.7}
+.table-scroll{max-width:100%;overflow:auto}
+.record-table{width:100%;border-collapse:collapse;font-size:12px;word-break:normal}
+.record-table caption{text-align:left;font-weight:700;padding:8px 0;color:var(--sub)}
+.record-table th,.record-table td{padding:6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;font-variant-numeric:tabular-nums}
+.record-table th{background:var(--soft)}
+.record-status{font-size:13px;color:var(--sub);margin:5px 0}
+.records-dialog{max-width:900px!important}
+.records-dialog .teach-in{max-height:85vh}
+.record-axes{display:flex;flex-wrap:wrap;gap:12px;margin:15px 0}
+.record-axes label{font-size:14px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.record-axes select{max-width:100%}
+.record-chart svg{display:block;width:100%;height:auto;aspect-ratio:2;min-width:540px}
+.record-chart{overflow:auto}
+.quiz-question h4{font-size:14px;margin:14px 0 8px}
+.quiz-options{display:flex;flex-direction:column;gap:6px}
+.quiz-options button{font-size:13px;text-align:left;border:1px solid var(--line);border-radius:8px;background:var(--soft);padding:8px}
+.quiz-options button[aria-pressed=true]{border-color:var(--c);background:var(--c-soft)}
+.quiz-feedback,.design-status{font-size:13px;line-height:1.6;color:var(--sub)}
+.variable-design>label{display:flex;flex-direction:column;font-size:13px;gap:4px;margin:8px 0}
+.variable-design select{width:100%;min-height:34px}
+.variable-design fieldset{border:1px solid var(--line);border-radius:8px;margin:8px 0;padding:8px}
+.variable-design fieldset label{display:block;font-size:13px;margin:5px 0}
+.variable-design legend{font-size:13px}
+.grp{min-width:0}
+.graph-table{font-size:13px}
+.graph-table summary{cursor:pointer;padding:8px 0;color:var(--c)}
+@media(max-width:1180px){.lab-title span{display:none}.lab-top{gap:6px}.lab-top .tbtn{padding:0 9px}.lab[data-mode=model] .lab-main{grid-template-columns:minmax(0,1fr) 280px}}
+@media(max-width:760px){
+ .lab-top{height:auto;min-height:90px;flex-wrap:wrap;padding:8px 10px;gap:6px}
+ .lab-title{order:-1;flex-basis:calc(100% - 110px)}
+ .lab-back{order:-2;width:100px}
+ .lab-title h1{white-space:normal;font-size:16px}
+ .lab-top .tbtn{height:32px;font-size:12px}
+ .mode-switch{margin-left:auto}
+ .mode-switch button{font-size:13px;padding:5px 10px}
+ .lab[data-mode=model] .lab-main,.lab.no-missions .lab-main{grid-template-columns:minmax(0,1fr)}
+ .lab[data-mode=model] .lab-panel,.lab.no-missions .lab-panel{grid-column:1}
+ .lab-missions{top:94px;max-width:calc(100vw - 20px)}
+ .mode-cards{grid-template-columns:1fr}
+ .mode-cards button{padding:16px}
+ .play{gap:6px;padding:8px}
+ .pbtn{font-size:12px;padding:0 10px;height:36px}
+ .speed button{font-size:12px;padding:0 9px;height:34px}
+ .scene-note{font-size:12px}
+ .records-dialog .teach-in{padding:16px 12px}
+}

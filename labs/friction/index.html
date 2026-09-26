@@ -40,15 +40,13 @@ const FACE = {
 };
 const K = 6;              // 가로 화살표 축척 1 N = 6 px (위아래 화살표는 절반인 3 px)
 const PPM = 200;          // 1 m = 200 px
-const FLOOR_Y = 470, BW = 200, BH = 70, X0 = 280;
+const FLOOR_Y = 470, BW = 200, BH = 70, X0 = 340;
 const C = {
   push: Lab.color('--f-push'), friction: Lab.color('--f-friction'), gravity: Lab.color('--f-gravity'), normal: Lab.color('--f-normal'),
 };
 const sim = { x: 0, v: 0, F: 0, cam: 0, time: 0, acc: 0, slipped: false, slipT: 0, slipAt: null, peak: 0, prevP: 0, hist: [], nextS: 0, ended: '', warn: '' };
 const flags = { rampDone: false };
-const REC_KEY = 'cs-lab-friction-records-v1';
-let records = (() => { try { return JSON.parse(localStorage.getItem(REC_KEY)) || []; } catch (e) { return []; } })();
-let recEl = null, modeNote = null;
+let records = [], recordBook, modeNote = null;
 
 const load = s => BLOCK + WEIGHT * s.n;                 // 전체 무게, N
 const mass = s => load(s) / G;
@@ -71,26 +69,38 @@ function restart(lab, keepF) {
 // 조건을 바꾸면 멈추고 처음부터(당기는 힘도 0으로)
 function changed(lab) { lab.setRunning(false); restart(lab); }
 function setMission(lab, st) { Object.assign(lab.state, st); lab.setRunning(false); restart(lab); }
-function saveRecords() { try { localStorage.setItem(REC_KEY, JSON.stringify(records)); } catch (e) {} }
 function addRecord(s, F) {
   const L = window.lab;
-  const r = { face: s.face, n: s.n, F: Math.round(F * 10) / 10, mi: L ? L.mi : -1, pred: !!(L && L.mi === 3 && L.prediction != null) };
-  records.push(r);
-  if (records.length > 8) records.shift();
-  saveRecords(); renderRecords();
-}
-function renderRecords() {
-  if (!recEl) return;
-  if (!records.length) { recEl.innerHTML = '<p class="rec-empty">나무 도막이 움직이기 시작하면 여기에 기록돼요.</p>'; return; }
-  const rows = records.map(r => `<tr><td>${FACE[r.face].name}</td><td>${BLOCK + WEIGHT * r.n} N</td><td class="num">${nf1(r.F)} N</td></tr>`).join('');
-  recEl.innerHTML = `<table class="rec"><tr><th>접촉면</th><th>전체 무게</th><th style="text-align:right">움직이기 시작한 힘</th></tr>${rows}</table>`;
+  if (!L || L.mode !== 'learn') return;
+  recordBook.add({ face:s.face,n:s.n,weight:load(s),method:s.mode,
+    F:+L.measure('threshold',F,{amplitude:0.08,fresh:true}).toFixed(2), trueF:F,
+    mi:L.mi,pred:L.mi===3 && L.prediction!=null });
 }
 const has = (face, n, cond) => records.some(r => r.face === face && r.n === n && (!cond || cond(r)));
 
 Lab.init({
-  id: 'friction', version: 2, title: '마찰력', subject: 'phys', unit: '힘의 작용', grade: '중1', updated: '2026-09-26',
+  id: 'friction', version: 3, title: '마찰력', subject: 'phys', unit: '힘의 작용', grade: '중1', updated: '2026-09-27',
   board: { w: 960, h: 600 },
+  sceneNote:'위아래 힘 화살표는 같은 크기의 가로 힘 화살표보다 길이를 절반으로 줄여 그립니다.',
   state: { face: 'smooth', n: 0, mode: 'hand', F: 0, showGraph: true, showNames: false, showVert: false },
+  assumptions:[
+    '나무 도막은 10 N이며, 올리는 추 한 개도 10 N입니다. 수평으로만 당깁니다.',
+    '접촉면마다 마찰이 다른 정도를 정해 놓았습니다. 실제 재료와 센서의 수치를 그대로 재현한 것은 아닙니다.',
+    '멈춰 있을 때 마찰력은 당기는 힘에 맞서고, 미끄러질 때는 움직이기 시작하는 순간보다 조금 작게 둡니다.',
+    '학습 모드의 센서 표시와 기록에만 최대 0.08 N의 흔들림을 넣습니다. 그림과 운동 계산은 흔들리지 않습니다.',
+    '자동 당기기는 움직인 뒤 일정한 빠르기에 가까워지도록 힘을 조절합니다. 마찰 계수와 공기 저항은 학습 내용에서 다루지 않습니다.'
+  ],
+  quiz:[
+    {kind:'진단',question:'도막을 오른쪽으로 살살 당겼지만 아직 움직이지 않습니다. 가로 방향의 힘은 어떻게 작용하나요?',
+      options:['당기는 힘만 오른쪽으로 작용합니다.','마찰력이 오른쪽으로 작용합니다.','마찰력이 당기는 힘과 같은 크기로 왼쪽으로 작용합니다.','마찰력은 도막 무게와 언제나 같습니다.'],answer:2,
+      feedback:['움직이지 않더라도 당기는 힘에 맞서는 마찰력이 있습니다.','도막이 미끄러지려는 방향을 방해하므로 왼쪽입니다.','멈춰 있는 동안에는 한계 안에서 당기는 힘과 마찰력이 평형을 이룹니다.','무게만으로 현재 마찰력을 정할 수 없습니다. 멈췄을 때에는 당기는 힘도 보아야 합니다.']},
+    {kind:'적용',question:'같은 도막과 책상에서 나무 면과 사포 면을 비교할 때 무엇을 재야 하나요?',
+      options:['도막이 움직이기 시작할 때의 당기는 힘을 잽니다.','임의의 힘으로 당긴 지 5초 뒤 이동 거리를 잽니다.','센서가 표시할 수 있는 최대 힘을 잽니다.','추를 서로 다르게 올렸을 때 무게만 잽니다.'],answer:0,
+      feedback:['무게와 당기는 방법을 같게 두고 움직이기 시작하는 순간의 힘을 비교합니다.','이동 거리는 당기는 힘과 시간에도 달려 있어 이 비교의 측정값이 아닙니다.','센서의 최대 범위는 접촉면의 마찰력을 뜻하지 않습니다.','무게까지 바꾸면 접촉면만의 영향을 비교할 수 없습니다.']},
+    {kind:'새 상황',question:'오른쪽으로 미끄러지는 도막을 더는 당기지 않습니다. 멈추기 전 마찰력의 방향은 어느 쪽인가요?',
+      options:['오른쪽입니다.','왼쪽입니다.','위쪽입니다.','당기지 않으므로 마찰력이 없습니다.'],answer:1,
+      feedback:['마찰력은 현재 미끄러지는 방향을 방해합니다.','오른쪽으로 미끄러지는 동안 왼쪽 마찰력이 작용하여 도막이 느려집니다.','수평 접촉면에서 미끄러짐을 방해하는 방향은 왼쪽입니다.','당기는 힘이 없어져도 미끄러지는 동안 마찰력은 작용합니다.']}
+  ],
   teacher: `
     <h4>이 실험실이 맡는 개념 (2. 여러 가지 힘 · 마찰력)</h4>
     <ul><li>마찰력은 접촉면에서 물체의 미끄러짐을 방해하는 힘이고, 미끄러지는(미끄러지려는) 방향의 반대로 작용한다.</li>
@@ -106,7 +116,9 @@ Lab.init({
     <h4>수업에서</h4>
     <ul><li>실물 실험(나무 도막·힘 센서·사포)을 한 뒤 결과를 견주는 보조로 쓰기 좋습니다. 생활 속 예(고무장갑, 자동차 바퀴 쇠줄, 물 미끄럼틀)와 이어 보세요.</li>
     <li>같은 접촉면에서 추 개수만 바꿔 기록하면, 전체 무게가 두 배일 때 움직이기 시작한 힘도 두 배인 것이 기록 표에 보입니다.</li>
-    <li>기록 표는 이 기기에 저장되고 미션 칸의 「다시 하기」로 함께 지워집니다. 미션 없이 쓰려면 주소 끝에 <b>?missions=off</b>를 붙입니다.</li></ul>
+    <li>모형 모드는 <b>?mode=model</b>, 학습 모드는 <b>?mode=learn</b>으로 엽니다. 머리글에서도 바꿀 수 있습니다.</li>
+    <li>학습 센서값에는 ±0.08 N의 흔들림을 넣었습니다. 조건별 평균에도 오차가 남을 수 있습니다. 모형값은 흔들리지 않습니다.</li>
+    <li>기록·미션·확인 문제는 이 기기에 저장되며 미션의 「다시 하기」로 함께 지워집니다. 변인 고르기 미션은 설계 저장 뒤 새로 얻은 기록만 확인합니다.</li></ul>
     <h4>다루지 않는 것</h4>
     <p>마찰 계수, 정지·운동 마찰력의 정량 비교, 접촉 면적과 마찰력의 관계, 공기 저항.</p>`,
   missions: [
@@ -128,7 +140,7 @@ Lab.init({
       enter: lab => setMission(lab, { face: 'wood', n: 2, mode: 'hand' }),
       predict: { options: ['① 작아진다', '② 그대로이다', '③ 커진다'], answer: 2 },
       check: (s, lab) => lab.prediction != null && has('wood', 2, r => r.pred),
-      ok: '물체가 무거울수록 마찰력이 커요. 전체 무게가 세 배(10 N → 30 N)가 되면 움직이기 시작하게 하는 힘도 세 배가 돼요. 기록 표에서 견주어 보세요.' },
+      ok: '물체가 무거울수록 마찰력이 커요. 이 모형에서 전체 무게가 세 배(10 N → 30 N)이면 움직이기 시작하는 힘의 모형값도 세 배예요. 측정 기록에는 작은 오차가 있으니 여러 번 재어 비교해 보세요.' },
     { kind: '찾아내기', title: '마찰력 정리하기', text: '실험한 결과로 문장을 완성해 보세요.',
       hint: '헷갈리면 나무 도막이 미끄러지는 동안 당기는 힘을 0으로 줄여 보세요. 마찰력 화살표는 어느 쪽을 가리키나요?',
       sentence: '마찰력은 물체가 미끄러지는(미끄러지려는) 방향과 {같은|반대} 방향으로 작용합니다. 접촉면이 {거칠수록|매끄러울수록}, 물체가 {무거울수록|가벼울수록} 마찰력이 큽니다.',
@@ -138,6 +150,10 @@ Lab.init({
       enter: lab => setMission(lab, { mode: 'ramp', face: 'wood', n: 2, showGraph: true, showNames: false }),
       check: () => flags.rampDone,
       ok: '봉우리의 높이가 최대 정지 마찰력이고, 일정한 빠르기로 끄는 동안 힘 센서가 가리키는 값이 운동 마찰력이에요. 움직이게 하는 데는 계속 끄는 것보다 조금 더 큰 힘이 필요해요. 중학교에서는 두 가지를 나누어 배우지 않아요.' },
+    {kind:'변인 고르기',title:'접촉면만 바꾸어 공정하게 비교하기',
+      text:'접촉면에 따른 마찰력을 비교하려 합니다. 설계를 먼저 고른 뒤 두 종류 이상의 접촉면에서 도막이 움직이기 시작하는 힘을 재세요. 같은 조건에서 다시 재면 평균도 볼 수 있습니다.',
+      variables:{options:[['face','접촉면'],['n','올린 추 개수'],['method','당기는 방법'],['F','움직이기 시작한 힘']],change:'face',keep:['n','method'],measure:'F',recordId:'trials'},
+      ok:'추 개수와 당기는 방법은 같게 두고 접촉면만 바꾼 기록으로 비교했습니다.'},
   ],
 
   setup(lab) {
@@ -158,21 +174,31 @@ Lab.init({
     ui.slider({ key: 'F', label: '당기는 힘', min: 0, max: 40, step: STEP, unit: 'N', hide: s => s.mode === 'ramp',
       onChange: (v, l) => { if (!l.running && !sim.ended) l.setRunning(true); } });
 
-    ui.group('기록');
-    recEl = ui.el('div');
-    ui.note('').replaceWith(recEl);
-
     ui.group('측정값');
-    ui.readout({ label: '힘 센서(당기는 힘)', get: s => `${nf1(pull(s))} N` });
-    ui.readout({ label: '마찰력', get: s => { const f = friction(s); return Math.abs(f) < 0.05 ? '0 N' : `${nf1(-f)} N ←`; }, color: C.friction });
+    ui.readout({ label: '힘 센서(당기는 힘)', get: (s,l) => l.mode==='learn' ? `${l.measure('pull',pull(s),{amplitude:0.08}).toFixed(2)} N` : `${nf1(pull(s))} N` });
+    ui.readout({ label: '마찰력(모형값)', get: s => { const f = friction(s); return Math.abs(f) < 0.05 ? '0 N' : `${nf1(-f)} N ←`; }, color: C.friction });
     ui.readout({ label: '나무 도막', get: () => sim.v === 0 ? '멈춰 있음' : '미끄러지는 중' });
+    ui.readout({label:'실험 안내',get:()=>sim.warn||sim.ended,hide:()=>!(sim.warn||sim.ended)});
 
-    ui.group('보기');
+    ui.learnOnly(ui.group('보기'));
     ui.toggle({ key: 'showGraph', label: '힘 센서 그래프' });
     ui.toggle({ key: 'showNames', label: '그래프에 이름 붙이기(중학교 범위 밖)' });
     ui.toggle({ key: 'showVert', label: '위아래 힘(중력·바닥이 떠받치는 힘)' });
+    ui.readout({label:'중력 / 바닥이 떠받치는 힘',get:s=>s.showVert ? `${load(s)} N / ${load(s)} N` : '위아래 힘을 켜서 살펴보세요.'});
+    ui.note('실험판의 센서와 시간 그래프는 흔들림 없는 모형값입니다. 패널의 센서 표시와 기록만 조금 흔들립니다.');
+    ui.graphData({columns:[{key:'t',label:'시간(s)',numeric:true},{key:'P',label:'당기는 힘(N)',numeric:true},{key:'fr',label:'마찰력 크기(N)',numeric:true}],getRows:()=>sim.hist.map(r=>({t:r[0],P:r[1],fr:r[2]}))});
 
-    renderRecords();
+    ui.learnOnly(ui.group('실험 기록장'));
+    recordBook=ui.records({id:'trials',version:1,columns:[
+      {key:'face',label:'접촉면',format:v=>FACE[v].name},{key:'n',label:'추(개)',numeric:true,digits:0},
+      {key:'weight',label:'전체 무게(N)',numeric:true,digits:0},{key:'method',label:'당기는 방법',format:v=>({hand:'직접',ramp:'자동',legacy:'이전 기록(방법 미상)'})[v]},
+      {key:'F',label:'움직이기 시작한 힘(N)',numeric:true}],conditions:['face','n','method'],measure:'F',x:'weight',y:'F',
+      validate:r=>!!FACE[r.face] && Number.isInteger(r.n) && r.n>=0 && r.n<=3 && r.weight===10+10*r.n && ['hand','ramp','legacy'].includes(r.method) && r.F>=0 && r.F<=40.08,
+      legacy:{key:'cs-lab-friction-records-v1',convert:r=>r && ({face:r.face,n:r.n,weight:10+10*r.n,method:'legacy',F:r.F,mi:-1,pred:false})}});
+    records=recordBook.rows;
+    ui.button({label:'같은 조건으로 다시 재기',onClick:l=>{l.rewind();}});
+    ui.note('처음 미끄러지는 순간 자동으로 기록합니다. ±0.08 N의 측정 흔들림을 넣었습니다. 같은 조건의 점과 평균을 비교하되, 평균에도 오차가 남을 수 있습니다.');
+
     restart(lab);
     lab.update();
   },
@@ -180,7 +206,8 @@ Lab.init({
   onPlay(lab) { if (sim.ended) restart(lab); },
   rewind(lab) { restart(lab); },
   reset(lab) { restart(lab); },
-  onMissionsReset(lab) { flags.rampDone = false; records = []; saveRecords(); renderRecords(); lab.touches = 0; restart(lab); },
+  onMissionsReset(lab) { flags.rampDone = false; lab.setRunning(false); lab.touches = 0; restart(lab); },
+  onModeChange(lab) { flags.rampDone=false; restart(lab); },
 
   step(dt, lab) {
     const s = lab.state, m = mass(s);
@@ -219,7 +246,7 @@ Lab.init({
       else if (s.mode === 'hand' && sim.slipT >= 3) sim.ended = '움직이기 시작한 힘을 기록했어요.' + again;
       else if (sim.x >= 1.6) sim.ended = '나무 도막이 1.6 m를 가서 재생을 멈췄어요.' + again;
     }
-    if (s.mode === 'ramp' && s.showNames && sim.slipT >= 1.5 && window.lab.mi === 5) flags.rampDone = true;
+    if (lab.mode==='learn' && s.mode === 'ramp' && s.showNames && sim.slipT >= 1.5 && window.lab.mi === 5) flags.rampDone = true;
     const bx = bxOf();
     if (bx > 380) sim.cam = sim.x - (380 - X0) / PPM;
     lab.t = sim.time;
@@ -233,7 +260,7 @@ Lab.init({
     if (modeNote) modeNote.textContent = s.mode === 'ramp'
       ? '▶ 재생하면 멈춰 있는 동안 당기는 힘이 1초에 3 N씩 저절로 세지고, 움직이면 일정한 빠르기로 끌어요.'
       : '+를 누를 때마다 0.5 N씩 세져요. 길게 누르면 계속 올라가고, 누르면 재생도 저절로 시작돼요.';
-    drawFloor(ctx);
+    drawFloor(ctx, lab);
     drawBlock(ctx, bx, s, lab);
     const faceX = bx + BW / 2, ly = FLOOR_Y - BH / 2;
     const sensX = faceX + 262;
@@ -241,43 +268,49 @@ Lab.init({
     ctx.beginPath(); ctx.moveTo(faceX, ly); ctx.lineTo(sensX, ly); ctx.stroke(); ctx.restore();
     drawSensor(ctx, sensX, ly, P, lab);
     // 당기는 힘
-    if (P > 0.05) {
+    if (lab.modelVisible && P > 0.05) {
       d.arrow(ctx, faceX, ly, P * K, 0, { color: C.push, width: 6 });
-      d.tag(ctx, faceX + Math.max(P * K / 2, 70), ly - 26, `당기는 힘 ${nf1(P)} N`, { color: C.push, size: 15 });
+      d.tag(ctx, faceX + Math.max(P * K / 2, 70), ly - 40, `당기는 힘 ${nf1(P)} N`, { color: C.push, size: lab.fs(15) });
     }
     // 마찰력: 도막과 바닥이 닿는 면에서, 미끄러지는(미끄러지려는) 방향의 반대로
-    if (Math.abs(fr) > 0.05) {
+    if (lab.modelVisible && Math.abs(fr) > 0.05) {
       const fx = bx - BW / 2 + 4;
       d.arrow(ctx, fx, FLOOR_Y - 8, fr * K, 0, { color: C.friction, width: 5 });
-      d.tag(ctx, fx + fr * K - 8, FLOOR_Y - 8, `마찰력 ${nf1(-fr)} N`, { color: C.friction, size: 15, align: 'right' });
+      d.tag(ctx, fx + fr * K / 2, FLOOR_Y + 38, `마찰력 ${nf1(-fr)} N`, { color: C.friction, size: lab.fs(15) });
     }
     // 위아래 힘(길이를 절반으로 줄여 그림)
-    if (s.showVert) {
+    if (lab.modelVisible && s.showVert) {
       const W = load(s), cy = FLOOR_Y - (BH + s.n * 34) / 2, KV = K / 2;
       d.arrow(ctx, bx + 50, cy, 0, W * KV, { color: C.gravity });
       d.arrow(ctx, bx + 70, FLOOR_Y, 0, -W * KV, { color: C.normal });
-      d.tag(ctx, bx + 38, cy + W * KV - 4, `중력 ${W} N`, { color: C.gravity, align: 'right', size: lab.fs(14) });
-      d.tag(ctx, bx + 82, FLOOR_Y - W * KV + 8, `바닥이 떠받치는 힘 ${W} N`, { color: C.normal, align: 'left', size: lab.fs(14) });
-      d.text(ctx, 936, 588, '위아래 화살표는 길이를 절반으로 줄여 그렸어요', { size: lab.fs(13), color: '#6b7280', align: 'right' });
+      if(lab.px<.5) {
+        d.tag(ctx,650,520,`중력 ${W} N ↓`,{color:C.gravity,size:lab.fs(14)});
+        d.tag(ctx,650,560,`바닥이 떠받치는 힘 ${W} N ↑`,{color:C.normal,size:lab.fs(14)});
+      } else {
+        d.tag(ctx, bx + 38, cy + W * KV - 4, `중력 ${W} N`, { color: C.gravity, align: 'right', size: lab.fs(14) });
+        d.tag(ctx, bx + 82, FLOOR_Y - W * KV + 8, `바닥이 떠받치는 힘 ${W} N`, { color: C.normal, align: 'left', size: lab.fs(14) });
+      }
     }
     // 재생 전에 당기는 힘이 문턱을 넘어 있으면(예상 잠금 등) 평형처럼 보이지 않게 알린다
     if (!lab.running && sim.v === 0 && P >= fs(s) - 1e-9 && P > 0 && !sim.ended) d.tag(ctx, 640, 330, '▶ 재생을 눌러야 나무 도막이 움직여요', { size: 15, color: '#b45309' });
-    if (s.showGraph) drawGraph(ctx, lab);
-    else d.text(ctx, 24, 40, '「힘 센서 그래프」를 켜면 당기는 힘과 마찰력을 시간에 따라 볼 수 있어요.', { size: lab.fs(15), color: '#6b7280' });
+    if (lab.modelVisible && s.showGraph && lab.mode==='learn') drawGraph(ctx, lab);
+    const hasGraph=lab.mode==='learn' && s.showGraph;
+    if (lab.modelVisible) d.text(ctx,hasGraph?500:24,hasGraph?330:40,'가로 화살표 10 N',{size:lab.fs(13)});
+    if (lab.modelVisible) {const x=hasGraph?500:24,y=hasGraph?350:60;ctx.save();ctx.strokeStyle='#374151';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+10*K,y);ctx.stroke();ctx.restore();}
     d.text(ctx, 24, 588, FACE[s.face].name + ` · 전체 무게 ${load(s)} N`, { size: lab.fs(15), color: '#374151', weight: 700 });
     const msg = sim.ended || sim.warn;
-    if (msg) d.tag(ctx, 640, 300, msg, { size: 14, color: sim.warn && !sim.ended ? '#b45309' : '#4b5563' });
+    if (msg && lab.px>=.5) d.tag(ctx, 640, 300, msg, { size: 14, color: sim.warn && !sim.ended ? '#b45309' : '#4b5563' });
   },
 });
 
 function drawGraph(ctx, lab) {
   const s = lab.state, d = lab.draw;
-  const gx = 80, gy = 56, gw = 820, gh = 180;
+  const small=lab.px<.5, gx = small?130:80, gy = 56, gw = 900-gx, gh = 180;
   const tMax = Math.max(6, Math.ceil((sim.time + 0.5) / 2) * 2);
   const top = Math.max(s.mode === 'hand' ? s.F : 0, sim.peak);
   const fMax = Math.max(5, Math.ceil(top * 1.25 / 5) * 5);   // 아직 재지 않은 값으로 축을 정하지 않는다
   const xt = tMax / 2 > 10 ? 5 : tMax / 2;
-  d.graph(ctx, { x: gx, y: gy, w: gw, h: gh, xMax: tMax, yMax: fMax, xTicks: xt, yTicks: 5, xLabel: '시간(초)', yLabel: '힘(N)', yDigits: fMax <= 5 ? 1 : 0 });
+  d.graph(ctx, { x: gx, y: gy, w: gw, h: gh, xMax: tMax, yMax: fMax, xTicks: small?2:xt, yTicks: small?2:5, xLabel: '시간(초)', yLabel: '힘(N)', yDigits: small || fMax <= 5 ? 1 : 0, fontSize:lab.fs(13), yLabelOffset:small?95:44 });
   const P = ([t, v]) => [gx + gw * t / tMax, gy + gh - gh * v / fMax];
   const line = (idx, col, w, dash) => {
     if (sim.hist.length < 2) return;
@@ -289,7 +322,7 @@ function drawGraph(ctx, lab) {
   // 범례(그래프 바깥 위)
   const z = lab.fs(13);
   d.text(ctx, gx, 34, '━ 힘 센서(당기는 힘)', { size: z, color: C.push, weight: 700 });
-  d.text(ctx, gx + 170, 34, '╍ 마찰력', { size: z, color: C.friction, weight: 700 });
+  d.text(ctx, gx + Math.max(170, 170*z/13), 34, '╍ 마찰력', { size: z, color: C.friction, weight: 700 });
   if (sim.v === 0 && sim.hist.length > 2 && !sim.slipped) {
     const last = sim.hist[sim.hist.length - 1];
     const [lx, ly2] = P([last[0], last[1]]);
@@ -297,28 +330,29 @@ function drawGraph(ctx, lab) {
   }
   // 이름 붙이기(중학교 범위 밖): 자동으로 천천히 당기기에서만
   if (s.showNames) {
-    if (s.mode !== 'ramp') d.tag(ctx, gx + gw - 8, gy + 20, '이름 붙이기는 「자동으로 천천히 당기기」에서 볼 수 있어요', { color: '#475569', size: z, align: 'right' });
+    if (s.mode !== 'ramp') d.tag(ctx, gx + gw - 8, gy + 20, '이름은 자동 당기기에서 확인하세요', { color: '#475569', size: z, align: 'right' });
     else if (sim.slipAt) {
       const [px, py] = P(sim.slipAt);
       ctx.save(); ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2); ctx.fill(); ctx.restore();
-      d.tag(ctx, px, py - 20, `최대 정지 마찰력 ${nf1(sim.slipAt[1])} N`, { color: '#111', size: 14 });
+      d.tag(ctx, px, py - (small?30:20), `최대 정지 마찰력 ${nf1(sim.slipAt[1])} N`, { color: '#111', size: lab.fs(14) });
       if (sim.slipT > 0.8) {
         const last = sim.hist[sim.hist.length - 1];
         const [qx, qy] = P([last[0], fk(s)]);
-        d.tag(ctx, Math.min(qx, gx + gw - 10), qy + 22, `운동 마찰력 ${nf1(fk(s))} N`, { color: '#111', size: 14, align: 'right' });
+        d.tag(ctx, Math.min(qx, gx + gw - 10), qy + (small?32:22), `운동 마찰력 ${nf1(fk(s))} N`, { color: '#111', size: lab.fs(14), align: 'right' });
       }
     }
   }
 }
-function drawFloor(ctx) {
+function drawFloor(ctx, lab) {
   ctx.fillStyle = '#e9edf2'; ctx.fillRect(0, FLOOR_Y, 960, 600 - FLOOR_Y);
   ctx.fillStyle = '#b8c2cf'; ctx.fillRect(0, FLOOR_Y, 960, 4);
-  ctx.save(); ctx.strokeStyle = '#6b7280'; ctx.fillStyle = '#4b5563'; ctx.lineWidth = 2; ctx.font = '600 14px Pretendard, sans-serif'; ctx.textAlign = 'center';
+  ctx.save(); ctx.strokeStyle = '#6b7280'; ctx.fillStyle = '#4b5563'; ctx.lineWidth = 2; ctx.font = `600 ${lab.fs(14)}px Pretendard, sans-serif`; ctx.textAlign = 'center';
   for (let i = -5; i <= 30; i++) {
     const sx = X0 + (i * 0.1 - sim.cam) * PPM;
     if (sx < 18 || sx > 942) continue;
     ctx.beginPath(); ctx.moveTo(sx, FLOOR_Y + 40); ctx.lineTo(sx, FLOOR_Y + (i % 5 === 0 ? 56 : 48)); ctx.stroke();
-    if (i % 5 === 0) ctx.fillText(`${i * 10} cm`, sx, FLOOR_Y + 74);
+    const label=`${i*10} cm`,half=ctx.measureText(label).width/2;
+    if (i % (lab.px<.5?10:5) === 0 && !(lab.px<.5&&lab.state.showVert) && sx-half>=12 && sx+half<=948) ctx.fillText(label, sx, FLOOR_Y + 74);
   }
   ctx.restore();
 }
@@ -350,13 +384,14 @@ function drawBlock(ctx, x, s, lab) {
 }
 function drawSensor(ctx, x, y, P, lab) {
   ctx.save();
-  ctx.fillStyle = '#1f2937'; ctx.beginPath(); ctx.roundRect(x, y - 20, 84, 40, 8); ctx.fill();
-  ctx.fillStyle = '#a7f3d0'; ctx.beginPath(); ctx.roundRect(x + 8, y - 13, 68, 26, 4); ctx.fill();
-  ctx.fillStyle = '#064e3b'; ctx.font = '700 16px Pretendard, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(`${nf1(P)} N`, x + 42, y + 1);
+  const w=lab.px<.5?128:84, hh=lab.px<.5?48:40;
+  ctx.fillStyle = '#1f2937'; ctx.beginPath(); ctx.roundRect(x, y-hh/2, w, hh, 8); ctx.fill();
+  ctx.fillStyle = '#a7f3d0'; ctx.beginPath(); ctx.roundRect(x + 8, y-hh/2+7, w-16, hh-14, 4); ctx.fill();
+  ctx.fillStyle = '#064e3b'; ctx.font = `700 ${lab.fs(16)}px Pretendard, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(`${nf1(P)} N`, x + w/2, y + 1);
   ctx.fillStyle = '#f2c7a0'; ctx.strokeStyle = '#b07d56'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.roundRect(x + 84, y - 16, 44, 32, 12); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#6b7280'; ctx.font = `600 ${lab.fs(12)}px Pretendard, sans-serif`; ctx.fillText('힘 센서', x + 42, y - 32);
+  ctx.beginPath(); ctx.roundRect(x + w, y - 16, 44, 32, 12); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#6b7280'; ctx.font = `600 ${lab.fs(12)}px Pretendard, sans-serif`; ctx.fillText('힘 센서', x + w/2, y - 40);
   ctx.restore();
 }
 </script>
