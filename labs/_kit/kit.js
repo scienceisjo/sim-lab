@@ -2,7 +2,7 @@
  * 실험실 파일은 Lab.init({...}) 한 번만 부른다. 화면 뼈대·미션 카드·조작 패널·재생 줄은 여기서 만든다.
  *
  * Lab.init({
- *   id, title, subject:'phys'|'chem'|'life'|'earth', unit, grade, updated,
+ *   id, title, subject:'phys'|'chem'|'life'|'earth', unit, grade, updated, version(미션을 바꾸면 올림),
  *   board:{w:960,h:600},              // 실험판의 논리 크기(그리기 좌표)
  *   state:{...},                      // 조작 값. 「설정을 기본값으로」 누르면 이 값으로 돌아간다
  *   missions:[{
@@ -53,6 +53,7 @@
     const q = new URLSearchParams(location.search);
     const W = (cfg.board && cfg.board.w) || 960, H = (cfg.board && cfg.board.h) || 600;
     const missions = cfg.missions || [];
+    const KEY = 'cs-lab-' + cfg.id + (cfg.version ? '-v' + cfg.version : '');   // 미션을 바꾸면 version 을 올린다
     const lab = {
       cfg, W, H,
       state: clone(cfg.state || {}),
@@ -202,17 +203,26 @@
           lab.touch(); if (o.onChange) o.onChange(lab.state[o.key], lab); lab.update();
         };
         inp.addEventListener('input', () => set(+inp.value));
+        // ± 단추: 누르면 한 칸, 길게 누르면 계속(키보드 Enter/Space 도 한 칸)
+        const stepBtn = (sign, label) => {
+          let timer = null, rep = null;
+          const stop = () => { clearTimeout(timer); clearInterval(rep); timer = rep = null; };
+          const b = h('button', { 'aria-label': o.label + label,
+            onpointerdown: e => { if (b.disabled) return; e.preventDefault(); set(lab.state[o.key] + sign * o.step); timer = setTimeout(() => { rep = setInterval(() => set(lab.state[o.key] + sign * o.step), 90); }, 420); },
+            onpointerup: stop, onpointerleave: stop, onpointercancel: stop,
+            onclick: e => { if (e.detail === 0) set(lab.state[o.key] + sign * o.step); } }, sign < 0 ? '−' : '+');
+          return b;
+        };
+        const minus = stepBtn(-1, ' 줄이기'), plus = stepBtn(1, ' 늘리기');
         const el = h('div', { class: 'ctl' },
           h('div', { class: 'ctl-l' }, h('span', null, o.label), out),
-          h('div', { class: 'srow' },
-            h('button', { 'aria-label': o.label + ' 줄이기', onclick: () => set(lab.state[o.key] - o.step) }, '−'),
-            inp,
-            h('button', { 'aria-label': o.label + ' 늘리기', onclick: () => set(lab.state[o.key] + o.step) }, '+')));
+          h('div', { class: 'srow' }, minus, inp, plus));
         bound.push(() => {
           const v = lab.state[o.key];
           if (+inp.value !== v) inp.value = v;
           out.textContent = o.fmt ? o.fmt(v) : fmtNum(v, d) + (o.unit ? ' ' + o.unit : '');
-          if (o.disabled) { const dis = !!o.disabled(lab.state); inp.disabled = dis; el.style.opacity = dis ? .45 : 1; }
+          if (o.disabled) { const dis = !!o.disabled(lab.state); inp.disabled = minus.disabled = plus.disabled = dis; el.style.opacity = dis ? .45 : 1; }
+          if (o.hide) el.style.display = o.hide(lab.state) ? 'none' : '';
         });
         (o.parent || curGroup).append(el);
         return el;
@@ -256,7 +266,7 @@
       cards = missions.map((m, i) => {
         const body = h('div', { class: 'd' });
         body.append(h('div', { html: m.text }));
-        if (m.enter) body.append(h('button', { class: 'enter-btn', onclick: () => { lab.touch(); m.enter(lab); lab.update(); } }, '이 상황으로 실험판 맞추기'));
+        if (m.enter) body.append(h('button', { class: 'enter-btn', onclick: () => { lab.touch(); m.enter(lab); lab.update(); closeDrawerSoon(); } }, '이 상황으로 실험판 맞추기'));
         if (m.sentence) body.append(renderBlanks(m, i));
         if (m.predict) body.append(renderPredict(m, i));
         if (m.hint) body.append(h('div', { class: 'hint' }, '💡 ' + m.hint));
@@ -275,6 +285,7 @@
       cards.forEach((c, i) => { c.classList.toggle('done', lab.done[i]); if (lab.done[i]) setOk(i); });
       renderProg();
     }
+    function closeDrawerSoon() { if (narrow()) setTimeout(() => root.classList.remove('m-open'), 400); }
     function nextUndone(i) {
       for (let k = 1; k <= missions.length; k++) { const j = (i + k) % missions.length; if (!lab.done[j]) return j; }
       return -1;
@@ -336,6 +347,7 @@
           if (lab.mi === i) lab.prediction = oi;
           note.textContent = '좋아요. 이제 ▶ 재생으로 확인해 보세요.';
           lab.update();
+          closeDrawerSoon();
         },
       }, o)));
       return h('div', null, box, note);
@@ -353,7 +365,7 @@
       lab.done[i] = true;
       cards[i].classList.add('done');
       setOk(i);
-      store.set('cs-lab-' + cfg.id, lab.done);
+      store.set(KEY, lab.done);
       renderProg();
       if (cfg.onComplete) cfg.onComplete(i, lab);
       lab.update();
@@ -362,15 +374,19 @@
     function resetMissions() {
       lab.done = missions.map(() => false);
       lab.preds = []; lab.prediction = undefined;
-      store.del('cs-lab-' + cfg.id);
+      store.del(KEY);
       if (cfg.onMissionsReset) cfg.onMissionsReset(lab);
       renderCards();
       select(0);
     }
+    let nowKey = '';
     function renderNow() {
       const m = curM();
       if (!m) return;
       const done = lab.done[lab.mi];
+      const key = [lab.mi, done, lab.done.filter(Boolean).length].join('|');
+      if (key === nowKey) return;
+      nowKey = key;
       nowEl.innerHTML = '';
       nowEl.append(
         h('div', { class: 'now-top' },
@@ -382,7 +398,7 @@
       nowEl.classList.toggle('is-done', !!done);
     }
     lab.complete = complete;
-    lab.done = missions.map((_, i) => { const s = store.get('cs-lab-' + cfg.id); return !!(s && s[i]); });
+    lab.done = missions.map((_, i) => { const s = store.get(KEY); return !!(s && s[i]); });
     renderCards();
     if (!missions.length || q.get('missions') === 'off') setMissions(false);
 
@@ -421,6 +437,8 @@
 
     lab.ctx = ctx;
     lab.draw = Lab.draw;
+    // 작은 화면에서도 읽히는 글자 크기(논리 px): 화면에서 최소 11 CSS px
+    lab.fs = size => Math.max(size, 11 / (lab.px || 1));
 
     if (cfg.setup) cfg.setup(lab);
     panel.append(h('button', { class: 'reset-btn', onclick: () => lab.reset() }, '설정을 기본값으로'));
