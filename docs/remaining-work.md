@@ -21,7 +21,7 @@
 - [x] 바이메탈 (p.101–103, 107), 상세: bimetal-switch-review.md
 - [x] 해풍·육풍 (p.97, 99, 108), 상세: sea-land-breeze-review.md
 - [x] 조리 도구 재료 비교·열변색 설계 (p.95, 97–99, 103–105, 109), 상세: cookware-test-bench-review.md
-- [ ] 확산·증발
+- [x] 확산·증발 (p.113–120, 152), 상세: particle-motion-review.md
 - [ ] 세 가지 상태·상태 변화·질량과 부피
 - [ ] 가열·냉각 곡선·열에너지
 - [ ] 기체 압력·부피·온도
