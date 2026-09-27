@@ -81,5 +81,6 @@ Lab.init({ id, version, title, subject:'phys'|'chem'|'life'|'earth', unit, grade
 
 ## 작업 규칙 (Codex)
 - 작업 공간: `C:\Users\user\codex-work\sim-lab` (브랜치 `codex/main`). **커밋까지만. push·merge·배포 금지** — 병합과 배포는 사용자나 Claude 가 한다.
+- 예외 승인 이력: 2026-09-27 사용자가 “배포도하고 CLICK SCIENCE 페이지에도 배포해줘”라고 명시하여, 이번 교육과정 실험실·갤러리 업데이트의 원격 main 반영과 GitHub Pages 배포를 승인했다. 후속 작업의 임의 배포를 허용하는 상시 승인은 아니다.
 - 로컬 서버 포트는 **7100~7199** 만 쓴다(5xxx 는 Claude 몫). 예: `python -m http.server 7101 --bind 127.0.0.1`.
 - 참고 자료(커밋하지 않음): `_handoff/` 폴더 — 교과서 개념 정리 md(비상교육 중1), 단원별 설계안 json, 이전 검토 결과.
