@@ -23,7 +23,7 @@
 - [x] 조리 도구 재료 비교·열변색 설계 (p.95, 97–99, 103–105, 109), 상세: cookware-test-bench-review.md
 - [x] 확산·증발 (p.113–120, 152), 상세: particle-motion-review.md
 - [x] 세 가지 상태·상태 변화·질량과 부피 (p.121–134), 상세: state-change-particles-review.md
-- [ ] 가열·냉각 곡선·열에너지
+- [x] 가열·냉각 곡선·열에너지 (p.112–113, 135–149, 153), 상세: phase-heat-curves-review.md
 - [ ] 기체 압력·부피·온도
 - [ ] 물 뿜는 병
 - [ ] 천체 관측과 태양계 구성
