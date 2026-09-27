@@ -16,7 +16,7 @@
 - [x] 열평형 입자 실험실 (p.84–88), 상세: heat-equilibrium-review.md
 - [x] 전도 비교와 가상 열화상 (p.85, 90–92), 상세: conduction-camera-review.md
 - [x] 전도·대류·복사 (p.82, 90, 92–94), 상세: heat-three-ways-review.md
-- [ ] 비열
+- [x] 비열 (p.96–99, 104, 107), 상세: specific-heat-review.md
 - [ ] 액체·고체의 열팽창
 - [ ] 바이메탈
 - [ ] 해풍·육풍
