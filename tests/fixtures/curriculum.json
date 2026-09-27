@@ -1,0 +1,4576 @@
+[
+  {
+    "id": "density-lab",
+    "title": "크기가 달라도 같은 물질일까?",
+    "unit": "물질의 특성",
+    "codes": [
+      "9과08-01",
+      "9과08-02"
+    ],
+    "subject": "chem",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "같은 온도의 같은 물질은 양을 바꾸어도 질량과 부피의 비가 같다.",
+    "controls": [
+      {
+        "key": "volume",
+        "label": "물체의 부피",
+        "min": 10,
+        "max": 100,
+        "step": 10,
+        "unit": "cm³",
+        "value": 40
+      },
+      {
+        "key": "material",
+        "label": "물질",
+        "options": [
+          [
+            "al",
+            "알루미늄"
+          ],
+          [
+            "fe",
+            "철"
+          ],
+          [
+            "wood",
+            "균일한 나무 모형"
+          ]
+        ],
+        "value": "al"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "mass",
+        "label": "질량",
+        "unit": "g",
+        "digits": 1,
+        "noise": 0.1
+      },
+      {
+        "key": "density",
+        "label": "밀도",
+        "unit": "g/cm³",
+        "digits": 2,
+        "noise": 0
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "volume": 10,
+          "material": "al"
+        },
+        "expected": {
+          "mass": 27,
+          "density": 2.7
+        }
+      },
+      {
+        "state": {
+          "volume": 100,
+          "material": "fe"
+        },
+        "expected": {
+          "mass": 787,
+          "density": 7.87
+        }
+      }
+    ],
+    "target": {
+      "volume": 80,
+      "material": "al"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "solubility-lab",
+    "title": "녹인 뒤 식히면 무엇이 남을까?",
+    "unit": "물질의 특성",
+    "codes": [
+      "9과08-01",
+      "9과08-03"
+    ],
+    "subject": "chem",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "일정한 온도의 일정량 물에 녹을 수 있는 양에는 한계가 있으며, 냉각으로 용질을 분리할 수 있다.",
+    "controls": [
+      {
+        "key": "temperature",
+        "label": "물의 온도",
+        "options": [
+          [
+            20,
+            "20 ℃"
+          ],
+          [
+            40,
+            "40 ℃"
+          ],
+          [
+            60,
+            "60 ℃"
+          ]
+        ],
+        "value": 20
+      },
+      {
+        "key": "water",
+        "label": "물의 질량",
+        "min": 50,
+        "max": 150,
+        "step": 50,
+        "unit": "g",
+        "value": 100
+      },
+      {
+        "key": "solute",
+        "label": "넣은 질산 칼륨",
+        "min": 10,
+        "max": 120,
+        "step": 10,
+        "unit": "g",
+        "value": 60
+      }
+    ],
+    "outputs": [
+      {
+        "key": "dissolved",
+        "label": "녹아 있는 양",
+        "unit": "g",
+        "digits": 1,
+        "noise": 0.05
+      },
+      {
+        "key": "solid",
+        "label": "남은 고체",
+        "unit": "g",
+        "digits": 1,
+        "noise": 0
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "temperature": 20,
+          "water": 100,
+          "solute": 60
+        },
+        "expected": {
+          "dissolved": 31.6,
+          "solid": 28.4
+        }
+      },
+      {
+        "state": {
+          "temperature": 60,
+          "water": 50,
+          "solute": 60
+        },
+        "expected": {
+          "dissolved": 55,
+          "solid": 5
+        }
+      }
+    ],
+    "target": {
+      "temperature": 20,
+      "water": 100,
+      "solute": 60
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "mixture-separation",
+    "title": "어떤 성질로 나눌 수 있을까?",
+    "unit": "물질의 특성",
+    "codes": [
+      "9과08-02",
+      "9과08-03"
+    ],
+    "subject": "chem",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "혼합물은 성분의 크기·용해·끓는 성질 차이를 이용해 분리한다.",
+    "controls": [
+      {
+        "key": "mixture",
+        "label": "혼합물",
+        "options": [
+          [
+            "sand",
+            "소금물과 모래"
+          ],
+          [
+            "water",
+            "소금물"
+          ],
+          [
+            "liquids",
+            "물과 에탄올"
+          ]
+        ],
+        "value": "sand"
+      },
+      {
+        "key": "method",
+        "label": "분리 방법",
+        "options": [
+          [
+            "filter",
+            "거르기"
+          ],
+          [
+            "evaporate",
+            "증발시키기"
+          ],
+          [
+            "distill",
+            "증류하기"
+          ]
+        ],
+        "value": "filter"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "result",
+        "label": "분리 결과",
+        "numeric": false
+      },
+      {
+        "key": "reason",
+        "label": "이용한 차이",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "mixture": "water",
+          "method": "filter"
+        },
+        "expected": {
+          "result": "녹은 성분은 함께 통과합니다."
+        }
+      },
+      {
+        "state": {
+          "mixture": "liquids",
+          "method": "distill"
+        },
+        "expected": {
+          "result": "에탄올이 더 많은 액체를 받습니다."
+        }
+      }
+    ],
+    "target": {
+      "mixture": "water",
+      "method": "distill"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      2,
+      0
+    ]
+  },
+  {
+    "id": "atom-builder",
+    "title": "원소와 전하는 무엇이 정할까?",
+    "unit": "물질의 구성",
+    "codes": [
+      "9과11-01",
+      "9과11-02",
+      "9과11-03",
+      "9과11-04"
+    ],
+    "subject": "chem",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "양성자 수가 원소를 정하고, 전자를 얻거나 잃으면 이온이 된다.",
+    "controls": [
+      {
+        "key": "element",
+        "label": "원소",
+        "options": [
+          [
+            "Na",
+            "나트륨"
+          ],
+          [
+            "Cl",
+            "염소"
+          ],
+          [
+            "He",
+            "헬륨"
+          ]
+        ],
+        "value": "Na"
+      },
+      {
+        "key": "change",
+        "label": "전자 이동",
+        "options": [
+          [
+            0,
+            "그대로"
+          ],
+          [
+            -1,
+            "전자 1개 잃기"
+          ],
+          [
+            1,
+            "전자 1개 얻기"
+          ]
+        ],
+        "value": 0
+      }
+    ],
+    "outputs": [
+      {
+        "key": "protons",
+        "label": "양성자 수",
+        "unit": "개",
+        "digits": 0,
+        "noise": 0
+      },
+      {
+        "key": "electrons",
+        "label": "전자 수",
+        "unit": "개",
+        "digits": 0,
+        "noise": 0
+      },
+      {
+        "key": "charge",
+        "label": "전하의 상대값",
+        "unit": "",
+        "digits": 0,
+        "noise": 0
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "element": "Na",
+          "change": -1
+        },
+        "expected": {
+          "protons": 11,
+          "electrons": 10,
+          "charge": 1
+        }
+      },
+      {
+        "state": {
+          "element": "Cl",
+          "change": 1
+        },
+        "expected": {
+          "protons": 17,
+          "electrons": 18,
+          "charge": -1
+        }
+      }
+    ],
+    "target": {
+      "element": "Na",
+      "change": -1
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "reaction-builder",
+    "title": "다시 짝지어도 원자는 남을까?",
+    "unit": "화학 반응의 규칙성",
+    "codes": [
+      "9과11-01",
+      "9과11-04",
+      "9과16-01",
+      "9과16-02",
+      "9과16-03",
+      "9과16-04",
+      "9과16-05"
+    ],
+    "subject": "chem",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "화학 반응은 원자가 다시 결합하는 과정이며 원자 종류와 수가 보존된다.",
+    "controls": [
+      {
+        "key": "hydrogen",
+        "label": "수소 분자 수",
+        "min": 0,
+        "max": 8,
+        "step": 1,
+        "unit": "개",
+        "value": 4
+      },
+      {
+        "key": "oxygen",
+        "label": "산소 분자 수",
+        "min": 0,
+        "max": 4,
+        "step": 1,
+        "unit": "개",
+        "value": 2
+      },
+      {
+        "key": "stage",
+        "label": "반응 장면",
+        "options": [
+          [
+            0,
+            "반응 전"
+          ],
+          [
+            1,
+            "반응 후"
+          ]
+        ],
+        "value": 0
+      }
+    ],
+    "outputs": [
+      {
+        "key": "water",
+        "label": "생긴 물 분자",
+        "unit": "개",
+        "digits": 0,
+        "noise": 0
+      },
+      {
+        "key": "leftH",
+        "label": "남은 수소 분자",
+        "unit": "개",
+        "digits": 0,
+        "noise": 0
+      },
+      {
+        "key": "leftO",
+        "label": "남은 산소 분자",
+        "unit": "개",
+        "digits": 0,
+        "noise": 0
+      },
+      {
+        "key": "mass",
+        "label": "전체 상대 질량",
+        "unit": "",
+        "digits": 0,
+        "noise": 0
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "hydrogen": 6,
+          "oxygen": 2,
+          "stage": 1
+        },
+        "expected": {
+          "water": 4,
+          "leftH": 2,
+          "leftO": 0,
+          "mass": 76
+        }
+      },
+      {
+        "state": {
+          "hydrogen": 3,
+          "oxygen": 4,
+          "stage": 1
+        },
+        "expected": {
+          "water": 2,
+          "leftH": 1,
+          "leftO": 3,
+          "mass": 134
+        }
+      }
+    ],
+    "target": {
+      "hydrogen": 6,
+      "oxygen": 2,
+      "stage": 1
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      0
+    ]
+  },
+  {
+    "id": "reaction-energy",
+    "title": "반응할 때 주변은 따뜻해질까?",
+    "unit": "화학 반응의 규칙성",
+    "codes": [
+      "9과16-06"
+    ],
+    "subject": "chem",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "발열 반응은 주변으로 에너지를 전달하고 흡열 반응은 주변에서 에너지를 받는다.",
+    "controls": [
+      {
+        "key": "reaction",
+        "label": "반응의 종류",
+        "options": [
+          [
+            "release",
+            "발열 반응 모형"
+          ],
+          [
+            "absorb",
+            "흡열 반응 모형"
+          ]
+        ],
+        "value": "release"
+      },
+      {
+        "key": "amount",
+        "label": "반응한 양의 배수",
+        "min": 1,
+        "max": 3,
+        "step": 1,
+        "unit": "배",
+        "value": 1
+      },
+      {
+        "key": "water",
+        "label": "주변 물의 질량",
+        "min": 100,
+        "max": 300,
+        "step": 100,
+        "unit": "g",
+        "value": 100
+      }
+    ],
+    "outputs": [
+      {
+        "key": "temperature",
+        "label": "주변 물의 온도",
+        "unit": "℃",
+        "digits": 2,
+        "noise": 0.03
+      },
+      {
+        "key": "heat",
+        "label": "주변이 받은 열",
+        "unit": "J",
+        "digits": 0,
+        "noise": 0
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "reaction": "release",
+          "amount": 2,
+          "water": 100
+        },
+        "expected": {
+          "temperature": 22,
+          "heat": 840
+        }
+      },
+      {
+        "state": {
+          "reaction": "absorb",
+          "amount": 3,
+          "water": 300
+        },
+        "expected": {
+          "temperature": 19,
+          "heat": -1260
+        }
+      }
+    ],
+    "target": {
+      "reaction": "absorb",
+      "amount": 2,
+      "water": 100
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      2,
+      0
+    ]
+  },
+  {
+    "id": "light-paths",
+    "title": "빛은 경계에서 어디로 갈까?",
+    "unit": "빛과 파동",
+    "codes": [
+      "9과10-01"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "빛의 반사각은 입사각과 같고, 물질 경계를 통과할 때 방향이 바뀔 수 있다.",
+    "controls": [
+      {
+        "key": "angle",
+        "label": "법선에서 잰 입사각",
+        "min": 0,
+        "max": 70,
+        "step": 5,
+        "unit": "°",
+        "value": 35
+      },
+      {
+        "key": "surface",
+        "label": "경계",
+        "options": [
+          [
+            "mirror",
+            "평면거울"
+          ],
+          [
+            "water",
+            "공기에서 물로"
+          ],
+          [
+            "glass",
+            "공기에서 유리로"
+          ]
+        ],
+        "value": "mirror"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "reflected",
+        "label": "반사각",
+        "unit": "°",
+        "digits": 1,
+        "noise": 0
+      },
+      {
+        "key": "transmitted",
+        "label": "굴절각 또는 거울의 반사각",
+        "unit": "°",
+        "digits": 1,
+        "noise": 0.1
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "angle": 30,
+          "surface": "mirror"
+        },
+        "expected": {
+          "reflected": 30,
+          "transmitted": 30
+        }
+      },
+      {
+        "state": {
+          "angle": 0,
+          "surface": "glass"
+        },
+        "expected": {
+          "reflected": 0,
+          "transmitted": 0
+        }
+      },
+      {
+        "state": {
+          "angle": 30,
+          "surface": "glass"
+        },
+        "expected": {
+          "transmitted": 19.47122063449069
+        }
+      }
+    ],
+    "target": {
+      "surface": "water",
+      "angle": 0
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "image-optics",
+    "title": "거울 뒤의 상은 어디에 있을까?",
+    "unit": "빛과 파동",
+    "codes": [
+      "9과10-02"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "평면거울의 상은 반사광을 거꾸로 연장한 곳에 보이며 렌즈의 상은 물체 위치에 따라 달라진다.",
+    "controls": [
+      {
+        "key": "distance",
+        "label": "물체의 거리",
+        "min": 15,
+        "max": 60,
+        "step": 5,
+        "unit": "모형 단위",
+        "value": 40
+      },
+      {
+        "key": "optic",
+        "label": "광학 기구",
+        "options": [
+          [
+            "mirror",
+            "평면거울"
+          ],
+          [
+            "convex",
+            "볼록렌즈"
+          ],
+          [
+            "concave",
+            "오목렌즈"
+          ]
+        ],
+        "value": "mirror"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "image",
+        "label": "상의 특징",
+        "numeric": false
+      },
+      {
+        "key": "place",
+        "label": "상의 위치",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "distance": 40,
+          "optic": "convex"
+        },
+        "expected": {
+          "image": "거꾸로 선 같은 크기의 실상"
+        }
+      },
+      {
+        "state": {
+          "distance": 15,
+          "optic": "convex"
+        },
+        "expected": {
+          "image": "바로 선 확대된 허상"
+        }
+      },
+      {
+        "state": {
+          "distance": 60,
+          "optic": "mirror"
+        },
+        "expected": {
+          "place": "거울 뒤, 물체와 같은 거리"
+        }
+      }
+    ],
+    "target": {
+      "optic": "convex",
+      "distance": 15
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "light-colors",
+    "title": "같은 물체가 다른 색으로 보일까?",
+    "unit": "빛과 파동",
+    "codes": [
+      "9과10-03"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "빛의 합성과 물체가 반사하는 빛을 구별한다.",
+    "controls": [
+      {
+        "key": "light",
+        "label": "비추는 빛",
+        "options": [
+          [
+            "white",
+            "백색광"
+          ],
+          [
+            "red",
+            "빨강"
+          ],
+          [
+            "green",
+            "초록"
+          ],
+          [
+            "blue",
+            "파랑"
+          ],
+          [
+            "yellow",
+            "빨강+초록"
+          ]
+        ],
+        "value": "white"
+      },
+      {
+        "key": "object",
+        "label": "물체의 반사 특성",
+        "options": [
+          [
+            "white",
+            "흰 물체"
+          ],
+          [
+            "red",
+            "빨간 물체"
+          ],
+          [
+            "green",
+            "초록 물체"
+          ],
+          [
+            "blue",
+            "파란 물체"
+          ],
+          [
+            "yellow",
+            "노란 물체"
+          ]
+        ],
+        "value": "white"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "seen",
+        "label": "눈에 들어오는 빛",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "light": "green",
+          "object": "red"
+        },
+        "expected": {
+          "seen": "빛이 거의 없어 어둡습니다."
+        }
+      },
+      {
+        "state": {
+          "light": "white",
+          "object": "yellow"
+        },
+        "expected": {
+          "seen": "노랑"
+        }
+      }
+    ],
+    "target": {
+      "light": "green",
+      "object": "red"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "wave-motion",
+    "title": "파동이 갈 때 입자도 따라갈까?",
+    "unit": "빛과 파동",
+    "codes": [
+      "9과10-04"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "매질은 제자리에서 진동하고 파동은 에너지를 전달하며 진폭·진동수·파형은 서로 다르다.",
+    "controls": [
+      {
+        "key": "amplitude",
+        "label": "진폭",
+        "min": 5,
+        "max": 30,
+        "step": 5,
+        "unit": "모형 단위",
+        "value": 15
+      },
+      {
+        "key": "frequency",
+        "label": "진동수",
+        "min": 1,
+        "max": 4,
+        "step": 1,
+        "unit": "Hz",
+        "value": 2
+      },
+      {
+        "key": "shape",
+        "label": "파형",
+        "options": [
+          [
+            "sine",
+            "단순한 파형"
+          ],
+          [
+            "complex",
+            "복합 파형"
+          ]
+        ],
+        "value": "sine"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "wavelength",
+        "label": "파장",
+        "unit": "모형 단위",
+        "digits": 1,
+        "noise": 0
+      },
+      {
+        "key": "period",
+        "label": "주기",
+        "unit": "s",
+        "digits": 2,
+        "noise": 0
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "amplitude": 15,
+          "frequency": 4,
+          "shape": "sine"
+        },
+        "expected": {
+          "wavelength": 60,
+          "period": 0.25
+        }
+      },
+      {
+        "state": {
+          "amplitude": 30,
+          "frequency": 1,
+          "shape": "complex"
+        },
+        "expected": {
+          "wavelength": 240,
+          "period": 1
+        }
+      }
+    ],
+    "target": {
+      "amplitude": 15,
+      "frequency": 4,
+      "shape": "sine"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "electric-circuit",
+    "title": "전류는 전구를 지나면 줄어들까?",
+    "unit": "전기와 자기",
+    "codes": [
+      "9과14-02",
+      "9과14-03"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "전압과 저항이 전류를 정하며 전류는 직렬 회로에서 이어지고 병렬 회로의 가지에서 나뉜다.",
+    "controls": [
+      {
+        "key": "voltage",
+        "label": "전지 전압",
+        "min": 1,
+        "max": 6,
+        "step": 1,
+        "unit": "V",
+        "value": 3
+      },
+      {
+        "key": "resistance",
+        "label": "각 저항",
+        "min": 5,
+        "max": 20,
+        "step": 5,
+        "unit": "Ω",
+        "value": 10
+      },
+      {
+        "key": "connection",
+        "label": "연결",
+        "options": [
+          [
+            "single",
+            "저항 하나"
+          ],
+          [
+            "series",
+            "같은 저항 직렬"
+          ],
+          [
+            "parallel",
+            "같은 저항 병렬"
+          ]
+        ],
+        "value": "single"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "current",
+        "label": "전지 쪽 전류",
+        "unit": "A",
+        "digits": 2,
+        "noise": 0.002
+      },
+      {
+        "key": "branch",
+        "label": "저항 하나의 전류",
+        "unit": "A",
+        "digits": 2,
+        "noise": 0
+      },
+      {
+        "key": "energy",
+        "label": "에너지 전환",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "voltage": 3,
+          "resistance": 10,
+          "connection": "series"
+        },
+        "expected": {
+          "current": 0.15,
+          "branch": 0.15
+        }
+      },
+      {
+        "state": {
+          "voltage": 3,
+          "resistance": 10,
+          "connection": "parallel"
+        },
+        "expected": {
+          "current": 0.6,
+          "branch": 0.3
+        }
+      }
+    ],
+    "target": {
+      "voltage": 3,
+      "resistance": 10,
+      "connection": "parallel"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      0
+    ]
+  },
+  {
+    "id": "static-charge",
+    "title": "닿지 않았는데 왜 끌려올까?",
+    "unit": "전기와 자기",
+    "codes": [
+      "9과14-01"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "전자 이동과 도체 내부 전하 재배치로 대전과 정전기 유도를 구별한다.",
+    "controls": [
+      {
+        "key": "rod",
+        "label": "막대의 전하",
+        "options": [
+          [
+            "negative",
+            "음전하"
+          ],
+          [
+            "positive",
+            "양전하"
+          ]
+        ],
+        "value": "negative"
+      },
+      {
+        "key": "stage",
+        "label": "금속구와 막대",
+        "options": [
+          [
+            "far",
+            "멀리 두기"
+          ],
+          [
+            "near",
+            "가까이 두기"
+          ],
+          [
+            "touch",
+            "접촉 후 떼기"
+          ]
+        ],
+        "value": "far"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "distribution",
+        "label": "금속구의 전하",
+        "numeric": false
+      },
+      {
+        "key": "force",
+        "label": "상호작용",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "rod": "negative",
+          "stage": "near"
+        },
+        "expected": {
+          "distribution": "가까운 쪽은 반대 전하, 전체는 중성입니다."
+        }
+      },
+      {
+        "state": {
+          "rod": "positive",
+          "stage": "touch"
+        },
+        "expected": {
+          "distribution": "전자를 잃어 양전하를 띱니다."
+        }
+      }
+    ],
+    "target": {
+      "rod": "negative",
+      "stage": "near"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "coil-motor",
+    "title": "전류를 뒤집으면 힘도 바뀔까?",
+    "unit": "전기와 자기",
+    "codes": [
+      "9과14-04"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "자기장 속 코일의 두 변에는 반대 방향의 힘이 작용하며 전류 방향을 바꾸면 힘 방향이 바뀐다.",
+    "controls": [
+      {
+        "key": "current",
+        "label": "전류 방향",
+        "options": [
+          [
+            1,
+            "정방향"
+          ],
+          [
+            -1,
+            "역방향"
+          ],
+          [
+            0,
+            "전류 없음"
+          ]
+        ],
+        "value": 1
+      },
+      {
+        "key": "field",
+        "label": "자석의 방향",
+        "options": [
+          [
+            1,
+            "왼쪽 N · 오른쪽 S"
+          ],
+          [
+            -1,
+            "왼쪽 S · 오른쪽 N"
+          ]
+        ],
+        "value": 1
+      },
+      {
+        "key": "strength",
+        "label": "전류 세기",
+        "min": 1,
+        "max": 3,
+        "step": 1,
+        "unit": "상대값",
+        "value": 1
+      }
+    ],
+    "outputs": [
+      {
+        "key": "force",
+        "label": "왼쪽 변 힘의 부호 있는 상대값",
+        "unit": "",
+        "digits": 0,
+        "noise": 0
+      },
+      {
+        "key": "direction",
+        "label": "왼쪽 변의 힘",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "current": 1,
+          "field": 1,
+          "strength": 3
+        },
+        "expected": {
+          "force": 3
+        }
+      },
+      {
+        "state": {
+          "current": -1,
+          "field": -1,
+          "strength": 2
+        },
+        "expected": {
+          "force": 2
+        }
+      },
+      {
+        "state": {
+          "current": 0,
+          "field": 1,
+          "strength": 2
+        },
+        "expected": {
+          "force": 0
+        }
+      }
+    ],
+    "target": {
+      "current": 0,
+      "field": 1,
+      "strength": 1
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "motion-energy",
+    "title": "떨어지는 동안 에너지는 어디로 갈까?",
+    "unit": "운동과 에너지",
+    "codes": [
+      "9과19-01",
+      "9과19-02",
+      "9과19-03",
+      "9과19-04"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "자유 낙하에서 속력은 같은 시간마다 같은 만큼 늘고 위치 에너지가 운동 에너지로 전환된다.",
+    "controls": [
+      {
+        "key": "time",
+        "label": "낙하한 시간",
+        "min": 0,
+        "max": 2,
+        "step": 0.1,
+        "unit": "s",
+        "value": 1
+      },
+      {
+        "key": "mass",
+        "label": "물체 질량",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "unit": "kg",
+        "value": 2
+      },
+      {
+        "key": "height",
+        "label": "출발 높이",
+        "min": 20,
+        "max": 40,
+        "step": 10,
+        "unit": "m",
+        "value": 20
+      }
+    ],
+    "outputs": [
+      {
+        "key": "speed",
+        "label": "아래쪽 속력",
+        "unit": "m/s",
+        "digits": 2,
+        "noise": 0.01
+      },
+      {
+        "key": "potential",
+        "label": "위치 에너지",
+        "unit": "J",
+        "digits": 2,
+        "noise": 0
+      },
+      {
+        "key": "kinetic",
+        "label": "운동 에너지",
+        "unit": "J",
+        "digits": 2,
+        "noise": 0
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "time": 1,
+          "mass": 2,
+          "height": 20
+        },
+        "expected": {
+          "speed": 9.8,
+          "potential": 295.96,
+          "kinetic": 96.04
+        }
+      },
+      {
+        "state": {
+          "time": 2,
+          "mass": 2,
+          "height": 20
+        },
+        "expected": {
+          "speed": 19.6,
+          "potential": 7.84,
+          "kinetic": 384.16
+        }
+      }
+    ],
+    "target": {
+      "time": 2,
+      "mass": 2,
+      "height": 20
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      0
+    ]
+  },
+  {
+    "id": "cell-organization",
+    "title": "세포의 구조는 하는 일과 어떻게 연결될까?",
+    "unit": "생물의 구성과 다양성",
+    "codes": [
+      "9과02-01",
+      "9과02-02"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "세포의 구조와 기능을 연결하고 세포에서 개체까지의 구성 단계를 비교한다.",
+    "controls": [
+      {
+        "key": "sample",
+        "label": "세포 표본",
+        "options": [
+          [
+            "leaf",
+            "잎의 광합성 세포"
+          ],
+          [
+            "root",
+            "뿌리 세포"
+          ],
+          [
+            "animal",
+            "동물의 일반 세포"
+          ],
+          [
+            "nerve",
+            "신경세포"
+          ],
+          [
+            "red",
+            "성숙한 사람 적혈구"
+          ]
+        ],
+        "value": "leaf"
+      },
+      {
+        "key": "level",
+        "label": "보는 범위",
+        "options": [
+          [
+            "cell",
+            "세포 확대"
+          ],
+          [
+            "system",
+            "개체 안의 구성"
+          ]
+        ],
+        "value": "cell"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "structures",
+        "label": "주요 구조",
+        "numeric": false
+      },
+      {
+        "key": "function",
+        "label": "기능과 연결",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "sample": "root",
+          "level": "cell"
+        },
+        "expected": {
+          "structures": "세포벽·세포막·핵·미토콘드리아"
+        }
+      },
+      {
+        "state": {
+          "sample": "red",
+          "level": "cell"
+        },
+        "expected": {
+          "structures": "세포막이 있고 핵과 미토콘드리아가 없습니다."
+        }
+      }
+    ],
+    "target": {
+      "sample": "root",
+      "level": "cell"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "biodiversity-sort",
+    "title": "닮았다는 이유만으로 같은 무리일까?",
+    "unit": "생물의 구성과 다양성",
+    "codes": [
+      "9과02-03",
+      "9과02-04",
+      "9과02-05"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "생물은 세포와 영양 방식 등의 근거로 분류하며 같은 종 안에도 변이가 있다.",
+    "controls": [
+      {
+        "key": "organism",
+        "label": "관찰 대상",
+        "options": [
+          [
+            "bacteria",
+            "세균"
+          ],
+          [
+            "amoeba",
+            "아메바"
+          ],
+          [
+            "mushroom",
+            "버섯"
+          ],
+          [
+            "bean",
+            "강낭콩"
+          ],
+          [
+            "cat",
+            "고양이"
+          ]
+        ],
+        "value": "bacteria"
+      },
+      {
+        "key": "evidence",
+        "label": "관찰 기준",
+        "options": [
+          [
+            "cell",
+            "세포"
+          ],
+          [
+            "nutrition",
+            "양분 얻기"
+          ],
+          [
+            "variation",
+            "같은 종의 변이"
+          ]
+        ],
+        "value": "cell"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "kingdom",
+        "label": "5계 분류",
+        "numeric": false
+      },
+      {
+        "key": "evidenceText",
+        "label": "관찰 근거",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "organism": "mushroom",
+          "evidence": "nutrition"
+        },
+        "expected": {
+          "kingdom": "균계",
+          "evidenceText": "유기물을 분해해 양분을 흡수합니다."
+        }
+      },
+      {
+        "state": {
+          "organism": "bacteria",
+          "evidence": "cell"
+        },
+        "expected": {
+          "kingdom": "원핵생물계"
+        }
+      }
+    ],
+    "target": {
+      "organism": "mushroom",
+      "evidence": "nutrition"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      0
+    ]
+  },
+  {
+    "id": "plant-exchange",
+    "title": "식물은 밤에도 호흡할까?",
+    "unit": "식물과 에너지",
+    "codes": [
+      "9과12-01",
+      "9과12-02",
+      "9과12-03"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "광합성과 호흡은 함께 일어나며 바깥에서 측정한 기체 교환은 두 과정의 차이다.",
+    "controls": [
+      {
+        "key": "photosynthesis",
+        "label": "광합성으로 소비한 CO₂",
+        "min": 0,
+        "max": 6,
+        "step": 1,
+        "unit": "상대량",
+        "value": 4
+      },
+      {
+        "key": "respiration",
+        "label": "호흡으로 내놓은 CO₂",
+        "min": 1,
+        "max": 3,
+        "step": 1,
+        "unit": "상대량",
+        "value": 2
+      }
+    ],
+    "outputs": [
+      {
+        "key": "netCO2",
+        "label": "바깥으로 나간 CO₂",
+        "unit": "상대량",
+        "digits": 0,
+        "noise": 0
+      },
+      {
+        "key": "netO2",
+        "label": "바깥으로 나간 O₂",
+        "unit": "상대량",
+        "digits": 0,
+        "noise": 0
+      },
+      {
+        "key": "balance",
+        "label": "기체 교환의 해석",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "photosynthesis": 0,
+          "respiration": 2
+        },
+        "expected": {
+          "netCO2": 2,
+          "netO2": -2
+        }
+      },
+      {
+        "state": {
+          "photosynthesis": 2,
+          "respiration": 2
+        },
+        "expected": {
+          "netCO2": 0,
+          "netO2": 0
+        }
+      }
+    ],
+    "target": {
+      "photosynthesis": 2,
+      "respiration": 2
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "body-systems",
+    "title": "먹은 물질과 들이마신 산소는 어디서 만날까?",
+    "unit": "동물과 에너지",
+    "codes": [
+      "9과13-01",
+      "9과13-02",
+      "9과13-04",
+      "9과13-05"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "소화·호흡·순환·배설은 세포가 에너지를 얻고 노폐물을 내보내는 과정으로 연결된다.",
+    "controls": [
+      {
+        "key": "substance",
+        "label": "추적할 물질",
+        "options": [
+          [
+            "food",
+            "녹말의 소화 산물"
+          ],
+          [
+            "oxygen",
+            "산소"
+          ],
+          [
+            "co2",
+            "이산화 탄소"
+          ],
+          [
+            "urea",
+            "요소"
+          ]
+        ],
+        "value": "food"
+      },
+      {
+        "key": "view",
+        "label": "보는 방법",
+        "options": [
+          [
+            "route",
+            "물질의 이동"
+          ],
+          [
+            "circulation",
+            "혈액의 순환"
+          ]
+        ],
+        "value": "route"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "route",
+        "label": "이동 경로",
+        "numeric": false
+      },
+      {
+        "key": "role",
+        "label": "과정의 의미",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "substance": "urea",
+          "view": "route"
+        },
+        "expected": {
+          "route": "간에서 생성 → 혈액 → 콩팥 → 오줌 → 몸 밖"
+        }
+      },
+      {
+        "state": {
+          "substance": "oxygen",
+          "view": "route"
+        },
+        "expected": {
+          "route": "폐포 → 혈액 → 심장 → 온몸의 세포"
+        }
+      }
+    ],
+    "target": {
+      "substance": "urea",
+      "view": "route"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "breathing-model",
+    "title": "폐가 공기를 밀어 넣는 걸까?",
+    "unit": "동물과 에너지",
+    "codes": [
+      "9과13-03"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "가로막과 갈비뼈 운동에 따른 가슴 공간 변화가 압력 차이를 만들고 공기가 이동한다.",
+    "controls": [
+      {
+        "key": "phase",
+        "label": "호흡 단계",
+        "options": [
+          [
+            "inhale",
+            "들이쉬는 동안"
+          ],
+          [
+            "rest",
+            "이동이 멈춘 때"
+          ],
+          [
+            "exhale",
+            "내쉬는 동안"
+          ]
+        ],
+        "value": "inhale"
+      },
+      {
+        "key": "view",
+        "label": "관찰 표현",
+        "options": [
+          [
+            "body",
+            "몸의 모형"
+          ],
+          [
+            "bottle",
+            "병과 고무막 모형"
+          ]
+        ],
+        "value": "body"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "pressure",
+        "label": "폐 안팎 압력 비교",
+        "numeric": false
+      },
+      {
+        "key": "air",
+        "label": "공기의 이동",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "phase": "inhale",
+          "view": "body"
+        },
+        "expected": {
+          "air": "바깥에서 폐 안으로 들어옵니다."
+        }
+      },
+      {
+        "state": {
+          "phase": "rest",
+          "view": "bottle"
+        },
+        "expected": {
+          "pressure": "안팎 압력이 같습니다."
+        }
+      }
+    ],
+    "target": {
+      "phase": "inhale",
+      "view": "body"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "neural-response",
+    "title": "반응은 어떤 길을 거쳐 나올까?",
+    "unit": "자극과 반응",
+    "codes": [
+      "9과20-01",
+      "9과20-02"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "감각기관의 자극은 신경을 통해 중추로 전달되고 반응 명령이 운동기관으로 전달된다.",
+    "controls": [
+      {
+        "key": "case",
+        "label": "반응 사례",
+        "options": [
+          [
+            "voluntary",
+            "보고 손 들기"
+          ],
+          [
+            "withdraw",
+            "뜨거운 것에서 손 떼기"
+          ],
+          [
+            "pupil",
+            "밝은 빛에서 동공 줄기"
+          ]
+        ],
+        "value": "voluntary"
+      },
+      {
+        "key": "focus",
+        "label": "따라갈 신호",
+        "options": [
+          [
+            "sensory",
+            "감각 신호"
+          ],
+          [
+            "motor",
+            "운동 명령"
+          ]
+        ],
+        "value": "sensory"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "path",
+        "label": "선택한 신호의 경로",
+        "numeric": false
+      },
+      {
+        "key": "center",
+        "label": "반응의 중추",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "case": "withdraw",
+          "focus": "motor"
+        },
+        "expected": {
+          "center": "척수",
+          "path": "척수 → 운동 신경 → 반응 기관"
+        }
+      },
+      {
+        "state": {
+          "case": "pupil",
+          "focus": "sensory"
+        },
+        "expected": {
+          "center": "중뇌"
+        }
+      }
+    ],
+    "target": {
+      "case": "withdraw",
+      "focus": "motor"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "hormone-balance",
+    "title": "혈당이 달라지면 몸은 어떻게 조절할까?",
+    "unit": "자극과 반응",
+    "codes": [
+      "9과20-03"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "호르몬은 혈액을 통해 표적 기관에 작용하며 혈당 변화에 대한 조절이 항상성에 기여한다.",
+    "controls": [
+      {
+        "key": "condition",
+        "label": "몸의 상황",
+        "options": [
+          [
+            "high",
+            "식후 혈당이 높아진 상황"
+          ],
+          [
+            "low",
+            "공복에 혈당이 낮아진 상황"
+          ]
+        ],
+        "value": "high"
+      },
+      {
+        "key": "view",
+        "label": "살펴볼 과정",
+        "options": [
+          [
+            "signal",
+            "분비와 이동"
+          ],
+          [
+            "target",
+            "표적 기관의 작용"
+          ]
+        ],
+        "value": "signal"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "hormone",
+        "label": "더 활발해지는 조절",
+        "numeric": false
+      },
+      {
+        "key": "effect",
+        "label": "주요 작용",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "condition": "high",
+          "view": "signal"
+        },
+        "expected": {
+          "hormone": "이자의 인슐린 분비가 증가합니다."
+        }
+      },
+      {
+        "state": {
+          "condition": "low",
+          "view": "target"
+        },
+        "expected": {
+          "effect": "간에서 저장 물질의 분해와 포도당 방출을 촉진합니다."
+        }
+      }
+    ],
+    "target": {
+      "condition": "low",
+      "view": "target"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "cell-division",
+    "title": "세포는 왜 커지기만 하지 않을까?",
+    "unit": "생식과 유전",
+    "codes": [
+      "9과21-01",
+      "9과21-02",
+      "9과21-03"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "세포 크기에 따른 표면적과 부피의 관계, 분열에 따른 염색체 분배를 구별한다.",
+    "controls": [
+      {
+        "key": "size",
+        "label": "정육면체 세포 한 변",
+        "min": 1,
+        "max": 4,
+        "step": 1,
+        "unit": "모형 단위",
+        "value": 2
+      },
+      {
+        "key": "division",
+        "label": "분열 과정",
+        "options": [
+          [
+            "before",
+            "DNA 복제 전"
+          ],
+          [
+            "copied",
+            "DNA 복제 후"
+          ],
+          [
+            "mitosis",
+            "체세포분열 후"
+          ],
+          [
+            "meiosis1",
+            "감수 1분열 후"
+          ],
+          [
+            "meiosis",
+            "생식세포 형성 후"
+          ],
+          [
+            "cleavage",
+            "초기 난할 후"
+          ]
+        ],
+        "value": "before"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "ratio",
+        "label": "분열 전 표면적/부피",
+        "unit": "",
+        "digits": 2,
+        "noise": 0
+      },
+      {
+        "key": "cells",
+        "label": "모형 속 세포 수",
+        "unit": "개",
+        "digits": 0,
+        "noise": 0
+      },
+      {
+        "key": "chromosomes",
+        "label": "세포당 염색체 수",
+        "unit": "개",
+        "digits": 0,
+        "noise": 0
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "size": 1,
+          "division": "before"
+        },
+        "expected": {
+          "ratio": 6,
+          "cells": 1,
+          "chromosomes": 4
+        }
+      },
+      {
+        "state": {
+          "size": 4,
+          "division": "meiosis"
+        },
+        "expected": {
+          "ratio": 1.5,
+          "cells": 4,
+          "chromosomes": 2
+        }
+      }
+    ],
+    "target": {
+      "size": 2,
+      "division": "meiosis"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "inheritance-lab",
+    "title": "우성 형질은 언제나 더 많을까?",
+    "unit": "생식과 유전",
+    "codes": [
+      "9과21-04",
+      "9과21-05"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "자손은 부모에게서 대립유전자를 하나씩 받으며 확률은 가족 수가 적을 때 정확한 비율을 보장하지 않는다.",
+    "controls": [
+      {
+        "key": "parentA",
+        "label": "부모 1 유전자형",
+        "options": [
+          [
+            "AA",
+            "AA"
+          ],
+          [
+            "Aa",
+            "Aa"
+          ],
+          [
+            "aa",
+            "aa"
+          ]
+        ],
+        "value": "Aa"
+      },
+      {
+        "key": "parentB",
+        "label": "부모 2 유전자형",
+        "options": [
+          [
+            "AA",
+            "AA"
+          ],
+          [
+            "Aa",
+            "Aa"
+          ],
+          [
+            "aa",
+            "aa"
+          ]
+        ],
+        "value": "Aa"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "dominant",
+        "label": "우성 표현형 확률",
+        "unit": "%",
+        "digits": 0,
+        "noise": 0
+      },
+      {
+        "key": "recessive",
+        "label": "열성 표현형 확률",
+        "unit": "%",
+        "digits": 0,
+        "noise": 0
+      },
+      {
+        "key": "hetero",
+        "label": "Aa 확률",
+        "unit": "%",
+        "digits": 0,
+        "noise": 0
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "parentA": "Aa",
+          "parentB": "Aa"
+        },
+        "expected": {
+          "dominant": 75,
+          "recessive": 25,
+          "hetero": 50
+        }
+      },
+      {
+        "state": {
+          "parentA": "AA",
+          "parentB": "aa"
+        },
+        "expected": {
+          "dominant": 100,
+          "recessive": 0,
+          "hetero": 100
+        }
+      }
+    ],
+    "target": {
+      "parentA": "Aa",
+      "parentB": "Aa"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "planet-scale",
+    "title": "행성의 크기와 거리를 따로 비교하면?",
+    "unit": "태양계",
+    "codes": [
+      "9과07-01"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "행성의 크기와 거리는 다른 척도이며 지구형과 목성형의 특징을 근거로 분류한다.",
+    "controls": [
+      {
+        "key": "planet",
+        "label": "행성",
+        "options": [
+          [
+            "mercury",
+            "수성"
+          ],
+          [
+            "venus",
+            "금성"
+          ],
+          [
+            "earth",
+            "지구"
+          ],
+          [
+            "mars",
+            "화성"
+          ],
+          [
+            "jupiter",
+            "목성"
+          ],
+          [
+            "saturn",
+            "토성"
+          ],
+          [
+            "uranus",
+            "천왕성"
+          ],
+          [
+            "neptune",
+            "해왕성"
+          ]
+        ],
+        "value": "earth"
+      },
+      {
+        "key": "scale",
+        "label": "비교할 척도",
+        "options": [
+          [
+            "size",
+            "반지름 비교"
+          ],
+          [
+            "distance",
+            "거리 비교"
+          ]
+        ],
+        "value": "size"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "radius",
+        "label": "지구 대비 반지름",
+        "unit": "배",
+        "digits": 2,
+        "noise": 0
+      },
+      {
+        "key": "distance",
+        "label": "태양까지 평균 거리",
+        "unit": "AU",
+        "digits": 2,
+        "noise": 0
+      },
+      {
+        "key": "group",
+        "label": "행성의 분류",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "planet": "earth",
+          "scale": "size"
+        },
+        "expected": {
+          "radius": 1,
+          "distance": 1,
+          "group": "지구형 행성"
+        }
+      },
+      {
+        "state": {
+          "planet": "neptune",
+          "scale": "distance"
+        },
+        "expected": {
+          "radius": 3.86,
+          "distance": 30.07,
+          "group": "목성형 행성"
+        }
+      }
+    ],
+    "target": {
+      "planet": "neptune",
+      "scale": "distance"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "solar-activity",
+    "title": "흑점이 많으면 지구에는 꼭 문제가 생길까?",
+    "unit": "태양계",
+    "codes": [
+      "9과07-02"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "흑점은 태양 활동의 지표이며 지구 영향은 분출 방향과 여러 조건에 따라 달라진다.",
+    "controls": [
+      {
+        "key": "activity",
+        "label": "비교할 태양",
+        "options": [
+          [
+            "quiet",
+            "활동이 비교적 약한 때"
+          ],
+          [
+            "active",
+            "활동이 비교적 강한 때"
+          ]
+        ],
+        "value": "quiet"
+      },
+      {
+        "key": "direction",
+        "label": "분출 방향",
+        "options": [
+          [
+            "away",
+            "지구와 다른 방향"
+          ],
+          [
+            "earth",
+            "지구 쪽 방향"
+          ]
+        ],
+        "value": "away"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "spots",
+        "label": "흑점 관찰",
+        "numeric": false
+      },
+      {
+        "key": "impact",
+        "label": "지구 영향의 해석",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "activity": "active",
+          "direction": "away"
+        },
+        "expected": {
+          "impact": "분출이 지구를 직접 지나지 않을 수 있습니다."
+        }
+      },
+      {
+        "state": {
+          "activity": "quiet",
+          "direction": "earth"
+        },
+        "expected": {
+          "spots": "흑점이 대체로 적게 나타납니다."
+        }
+      }
+    ],
+    "target": {
+      "activity": "active",
+      "direction": "away"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "earth-sky",
+    "title": "지구가 움직이면 하늘은 어떻게 보일까?",
+    "unit": "태양계",
+    "codes": [
+      "9과07-03"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "지구 자전의 반대 방향으로 하늘이 겉보기 운동하며 공전하면 한밤중에 보는 먼 배경 방향이 달라진다.",
+    "controls": [
+      {
+        "key": "rotation",
+        "label": "지구의 자전 각",
+        "min": 0,
+        "max": 360,
+        "step": 30,
+        "unit": "°",
+        "value": 0
+      },
+      {
+        "key": "orbit",
+        "label": "지구의 공전 위치",
+        "min": 0,
+        "max": 330,
+        "step": 30,
+        "unit": "°",
+        "value": 0
+      }
+    ],
+    "outputs": [
+      {
+        "key": "apparent",
+        "label": "별의 겉보기 회전각",
+        "unit": "°",
+        "digits": 0,
+        "noise": 0
+      },
+      {
+        "key": "midnight",
+        "label": "한밤중 배경 방향",
+        "unit": "°",
+        "digits": 0,
+        "noise": 0
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "rotation": 90,
+          "orbit": 180
+        },
+        "expected": {
+          "apparent": -90,
+          "midnight": 180
+        }
+      },
+      {
+        "state": {
+          "rotation": 360,
+          "orbit": 0
+        },
+        "expected": {
+          "apparent": -360,
+          "midnight": 0
+        }
+      }
+    ],
+    "target": {
+      "orbit": 180,
+      "rotation": 0
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "moon-geometry",
+    "title": "달의 모양과 식은 왜 다르게 변할까?",
+    "unit": "태양계",
+    "codes": [
+      "9과07-04"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "달의 위상은 밝은 반구를 보는 방향으로, 식은 실제 가림과 그림자로 설명한다.",
+    "controls": [
+      {
+        "key": "angle",
+        "label": "삭에서 움직인 공전 각",
+        "min": 0,
+        "max": 360,
+        "step": 15,
+        "unit": "°",
+        "value": 90
+      },
+      {
+        "key": "inclination",
+        "label": "달 궤도 기울기",
+        "options": [
+          [
+            5,
+            "약 5°"
+          ],
+          [
+            0,
+            "기울기 없는 비교 모형"
+          ]
+        ],
+        "value": 5
+      },
+      {
+        "key": "node",
+        "label": "궤도 교차선 방향",
+        "options": [
+          [
+            0,
+            "태양 방향과 나란함"
+          ],
+          [
+            90,
+            "태양 방향과 어긋남"
+          ]
+        ],
+        "value": 90
+      }
+    ],
+    "outputs": [
+      {
+        "key": "lit",
+        "label": "밝게 보이는 면적 비율",
+        "unit": "%",
+        "digits": 1,
+        "noise": 0
+      },
+      {
+        "key": "eclipse",
+        "label": "식의 기하 조건",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "angle": 0,
+          "inclination": 0,
+          "node": 0
+        },
+        "expected": {
+          "lit": 0,
+          "eclipse": "지구 일부에서 일식이 가능한 배열입니다."
+        }
+      },
+      {
+        "state": {
+          "angle": 180,
+          "inclination": 0,
+          "node": 0
+        },
+        "expected": {
+          "lit": 100,
+          "eclipse": "달이 지구 본그림자와 겹칠 수 있습니다."
+        }
+      },
+      {
+        "state": {
+          "angle": 90,
+          "inclination": 5,
+          "node": 90
+        },
+        "expected": {
+          "lit": 50
+        }
+      },
+      {
+        "state": {
+          "angle": 180,
+          "inclination": 5,
+          "node": 90
+        },
+        "expected": {
+          "eclipse": "식이 생기지 않는 배열입니다."
+        }
+      }
+    ],
+    "target": {
+      "angle": 180,
+      "inclination": 5,
+      "node": 90
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "star-distance",
+    "title": "밝게 보이는 별이 정말 더 밝을까?",
+    "unit": "별과 우주",
+    "codes": [
+      "9과15-01"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "별의 겉보기 밝기는 실제 광도와 거리에 함께 의존하며 가까운 별의 시차가 더 크다.",
+    "controls": [
+      {
+        "key": "distance",
+        "label": "별까지 상대 거리",
+        "min": 1,
+        "max": 5,
+        "step": 1,
+        "unit": "배",
+        "value": 2
+      },
+      {
+        "key": "luminosity",
+        "label": "별의 실제 밝기",
+        "min": 1,
+        "max": 4,
+        "step": 1,
+        "unit": "상대값",
+        "value": 1
+      },
+      {
+        "key": "color",
+        "label": "별의 색",
+        "options": [
+          [
+            "red",
+            "붉은 별"
+          ],
+          [
+            "white",
+            "흰 별"
+          ],
+          [
+            "blue",
+            "푸른 별"
+          ]
+        ],
+        "value": "red"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "brightness",
+        "label": "겉보기 밝기",
+        "unit": "상대값",
+        "digits": 3,
+        "noise": 0
+      },
+      {
+        "key": "parallax",
+        "label": "연주시차 비교",
+        "numeric": false
+      },
+      {
+        "key": "temperature",
+        "label": "표면 온도 비교",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "distance": 2,
+          "luminosity": 4,
+          "color": "red"
+        },
+        "expected": {
+          "brightness": 1
+        }
+      },
+      {
+        "state": {
+          "distance": 5,
+          "luminosity": 1,
+          "color": "blue"
+        },
+        "expected": {
+          "brightness": 0.04,
+          "temperature": "푸른 별은 상대적으로 높습니다."
+        }
+      }
+    ],
+    "target": {
+      "distance": 2,
+      "luminosity": 4,
+      "color": "red"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "expanding-space",
+    "title": "어느 은하에서 보아도 멀어질까?",
+    "unit": "별과 우주",
+    "codes": [
+      "9과15-02",
+      "9과15-03"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "공간의 팽창 모형에서는 은하 사이 거리가 늘어나며 특정 은하를 팽창 중심으로 정할 수 없다.",
+    "controls": [
+      {
+        "key": "scale",
+        "label": "공간의 늘어난 비율",
+        "min": 1,
+        "max": 2,
+        "step": 0.1,
+        "unit": "배",
+        "value": 1.5
+      },
+      {
+        "key": "observer",
+        "label": "기준 은하",
+        "options": [
+          [
+            "A",
+            "은하 A"
+          ],
+          [
+            "B",
+            "은하 B"
+          ],
+          [
+            "C",
+            "은하 C"
+          ]
+        ],
+        "value": "A"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "AB",
+        "label": "A–B 거리",
+        "unit": "모형 단위",
+        "digits": 2,
+        "noise": 0
+      },
+      {
+        "key": "AC",
+        "label": "A–C 거리",
+        "unit": "모형 단위",
+        "digits": 2,
+        "noise": 0
+      },
+      {
+        "key": "BC",
+        "label": "B–C 거리",
+        "unit": "모형 단위",
+        "digits": 2,
+        "noise": 0
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "scale": 1,
+          "observer": "A"
+        },
+        "expected": {
+          "AB": 2,
+          "AC": 3.605551275463989,
+          "BC": 3
+        }
+      },
+      {
+        "state": {
+          "scale": 2,
+          "observer": "B"
+        },
+        "expected": {
+          "AB": 4,
+          "AC": 7.211102550927978,
+          "BC": 6
+        }
+      }
+    ],
+    "target": {
+      "observer": "B",
+      "scale": 2
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "rock-cycle",
+    "title": "암석은 한 방향으로만 바뀔까?",
+    "unit": "지권의 변화",
+    "codes": [
+      "9과09-01",
+      "9과09-03",
+      "9과09-04"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "암석은 생성 과정으로 분류하며 여러 경로로 순환하고 풍화 산물이 토양 형성에 기여한다.",
+    "controls": [
+      {
+        "key": "rock",
+        "label": "출발 물질",
+        "options": [
+          [
+            "igneous",
+            "화성암"
+          ],
+          [
+            "sedimentary",
+            "퇴적암"
+          ],
+          [
+            "metamorphic",
+            "변성암"
+          ],
+          [
+            "sediment",
+            "퇴적물"
+          ],
+          [
+            "magma",
+            "마그마"
+          ]
+        ],
+        "value": "igneous"
+      },
+      {
+        "key": "process",
+        "label": "작용",
+        "options": [
+          [
+            "weather",
+            "풍화·침식"
+          ],
+          [
+            "pressure",
+            "열과 압력"
+          ],
+          [
+            "melt",
+            "용융"
+          ],
+          [
+            "cool",
+            "냉각"
+          ],
+          [
+            "compact",
+            "다져짐·굳어짐"
+          ]
+        ],
+        "value": "weather"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "result",
+        "label": "변화의 결과",
+        "numeric": false
+      },
+      {
+        "key": "note",
+        "label": "조건 해석",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "rock": "sedimentary",
+          "process": "pressure"
+        },
+        "expected": {
+          "result": "변성암"
+        }
+      },
+      {
+        "state": {
+          "rock": "magma",
+          "process": "cool"
+        },
+        "expected": {
+          "result": "화성암"
+        }
+      },
+      {
+        "state": {
+          "rock": "igneous",
+          "process": "melt"
+        },
+        "expected": {
+          "result": "마그마"
+        }
+      }
+    ],
+    "target": {
+      "rock": "sedimentary",
+      "process": "pressure"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "mineral-tests",
+    "title": "겉색이 비슷해도 같은 광물일까?",
+    "unit": "지권의 변화",
+    "codes": [
+      "9과09-02"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "색만으로 광물을 확정하지 않고 굳기·조흔색·염산 반응·자성 등 여러 근거를 비교한다.",
+    "controls": [
+      {
+        "key": "mineral",
+        "label": "광물",
+        "options": [
+          [
+            "quartz",
+            "석영"
+          ],
+          [
+            "calcite",
+            "방해석"
+          ],
+          [
+            "magnetite",
+            "자철석"
+          ],
+          [
+            "hematite",
+            "적철석"
+          ]
+        ],
+        "value": "quartz"
+      },
+      {
+        "key": "test",
+        "label": "검사 방법",
+        "options": [
+          [
+            "streak",
+            "조흔색"
+          ],
+          [
+            "scratch",
+            "석영과 방해석 비교"
+          ],
+          [
+            "acid",
+            "묽은 염산"
+          ],
+          [
+            "magnet",
+            "자석"
+          ]
+        ],
+        "value": "streak"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "result",
+        "label": "관찰 결과",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "mineral": "hematite",
+          "test": "streak"
+        },
+        "expected": {
+          "result": "조흔색은 적갈색입니다."
+        }
+      },
+      {
+        "state": {
+          "mineral": "calcite",
+          "test": "acid"
+        },
+        "expected": {
+          "result": "기포가 발생합니다."
+        }
+      }
+    ],
+    "target": {
+      "mineral": "calcite",
+      "test": "acid"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "plate-patterns",
+    "title": "지진과 화산은 아무 곳에나 모일까?",
+    "unit": "지권의 변화",
+    "codes": [
+      "9과09-05"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "지진대와 화산대는 대체로 판 경계 부근에 분포하지만 판 내부에도 발생할 수 있다.",
+    "controls": [
+      {
+        "key": "layer",
+        "label": "살펴볼 분포",
+        "options": [
+          [
+            "earthquake",
+            "지진대"
+          ],
+          [
+            "volcano",
+            "화산대"
+          ],
+          [
+            "both",
+            "두 분포 함께"
+          ]
+        ],
+        "value": "earthquake"
+      },
+      {
+        "key": "boundary",
+        "label": "판 경계 겹치기",
+        "options": [
+          [
+            "off",
+            "경계 숨기기"
+          ],
+          [
+            "on",
+            "경계 보이기"
+          ]
+        ],
+        "value": "off"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "pattern",
+        "label": "분포 해석",
+        "numeric": false
+      },
+      {
+        "key": "exception",
+        "label": "주의할 점",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "layer": "volcano",
+          "boundary": "on"
+        },
+        "expected": {
+          "pattern": "많은 분포 띠가 판 경계와 겹칩니다."
+        }
+      },
+      {
+        "state": {
+          "layer": "earthquake",
+          "boundary": "off"
+        },
+        "expected": {
+          "exception": "판 내부에서도 지진이 발생할 수 있습니다."
+        }
+      }
+    ],
+    "target": {
+      "layer": "volcano",
+      "boundary": "on"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "humidity-cloud",
+    "title": "수증기가 늘지 않아도 습해질까?",
+    "unit": "날씨와 기후변화",
+    "codes": [
+      "9과17-03"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "기온이 내려가면 포화 수증기압이 낮아져 상대습도가 커지며 포화 이후 응결할 수 있다.",
+    "controls": [
+      {
+        "key": "temperature",
+        "label": "기온",
+        "min": 0,
+        "max": 30,
+        "step": 1,
+        "unit": "℃",
+        "value": 20
+      },
+      {
+        "key": "vapor",
+        "label": "냉각 전 수증기압",
+        "min": 6,
+        "max": 24,
+        "step": 2,
+        "unit": "hPa",
+        "value": 12
+      }
+    ],
+    "outputs": [
+      {
+        "key": "humidity",
+        "label": "상대습도",
+        "unit": "%",
+        "digits": 1,
+        "noise": 0.05
+      },
+      {
+        "key": "saturation",
+        "label": "포화 수증기압",
+        "unit": "hPa",
+        "digits": 2,
+        "noise": 0
+      },
+      {
+        "key": "condensation",
+        "label": "응결 여부",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "temperature": 0,
+          "vapor": 12
+        },
+        "expected": {
+          "humidity": 100,
+          "saturation": 6.112
+        }
+      },
+      {
+        "state": {
+          "temperature": 20,
+          "vapor": 12
+        },
+        "expected": {
+          "saturation": 23.36947123406443,
+          "humidity": 51.349043715239226
+        }
+      }
+    ],
+    "target": {
+      "temperature": 0,
+      "vapor": 12
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "radiation-balance",
+    "title": "받는 에너지와 나가는 에너지가 달라지면?",
+    "unit": "날씨와 기후변화",
+    "codes": [
+      "9과17-01"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "복사 평형은 들어오는 에너지와 나가는 에너지의 균형이며 온실효과는 지표 복사의 흡수·재방출과 관련된다.",
+    "controls": [
+      {
+        "key": "absorption",
+        "label": "대기의 지표 복사 흡수 비율",
+        "min": 0,
+        "max": 1,
+        "step": 0.1,
+        "unit": "",
+        "value": 0.8
+      },
+      {
+        "key": "albedo",
+        "label": "태양빛 반사 비율",
+        "min": 0.1,
+        "max": 0.5,
+        "step": 0.1,
+        "unit": "",
+        "value": 0.3
+      }
+    ],
+    "outputs": [
+      {
+        "key": "surface",
+        "label": "평형 지표 온도",
+        "unit": "℃",
+        "digits": 1,
+        "noise": 0
+      },
+      {
+        "key": "incoming",
+        "label": "흡수한 태양 에너지",
+        "unit": "W/m²",
+        "digits": 1,
+        "noise": 0
+      },
+      {
+        "key": "outgoing",
+        "label": "우주로 나가는 에너지",
+        "unit": "W/m²",
+        "digits": 1,
+        "noise": 0
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "absorption": 0,
+          "albedo": 0.3
+        },
+        "expected": {
+          "incoming": 238.175,
+          "outgoing": 238.175,
+          "surface": -18.57185988342828
+        }
+      },
+      {
+        "state": {
+          "absorption": 1,
+          "albedo": 0.3
+        },
+        "expected": {
+          "incoming": 238.175,
+          "outgoing": 238.175,
+          "surface": 29.59613555078686
+        }
+      }
+    ],
+    "target": {
+      "absorption": 0,
+      "albedo": 0.3
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "weather-fronts",
+    "title": "공기가 만나는 방식이 날씨를 바꿀까?",
+    "unit": "날씨와 기후변화",
+    "codes": [
+      "9과17-02",
+      "9과17-04"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "고기압·저기압의 공기 이동과 전선에서 따뜻한 공기의 상승을 연결한다.",
+    "controls": [
+      {
+        "key": "scene",
+        "label": "기압과 기단",
+        "options": [
+          [
+            "high",
+            "북반구 고기압"
+          ],
+          [
+            "low",
+            "북반구 저기압"
+          ],
+          [
+            "cold",
+            "한랭 전선"
+          ],
+          [
+            "warm",
+            "온난 전선"
+          ]
+        ],
+        "value": "high"
+      },
+      {
+        "key": "view",
+        "label": "기압계의 시점",
+        "options": [
+          [
+            "top",
+            "위에서"
+          ],
+          [
+            "side",
+            "옆에서"
+          ]
+        ],
+        "value": "top"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "motion",
+        "label": "공기 이동",
+        "numeric": false
+      },
+      {
+        "key": "weather",
+        "label": "날씨 경향",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "scene": "low",
+          "view": "top"
+        },
+        "expected": {
+          "motion": "지표 부근에서 반시계 방향으로 모여 상승합니다."
+        }
+      },
+      {
+        "state": {
+          "scene": "high",
+          "view": "side"
+        },
+        "expected": {
+          "motion": "하강하며 지표 부근에서 시계 방향으로 퍼집니다."
+        }
+      }
+    ],
+    "target": {
+      "scene": "low",
+      "view": "side"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "ocean-salinity",
+    "title": "물만 증발하면 염분은 어떻게 될까?",
+    "unit": "수권과 해수의 순환",
+    "codes": [
+      "9과18-01",
+      "9과18-02"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "해수의 염분은 전체 해수 질량 중 염류의 질량 비율이며 물의 유출입으로 변한다.",
+    "controls": [
+      {
+        "key": "waterChange",
+        "label": "더한 물의 질량",
+        "min": -200,
+        "max": 200,
+        "step": 50,
+        "unit": "g",
+        "value": 0
+      },
+      {
+        "key": "salt",
+        "label": "처음 염류 질량",
+        "min": 20,
+        "max": 40,
+        "step": 5,
+        "unit": "g",
+        "value": 35
+      }
+    ],
+    "outputs": [
+      {
+        "key": "salinity",
+        "label": "염분",
+        "unit": "‰",
+        "digits": 2,
+        "noise": 0.02
+      },
+      {
+        "key": "total",
+        "label": "해수 질량",
+        "unit": "g",
+        "digits": 0,
+        "noise": 0
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "waterChange": -200,
+          "salt": 35
+        },
+        "expected": {
+          "salinity": 43.75,
+          "total": 800
+        }
+      },
+      {
+        "state": {
+          "waterChange": 200,
+          "salt": 35
+        },
+        "expected": {
+          "salinity": 29.166666666666668,
+          "total": 1200
+        }
+      }
+    ],
+    "target": {
+      "salt": 35,
+      "waterChange": -200
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "ocean-circulation",
+    "title": "바람과 해류는 열을 어디로 옮길까?",
+    "unit": "수권과 해수의 순환",
+    "codes": [
+      "9과17-02",
+      "9과18-02",
+      "9과18-03"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "바람과 북태평양 표층 해류가 연결되고 해류는 저위도와 고위도 사이 에너지를 재분배한다.",
+    "controls": [
+      {
+        "key": "view",
+        "label": "비교 장면",
+        "options": [
+          [
+            "gyre",
+            "북태평양 순환"
+          ],
+          [
+            "profile",
+            "우리나라 주변 바다의 수온"
+          ]
+        ],
+        "value": "gyre"
+      },
+      {
+        "key": "season",
+        "label": "계절",
+        "options": [
+          [
+            "summer",
+            "여름"
+          ],
+          [
+            "winter",
+            "겨울"
+          ]
+        ],
+        "value": "summer"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "pattern",
+        "label": "주요 특징",
+        "numeric": false
+      },
+      {
+        "key": "energy",
+        "label": "에너지와 연결",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "view": "profile",
+          "season": "summer"
+        },
+        "expected": {
+          "pattern": "표층이 따뜻해져 수온 약층이 더 뚜렷해집니다."
+        }
+      },
+      {
+        "state": {
+          "view": "gyre",
+          "season": "winter"
+        },
+        "expected": {
+          "energy": "따뜻한 해류는 저위도의 에너지를 높은 위도 쪽으로 운반합니다."
+        }
+      }
+    ],
+    "target": {
+      "view": "profile",
+      "season": "summer"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "earth-layers",
+    "title": "지구 안쪽은 모두 녹아 있을까?",
+    "unit": "지권의 변화",
+    "codes": [
+      "9과09-01"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "지각·맨틀·외핵·내핵의 위치와 상태를 구별하고 지구계 구성 요소를 연결한다.",
+    "controls": [
+      {
+        "key": "depth",
+        "label": "표면에서의 깊이",
+        "min": 0,
+        "max": 6370,
+        "step": 10,
+        "unit": "km",
+        "value": 1000
+      },
+      {
+        "key": "crust",
+        "label": "지각 모형",
+        "options": [
+          [
+            "continent",
+            "대륙 지각 35 km"
+          ],
+          [
+            "ocean",
+            "해양 지각 7 km"
+          ]
+        ],
+        "value": "continent"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "layer",
+        "label": "해당 층",
+        "numeric": false
+      },
+      {
+        "key": "stateOfMatter",
+        "label": "물질의 상태",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "depth": 1000,
+          "crust": "continent"
+        },
+        "expected": {
+          "layer": "맨틀"
+        }
+      },
+      {
+        "state": {
+          "depth": 3000,
+          "crust": "ocean"
+        },
+        "expected": {
+          "layer": "외핵",
+          "stateOfMatter": "액체입니다."
+        }
+      },
+      {
+        "state": {
+          "depth": 6000,
+          "crust": "continent"
+        },
+        "expected": {
+          "layer": "내핵"
+        }
+      }
+    ],
+    "target": {
+      "depth": 3000,
+      "crust": "continent"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      1,
+      2
+    ]
+  },
+  {
+    "id": "galaxy-structure",
+    "title": "은하를 안에서 보면 왜 띠처럼 보일까?",
+    "unit": "별과 우주",
+    "codes": [
+      "9과15-02"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "우리은하는 원반 구조를 가지며 그 안에 있는 관측자는 원반 방향에서 별이 모인 띠를 본다.",
+    "controls": [
+      {
+        "key": "view",
+        "label": "관측 시점",
+        "options": [
+          [
+            "face",
+            "원반 위에서"
+          ],
+          [
+            "edge",
+            "원반 옆에서"
+          ],
+          [
+            "inside",
+            "태양계에서"
+          ]
+        ],
+        "value": "face"
+      },
+      {
+        "key": "object",
+        "label": "비교 대상",
+        "options": [
+          [
+            "galaxy",
+            "우리은하"
+          ],
+          [
+            "nebula",
+            "성운"
+          ],
+          [
+            "cluster",
+            "성단"
+          ]
+        ],
+        "value": "galaxy"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "structure",
+        "label": "구조 해석",
+        "numeric": false
+      },
+      {
+        "key": "scaleNote",
+        "label": "규모와 구별",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "view": "inside",
+          "object": "galaxy"
+        },
+        "expected": {
+          "structure": "원반 방향의 많은 별이 은하수 띠로 보입니다."
+        }
+      },
+      {
+        "state": {
+          "view": "face",
+          "object": "nebula"
+        },
+        "expected": {
+          "structure": "성간 기체와 먼지가 모인 영역입니다."
+        }
+      }
+    ],
+    "target": {
+      "view": "inside",
+      "object": "galaxy"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "solar-objects",
+    "title": "태양계의 천체는 어떻게 구별할까?",
+    "unit": "태양계",
+    "codes": [
+      "9과07-01"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "스스로 빛을 내는지, 무엇을 중심으로 도는지, 궤도 주변에서 어떤 역할인지로 태양계 천체를 구별한다.",
+    "controls": [
+      {
+        "key": "object",
+        "label": "천체",
+        "options": [
+          [
+            "sun",
+            "태양"
+          ],
+          [
+            "earth",
+            "지구"
+          ],
+          [
+            "moon",
+            "달"
+          ],
+          [
+            "pluto",
+            "명왕성"
+          ],
+          [
+            "asteroid",
+            "소행성"
+          ],
+          [
+            "comet",
+            "혜성"
+          ]
+        ],
+        "value": "sun"
+      },
+      {
+        "key": "criterion",
+        "label": "비교 기준",
+        "options": [
+          [
+            "orbit",
+            "공전과 분류"
+          ],
+          [
+            "matter",
+            "빛과 구성"
+          ]
+        ],
+        "value": "orbit"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "category",
+        "label": "분류",
+        "numeric": false
+      },
+      {
+        "key": "evidence",
+        "label": "비교 근거",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "object": "pluto",
+          "criterion": "orbit"
+        },
+        "expected": {
+          "category": "왜소행성"
+        }
+      },
+      {
+        "state": {
+          "object": "moon",
+          "criterion": "matter"
+        },
+        "expected": {
+          "category": "위성"
+        }
+      }
+    ],
+    "target": {
+      "object": "pluto",
+      "criterion": "orbit"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "photosynthesis-conditions",
+    "title": "빛만 세게 하면 계속 더 잘될까?",
+    "unit": "식물과 에너지",
+    "codes": [
+      "9과12-01"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "광합성을 비교하려면 빛·이산화 탄소 등 조건을 통제하며 부족한 요인이 결과를 제한할 수 있다.",
+    "controls": [
+      {
+        "key": "light",
+        "label": "빛의 조건",
+        "options": [
+          [
+            "dark",
+            "빛 없음"
+          ],
+          [
+            "weak",
+            "약한 빛"
+          ],
+          [
+            "strong",
+            "충분한 빛"
+          ]
+        ],
+        "value": "dark"
+      },
+      {
+        "key": "carbon",
+        "label": "이산화 탄소",
+        "options": [
+          [
+            "absent",
+            "공급 없음"
+          ],
+          [
+            "limited",
+            "제한된 공급"
+          ],
+          [
+            "enough",
+            "충분한 공급"
+          ]
+        ],
+        "value": "enough"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "result",
+        "label": "광합성의 조건 해석",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "light": "dark",
+          "carbon": "enough"
+        },
+        "expected": {
+          "result": "빛이 없어 광합성이 일어나지 않습니다."
+        }
+      },
+      {
+        "state": {
+          "light": "strong",
+          "carbon": "limited"
+        },
+        "expected": {
+          "result": "빛을 늘려도 CO₂가 제한 요인이 될 수 있습니다."
+        }
+      }
+    ],
+    "target": {
+      "light": "strong",
+      "carbon": "limited"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "motion-graphs",
+    "title": "그래프 모양이 곧 이동 경로일까?",
+    "unit": "운동과 에너지",
+    "codes": [
+      "9과19-01"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "시간–거리 그래프의 기울기와 시간–속력 그래프를 실제 직선 운동에 연결한다.",
+    "controls": [
+      {
+        "key": "time",
+        "label": "지난 시간",
+        "min": 0,
+        "max": 5,
+        "step": 0.5,
+        "unit": "s",
+        "value": 2
+      },
+      {
+        "key": "motion",
+        "label": "운동 방식",
+        "options": [
+          [
+            "uniform",
+            "일정한 속력"
+          ],
+          [
+            "speedup",
+            "속력이 일정하게 증가"
+          ],
+          [
+            "slowdown",
+            "속력이 일정하게 감소"
+          ]
+        ],
+        "value": "uniform"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "distance",
+        "label": "이동 거리",
+        "unit": "m",
+        "digits": 2,
+        "noise": 0.01
+      },
+      {
+        "key": "speed",
+        "label": "속력",
+        "unit": "m/s",
+        "digits": 2,
+        "noise": 0
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "time": 5,
+          "motion": "slowdown"
+        },
+        "expected": {
+          "distance": 25,
+          "speed": 0
+        }
+      },
+      {
+        "state": {
+          "time": 2,
+          "motion": "speedup"
+        },
+        "expected": {
+          "distance": 4,
+          "speed": 4
+        }
+      },
+      {
+        "state": {
+          "time": 2,
+          "motion": "uniform"
+        },
+        "expected": {
+          "distance": 4,
+          "speed": 2
+        }
+      }
+    ],
+    "target": {
+      "motion": "slowdown",
+      "time": 5
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "electrical-energy",
+    "title": "같은 시간 켜면 같은 에너지를 쓸까?",
+    "unit": "전기와 자기",
+    "codes": [
+      "9과14-03"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "소비 전력은 에너지 전환의 빠르기를 나타내며 같은 시간에도 사용하는 에너지가 다를 수 있다.",
+    "controls": [
+      {
+        "key": "power",
+        "label": "소비 전력",
+        "options": [
+          [
+            10,
+            "10 W 장치"
+          ],
+          [
+            20,
+            "20 W 장치"
+          ],
+          [
+            40,
+            "40 W 장치"
+          ]
+        ],
+        "value": 10
+      },
+      {
+        "key": "time",
+        "label": "작동 시간",
+        "min": 0,
+        "max": 60,
+        "step": 10,
+        "unit": "s",
+        "value": 30
+      }
+    ],
+    "outputs": [
+      {
+        "key": "energy",
+        "label": "전환한 에너지",
+        "unit": "J",
+        "digits": 0,
+        "noise": 0
+      },
+      {
+        "key": "meaning",
+        "label": "관찰 해석",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "power": 20,
+          "time": 30
+        },
+        "expected": {
+          "energy": 600
+        }
+      },
+      {
+        "state": {
+          "power": 40,
+          "time": 60
+        },
+        "expected": {
+          "energy": 2400
+        }
+      }
+    ],
+    "target": {
+      "power": 40,
+      "time": 30
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "periodic-families",
+    "title": "원소를 순서대로 놓으면 어떤 무리가 보일까?",
+    "unit": "물질의 구성",
+    "codes": [
+      "9과11-03"
+    ],
+    "subject": "chem",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "주기율표는 양성자 수 순서로 배치되며 같은 족의 원소는 유사한 성질을 보일 수 있다.",
+    "controls": [
+      {
+        "key": "element",
+        "label": "원소",
+        "options": [
+          [
+            "Li",
+            "리튬"
+          ],
+          [
+            "Na",
+            "나트륨"
+          ],
+          [
+            "K",
+            "칼륨"
+          ],
+          [
+            "He",
+            "헬륨"
+          ],
+          [
+            "Ne",
+            "네온"
+          ],
+          [
+            "Ar",
+            "아르곤"
+          ]
+        ],
+        "value": "Li"
+      },
+      {
+        "key": "criterion",
+        "label": "비교 기준",
+        "options": [
+          [
+            "protons",
+            "양성자 수"
+          ],
+          [
+            "property",
+            "대표 성질"
+          ]
+        ],
+        "value": "protons"
+      }
+    ],
+    "outputs": [
+      {
+        "key": "group",
+        "label": "족",
+        "numeric": false
+      },
+      {
+        "key": "property",
+        "label": "비교 근거",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "element": "Na",
+          "criterion": "protons"
+        },
+        "expected": {
+          "group": "1족",
+          "property": "양성자 11개입니다."
+        }
+      },
+      {
+        "state": {
+          "element": "Ar",
+          "criterion": "property"
+        },
+        "expected": {
+          "group": "18족",
+          "property": "다른 물질과 잘 반응하지 않는 공통 성질이 있습니다."
+        }
+      }
+    ],
+    "target": {
+      "element": "Na",
+      "criterion": "property"
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  },
+  {
+    "id": "atmosphere-circulation",
+    "title": "높이와 위도를 바꾸면 공기는 어떻게 다를까?",
+    "unit": "날씨와 기후변화",
+    "codes": [
+      "9과17-01",
+      "9과17-02"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "대기의 수직 층과 위도별 지표 바람을 구별하고 대순환이 에너지 재분배에 기여함을 이해한다.",
+    "controls": [
+      {
+        "key": "height",
+        "label": "지표에서의 높이",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "unit": "km",
+        "value": 5
+      },
+      {
+        "key": "latitude",
+        "label": "북반구 위도대",
+        "options": [
+          [
+            15,
+            "0~30°"
+          ],
+          [
+            45,
+            "30~60°"
+          ],
+          [
+            75,
+            "60~90°"
+          ]
+        ],
+        "value": 15
+      }
+    ],
+    "outputs": [
+      {
+        "key": "layer",
+        "label": "대기층",
+        "numeric": false
+      },
+      {
+        "key": "temperatureTrend",
+        "label": "층 안의 기온 경향",
+        "numeric": false
+      },
+      {
+        "key": "wind",
+        "label": "지표 부근 바람",
+        "numeric": false
+      }
+    ],
+    "checks": [
+      {
+        "state": {
+          "height": 20,
+          "latitude": 45
+        },
+        "expected": {
+          "layer": "성층권",
+          "wind": "편서풍"
+        }
+      },
+      {
+        "state": {
+          "height": 60,
+          "latitude": 15
+        },
+        "expected": {
+          "layer": "중간권",
+          "temperatureTrend": "높이 올라갈수록 대체로 낮아집니다."
+        }
+      },
+      {
+        "state": {
+          "height": 90,
+          "latitude": 75
+        },
+        "expected": {
+          "layer": "열권",
+          "wind": "극동풍"
+        }
+      }
+    ],
+    "target": {
+      "height": 20,
+      "latitude": 45
+    },
+    "answers": [
+      0,
+      0
+    ],
+    "quiz": [
+      0,
+      1
+    ]
+  }
+]

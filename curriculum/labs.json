@@ -1,0 +1,623 @@
+[
+  {
+    "id": "density-lab",
+    "title": "크기가 달라도 같은 물질일까?",
+    "unit": "물질의 특성",
+    "codes": [
+      "9과08-01",
+      "9과08-02"
+    ],
+    "subject": "chem",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "같은 온도의 같은 물질은 양을 바꾸어도 질량과 부피의 비가 같다."
+  },
+  {
+    "id": "solubility-lab",
+    "title": "녹인 뒤 식히면 무엇이 남을까?",
+    "unit": "물질의 특성",
+    "codes": [
+      "9과08-01",
+      "9과08-03"
+    ],
+    "subject": "chem",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "일정한 온도의 일정량 물에 녹을 수 있는 양에는 한계가 있으며, 냉각으로 용질을 분리할 수 있다."
+  },
+  {
+    "id": "mixture-separation",
+    "title": "어떤 성질로 나눌 수 있을까?",
+    "unit": "물질의 특성",
+    "codes": [
+      "9과08-02",
+      "9과08-03"
+    ],
+    "subject": "chem",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "혼합물은 성분의 크기·용해·끓는 성질 차이를 이용해 분리한다."
+  },
+  {
+    "id": "atom-builder",
+    "title": "원소와 전하는 무엇이 정할까?",
+    "unit": "물질의 구성",
+    "codes": [
+      "9과11-01",
+      "9과11-02",
+      "9과11-03",
+      "9과11-04"
+    ],
+    "subject": "chem",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "양성자 수가 원소를 정하고, 전자를 얻거나 잃으면 이온이 된다."
+  },
+  {
+    "id": "reaction-builder",
+    "title": "다시 짝지어도 원자는 남을까?",
+    "unit": "화학 반응의 규칙성",
+    "codes": [
+      "9과11-01",
+      "9과11-04",
+      "9과16-01",
+      "9과16-02",
+      "9과16-03",
+      "9과16-04",
+      "9과16-05"
+    ],
+    "subject": "chem",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "화학 반응은 원자가 다시 결합하는 과정이며 원자 종류와 수가 보존된다."
+  },
+  {
+    "id": "reaction-energy",
+    "title": "반응할 때 주변은 따뜻해질까?",
+    "unit": "화학 반응의 규칙성",
+    "codes": [
+      "9과16-06"
+    ],
+    "subject": "chem",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "발열 반응은 주변으로 에너지를 전달하고 흡열 반응은 주변에서 에너지를 받는다."
+  },
+  {
+    "id": "light-paths",
+    "title": "빛은 경계에서 어디로 갈까?",
+    "unit": "빛과 파동",
+    "codes": [
+      "9과10-01"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "빛의 반사각은 입사각과 같고, 물질 경계를 통과할 때 방향이 바뀔 수 있다."
+  },
+  {
+    "id": "image-optics",
+    "title": "거울 뒤의 상은 어디에 있을까?",
+    "unit": "빛과 파동",
+    "codes": [
+      "9과10-02"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "평면거울의 상은 반사광을 거꾸로 연장한 곳에 보이며 렌즈의 상은 물체 위치에 따라 달라진다."
+  },
+  {
+    "id": "light-colors",
+    "title": "같은 물체가 다른 색으로 보일까?",
+    "unit": "빛과 파동",
+    "codes": [
+      "9과10-03"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "빛의 합성과 물체가 반사하는 빛을 구별한다."
+  },
+  {
+    "id": "wave-motion",
+    "title": "파동이 갈 때 입자도 따라갈까?",
+    "unit": "빛과 파동",
+    "codes": [
+      "9과10-04"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "매질은 제자리에서 진동하고 파동은 에너지를 전달하며 진폭·진동수·파형은 서로 다르다."
+  },
+  {
+    "id": "electric-circuit",
+    "title": "전류는 전구를 지나면 줄어들까?",
+    "unit": "전기와 자기",
+    "codes": [
+      "9과14-02",
+      "9과14-03"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "전압과 저항이 전류를 정하며 전류는 직렬 회로에서 이어지고 병렬 회로의 가지에서 나뉜다."
+  },
+  {
+    "id": "static-charge",
+    "title": "닿지 않았는데 왜 끌려올까?",
+    "unit": "전기와 자기",
+    "codes": [
+      "9과14-01"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "전자 이동과 도체 내부 전하 재배치로 대전과 정전기 유도를 구별한다."
+  },
+  {
+    "id": "coil-motor",
+    "title": "전류를 뒤집으면 힘도 바뀔까?",
+    "unit": "전기와 자기",
+    "codes": [
+      "9과14-04"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "자기장 속 코일의 두 변에는 반대 방향의 힘이 작용하며 전류 방향을 바꾸면 힘 방향이 바뀐다."
+  },
+  {
+    "id": "motion-energy",
+    "title": "떨어지는 동안 에너지는 어디로 갈까?",
+    "unit": "운동과 에너지",
+    "codes": [
+      "9과19-01",
+      "9과19-02",
+      "9과19-03",
+      "9과19-04"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "자유 낙하에서 속력은 같은 시간마다 같은 만큼 늘고 위치 에너지가 운동 에너지로 전환된다."
+  },
+  {
+    "id": "cell-organization",
+    "title": "세포의 구조는 하는 일과 어떻게 연결될까?",
+    "unit": "생물의 구성과 다양성",
+    "codes": [
+      "9과02-01",
+      "9과02-02"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "세포의 구조와 기능을 연결하고 세포에서 개체까지의 구성 단계를 비교한다."
+  },
+  {
+    "id": "biodiversity-sort",
+    "title": "닮았다는 이유만으로 같은 무리일까?",
+    "unit": "생물의 구성과 다양성",
+    "codes": [
+      "9과02-03",
+      "9과02-04",
+      "9과02-05"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "생물은 세포와 영양 방식 등의 근거로 분류하며 같은 종 안에도 변이가 있다."
+  },
+  {
+    "id": "plant-exchange",
+    "title": "식물은 밤에도 호흡할까?",
+    "unit": "식물과 에너지",
+    "codes": [
+      "9과12-01",
+      "9과12-02",
+      "9과12-03"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "광합성과 호흡은 함께 일어나며 바깥에서 측정한 기체 교환은 두 과정의 차이다."
+  },
+  {
+    "id": "body-systems",
+    "title": "먹은 물질과 들이마신 산소는 어디서 만날까?",
+    "unit": "동물과 에너지",
+    "codes": [
+      "9과13-01",
+      "9과13-02",
+      "9과13-04",
+      "9과13-05"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "소화·호흡·순환·배설은 세포가 에너지를 얻고 노폐물을 내보내는 과정으로 연결된다."
+  },
+  {
+    "id": "breathing-model",
+    "title": "폐가 공기를 밀어 넣는 걸까?",
+    "unit": "동물과 에너지",
+    "codes": [
+      "9과13-03"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "가로막과 갈비뼈 운동에 따른 가슴 공간 변화가 압력 차이를 만들고 공기가 이동한다."
+  },
+  {
+    "id": "neural-response",
+    "title": "반응은 어떤 길을 거쳐 나올까?",
+    "unit": "자극과 반응",
+    "codes": [
+      "9과20-01",
+      "9과20-02"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "감각기관의 자극은 신경을 통해 중추로 전달되고 반응 명령이 운동기관으로 전달된다."
+  },
+  {
+    "id": "hormone-balance",
+    "title": "혈당이 달라지면 몸은 어떻게 조절할까?",
+    "unit": "자극과 반응",
+    "codes": [
+      "9과20-03"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "호르몬은 혈액을 통해 표적 기관에 작용하며 혈당 변화에 대한 조절이 항상성에 기여한다."
+  },
+  {
+    "id": "cell-division",
+    "title": "세포는 왜 커지기만 하지 않을까?",
+    "unit": "생식과 유전",
+    "codes": [
+      "9과21-01",
+      "9과21-02",
+      "9과21-03"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "세포 크기에 따른 표면적과 부피의 관계, 분열에 따른 염색체 분배를 구별한다."
+  },
+  {
+    "id": "inheritance-lab",
+    "title": "우성 형질은 언제나 더 많을까?",
+    "unit": "생식과 유전",
+    "codes": [
+      "9과21-04",
+      "9과21-05"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "자손은 부모에게서 대립유전자를 하나씩 받으며 확률은 가족 수가 적을 때 정확한 비율을 보장하지 않는다."
+  },
+  {
+    "id": "planet-scale",
+    "title": "행성의 크기와 거리를 따로 비교하면?",
+    "unit": "태양계",
+    "codes": [
+      "9과07-01"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "행성의 크기와 거리는 다른 척도이며 지구형과 목성형의 특징을 근거로 분류한다."
+  },
+  {
+    "id": "solar-activity",
+    "title": "흑점이 많으면 지구에는 꼭 문제가 생길까?",
+    "unit": "태양계",
+    "codes": [
+      "9과07-02"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "흑점은 태양 활동의 지표이며 지구 영향은 분출 방향과 여러 조건에 따라 달라진다."
+  },
+  {
+    "id": "earth-sky",
+    "title": "지구가 움직이면 하늘은 어떻게 보일까?",
+    "unit": "태양계",
+    "codes": [
+      "9과07-03"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "지구 자전의 반대 방향으로 하늘이 겉보기 운동하며 공전하면 한밤중에 보는 먼 배경 방향이 달라진다."
+  },
+  {
+    "id": "moon-geometry",
+    "title": "달의 모양과 식은 왜 다르게 변할까?",
+    "unit": "태양계",
+    "codes": [
+      "9과07-04"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "달의 위상은 밝은 반구를 보는 방향으로, 식은 실제 가림과 그림자로 설명한다."
+  },
+  {
+    "id": "star-distance",
+    "title": "밝게 보이는 별이 정말 더 밝을까?",
+    "unit": "별과 우주",
+    "codes": [
+      "9과15-01"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "별의 겉보기 밝기는 실제 광도와 거리에 함께 의존하며 가까운 별의 시차가 더 크다."
+  },
+  {
+    "id": "expanding-space",
+    "title": "어느 은하에서 보아도 멀어질까?",
+    "unit": "별과 우주",
+    "codes": [
+      "9과15-02",
+      "9과15-03"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "공간의 팽창 모형에서는 은하 사이 거리가 늘어나며 특정 은하를 팽창 중심으로 정할 수 없다."
+  },
+  {
+    "id": "rock-cycle",
+    "title": "암석은 한 방향으로만 바뀔까?",
+    "unit": "지권의 변화",
+    "codes": [
+      "9과09-01",
+      "9과09-03",
+      "9과09-04"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "암석은 생성 과정으로 분류하며 여러 경로로 순환하고 풍화 산물이 토양 형성에 기여한다."
+  },
+  {
+    "id": "mineral-tests",
+    "title": "겉색이 비슷해도 같은 광물일까?",
+    "unit": "지권의 변화",
+    "codes": [
+      "9과09-02"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "색만으로 광물을 확정하지 않고 굳기·조흔색·염산 반응·자성 등 여러 근거를 비교한다."
+  },
+  {
+    "id": "plate-patterns",
+    "title": "지진과 화산은 아무 곳에나 모일까?",
+    "unit": "지권의 변화",
+    "codes": [
+      "9과09-05"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "지진대와 화산대는 대체로 판 경계 부근에 분포하지만 판 내부에도 발생할 수 있다."
+  },
+  {
+    "id": "humidity-cloud",
+    "title": "수증기가 늘지 않아도 습해질까?",
+    "unit": "날씨와 기후변화",
+    "codes": [
+      "9과17-03"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "기온이 내려가면 포화 수증기압이 낮아져 상대습도가 커지며 포화 이후 응결할 수 있다."
+  },
+  {
+    "id": "radiation-balance",
+    "title": "받는 에너지와 나가는 에너지가 달라지면?",
+    "unit": "날씨와 기후변화",
+    "codes": [
+      "9과17-01"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "복사 평형은 들어오는 에너지와 나가는 에너지의 균형이며 온실효과는 지표 복사의 흡수·재방출과 관련된다."
+  },
+  {
+    "id": "weather-fronts",
+    "title": "공기가 만나는 방식이 날씨를 바꿀까?",
+    "unit": "날씨와 기후변화",
+    "codes": [
+      "9과17-02",
+      "9과17-04"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "고기압·저기압의 공기 이동과 전선에서 따뜻한 공기의 상승을 연결한다."
+  },
+  {
+    "id": "ocean-salinity",
+    "title": "물만 증발하면 염분은 어떻게 될까?",
+    "unit": "수권과 해수의 순환",
+    "codes": [
+      "9과18-01",
+      "9과18-02"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "해수의 염분은 전체 해수 질량 중 염류의 질량 비율이며 물의 유출입으로 변한다."
+  },
+  {
+    "id": "ocean-circulation",
+    "title": "바람과 해류는 열을 어디로 옮길까?",
+    "unit": "수권과 해수의 순환",
+    "codes": [
+      "9과17-02",
+      "9과18-02",
+      "9과18-03"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "바람과 북태평양 표층 해류가 연결되고 해류는 저위도와 고위도 사이 에너지를 재분배한다."
+  },
+  {
+    "id": "earth-layers",
+    "title": "지구 안쪽은 모두 녹아 있을까?",
+    "unit": "지권의 변화",
+    "codes": [
+      "9과09-01"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "지각·맨틀·외핵·내핵의 위치와 상태를 구별하고 지구계 구성 요소를 연결한다."
+  },
+  {
+    "id": "galaxy-structure",
+    "title": "은하를 안에서 보면 왜 띠처럼 보일까?",
+    "unit": "별과 우주",
+    "codes": [
+      "9과15-02"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "우리은하는 원반 구조를 가지며 그 안에 있는 관측자는 원반 방향에서 별이 모인 띠를 본다."
+  },
+  {
+    "id": "solar-objects",
+    "title": "태양계의 천체는 어떻게 구별할까?",
+    "unit": "태양계",
+    "codes": [
+      "9과07-01"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "스스로 빛을 내는지, 무엇을 중심으로 도는지, 궤도 주변에서 어떤 역할인지로 태양계 천체를 구별한다."
+  },
+  {
+    "id": "photosynthesis-conditions",
+    "title": "빛만 세게 하면 계속 더 잘될까?",
+    "unit": "식물과 에너지",
+    "codes": [
+      "9과12-01"
+    ],
+    "subject": "life",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "광합성을 비교하려면 빛·이산화 탄소 등 조건을 통제하며 부족한 요인이 결과를 제한할 수 있다."
+  },
+  {
+    "id": "motion-graphs",
+    "title": "그래프 모양이 곧 이동 경로일까?",
+    "unit": "운동과 에너지",
+    "codes": [
+      "9과19-01"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "시간–거리 그래프의 기울기와 시간–속력 그래프를 실제 직선 운동에 연결한다."
+  },
+  {
+    "id": "electrical-energy",
+    "title": "같은 시간 켜면 같은 에너지를 쓸까?",
+    "unit": "전기와 자기",
+    "codes": [
+      "9과14-03"
+    ],
+    "subject": "phys",
+    "version": 1,
+    "missions": 4,
+    "observation": false,
+    "core": "소비 전력은 에너지 전환의 빠르기를 나타내며 같은 시간에도 사용하는 에너지가 다를 수 있다."
+  },
+  {
+    "id": "periodic-families",
+    "title": "원소를 순서대로 놓으면 어떤 무리가 보일까?",
+    "unit": "물질의 구성",
+    "codes": [
+      "9과11-03"
+    ],
+    "subject": "chem",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "주기율표는 양성자 수 순서로 배치되며 같은 족의 원소는 유사한 성질을 보일 수 있다."
+  },
+  {
+    "id": "atmosphere-circulation",
+    "title": "높이와 위도를 바꾸면 공기는 어떻게 다를까?",
+    "unit": "날씨와 기후변화",
+    "codes": [
+      "9과17-01",
+      "9과17-02"
+    ],
+    "subject": "earth",
+    "version": 1,
+    "missions": 3,
+    "observation": true,
+    "core": "대기의 수직 층과 위도별 지표 바람을 구별하고 대순환이 에너지 재분배에 기여함을 이해한다."
+  }
+]

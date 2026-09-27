@@ -1,0 +1,204 @@
+[
+  {
+    "id": "heat-equilibrium",
+    "title": "열평형 입자 실험실",
+    "codes": [
+      "9과03-01"
+    ],
+    "version": 1,
+    "missions": 7,
+    "subject": "phys",
+    "core": "온도가 다른 두 물체가 열평형에 도달하는 과정을 탐색합니다."
+  },
+  {
+    "id": "conduction-camera",
+    "title": "가상 열화상 카메라",
+    "codes": [
+      "9과03-02"
+    ],
+    "version": 1,
+    "missions": 6,
+    "subject": "phys",
+    "core": "가상 열화상 카메라의 조건을 바꾸고 결과를 비교합니다."
+  },
+  {
+    "id": "heat-three-ways",
+    "title": "전도·대류·복사",
+    "codes": [
+      "9과03-02"
+    ],
+    "version": 1,
+    "missions": 6,
+    "subject": "phys",
+    "core": "전도·대류·복사의 조건을 바꾸고 결과를 비교합니다."
+  },
+  {
+    "id": "specific-heat",
+    "title": "비열",
+    "codes": [
+      "9과03-03"
+    ],
+    "version": 1,
+    "missions": 6,
+    "subject": "phys",
+    "core": "비열의 조건을 바꾸고 결과를 비교합니다."
+  },
+  {
+    "id": "thermal-expansion",
+    "title": "액체와 고체의 열팽창",
+    "codes": [
+      "9과03-03"
+    ],
+    "version": 1,
+    "missions": 6,
+    "subject": "phys",
+    "core": "액체와 고체의 열팽창의 조건을 바꾸고 결과를 비교합니다."
+  },
+  {
+    "id": "bimetal-switch",
+    "title": "바이메탈 스위치",
+    "codes": [
+      "9과03-03"
+    ],
+    "version": 1,
+    "missions": 6,
+    "subject": "phys",
+    "core": "바이메탈 스위치의 조건을 바꾸고 결과를 비교합니다."
+  },
+  {
+    "id": "sea-land-breeze",
+    "title": "해풍과 육풍",
+    "codes": [
+      "9과03-03"
+    ],
+    "version": 1,
+    "missions": 6,
+    "subject": "phys",
+    "core": "해풍과 육풍의 조건을 바꾸고 결과를 비교합니다."
+  },
+  {
+    "id": "cookware-test-bench",
+    "title": "조리 도구 재료 비교",
+    "codes": [
+      "9과03-03"
+    ],
+    "version": 1,
+    "missions": 6,
+    "subject": "phys",
+    "core": "조리 도구 재료 비교의 조건을 바꾸고 결과를 비교합니다."
+  },
+  {
+    "id": "particle-motion",
+    "title": "확산과 증발 입자 관찰실",
+    "codes": [
+      "9과04-01"
+    ],
+    "version": 1,
+    "missions": 6,
+    "subject": "chem",
+    "core": "확산과 증발 입자 관찰실의 조건을 바꾸고 결과를 비교합니다."
+  },
+  {
+    "id": "state-change-particles",
+    "title": "세 상태와 상태 변화",
+    "codes": [
+      "9과04-02",
+      "9과04-03"
+    ],
+    "version": 1,
+    "missions": 7,
+    "subject": "chem",
+    "core": "세 상태와 상태 변화의 조건을 바꾸고 결과를 비교합니다."
+  },
+  {
+    "id": "phase-heat-curves",
+    "title": "상태 변화와 열에너지",
+    "codes": [
+      "9과04-04"
+    ],
+    "version": 1,
+    "missions": 8,
+    "subject": "chem",
+    "core": "상태 변화와 열에너지의 조건을 바꾸고 결과를 비교합니다."
+  },
+  {
+    "id": "force-balance",
+    "title": "힘의 표현과 평형",
+    "codes": [
+      "9과05-01",
+      "9과05-04"
+    ],
+    "version": 3,
+    "missions": 7,
+    "subject": "phys",
+    "core": "힘의 크기와 방향을 더하고 평형 조건을 찾습니다."
+  },
+  {
+    "id": "gravity",
+    "title": "중력 — 질량과 무게",
+    "codes": [
+      "9과05-02"
+    ],
+    "version": 1,
+    "missions": 6,
+    "subject": "phys",
+    "core": "중력 — 질량과 무게의 조건을 바꾸고 결과를 비교합니다."
+  },
+  {
+    "id": "elasticity",
+    "title": "탄성력",
+    "codes": [
+      "9과05-02"
+    ],
+    "version": 1,
+    "missions": 6,
+    "subject": "phys",
+    "core": "탄성력의 조건을 바꾸고 결과를 비교합니다."
+  },
+  {
+    "id": "friction",
+    "title": "마찰력",
+    "codes": [
+      "9과05-02"
+    ],
+    "version": 3,
+    "missions": 7,
+    "subject": "phys",
+    "core": "마찰력의 조건을 바꾸고 결과를 비교합니다."
+  },
+  {
+    "id": "buoyancy",
+    "title": "부력",
+    "codes": [
+      "9과05-02"
+    ],
+    "version": 1,
+    "missions": 6,
+    "subject": "phys",
+    "core": "부력의 조건을 바꾸고 결과를 비교합니다."
+  },
+  {
+    "id": "motion",
+    "title": "알짜힘과 운동 상태 변화",
+    "codes": [
+      "9과05-03"
+    ],
+    "version": 1,
+    "missions": 7,
+    "subject": "phys",
+    "core": "알짜힘에 따른 속력과 운동 방향 변화를 구별합니다."
+  },
+  {
+    "id": "syringe-particles",
+    "title": "입자로 보는 기체의 성질",
+    "codes": [
+      "9과06-01",
+      "9과06-02",
+      "9과06-03"
+    ],
+    "version": 3,
+    "missions": 6,
+    "subject": "chem",
+    "core": "입자 운동과 충돌로 압력·부피·온도의 관계를 연결합니다."
+  }
+]

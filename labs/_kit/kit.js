@@ -126,7 +126,7 @@
     const viewSelect = h('div', {class:'view-select',role:'group','aria-label':'화면 표현 선택'},
       h('span',{class:'view-label'},'보기'), ...viewButtons);
     play.prepend(viewSelect);
-    const sceneNote = h('p', { class: 'scene-note' }, '화살표를 끄면 물체와 장치의 모습이 보입니다. 실제 장면을 단순하게 그린 모형입니다.' + (cfg.sceneNote ? ' '+cfg.sceneNote : ''));
+    const sceneNote = h('p', { class: 'scene-note' }, (cfg.sceneDescription || '화살표를 끄면 물체와 장치의 모습이 보입니다. 실제 장면을 단순하게 그린 모형입니다.') + (cfg.sceneNote ? ' '+cfg.sceneNote : ''));
     stage.append(sceneNote);
     function syncMode() {
       root.dataset.mode = lab.mode;
@@ -580,6 +580,8 @@
             c.format ? c.format(r[c.key]) : c.numeric ? Number(r[c.key]).toFixed(c.digits == null ? 2 : c.digits) : String(r[c.key] == null ? '' : r[c.key]))))))));
     }
     lab.ui.records = o => {
+      // 구조·경로 같은 범주형 관찰에는 수치 그래프나 평균을 만들지 않는다.
+      const observation = o.kind === 'observation';
       const key = `${KEY}-records-${o.id}-v${o.version || 1}`;
       const valid = r => r && o.columns.every(c => c.numeric ? typeof r[c.key] === 'number' && Number.isFinite(r[c.key]) : typeof r[c.key] === 'string') && (!o.validate || o.validate(r));
       const saved = store.get(key);
@@ -593,6 +595,7 @@
         store.set(key+'-migrated',true);
       }
       const summary = () => {
+        if (observation) return [];
         const groups = new Map();
         rows.forEach(r => { const k = JSON.stringify(o.conditions.map(c => r[c])); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(r); });
         return [...groups.values()].map(rs => ({ ...rs[0], count: rs.length, mean: rs.reduce((s, r) => s + r[o.measure], 0) / rs.length }));
@@ -606,10 +609,15 @@
       xSel.value = o.x; ySel.value = o.y || o.measure;
       const dlg = h('dialog', { class: 'teach records-dialog', 'aria-label': '실험 기록장' },
         h('div', { class: 'teach-in' }, h('button', { class: 'teach-x', 'aria-label': '기록장 닫기', onclick: () => dlg.close() }, '×'),
-          h('h2', null, '실험 기록장'), h('p', null, '같은 조건에서 여러 번 재면 평균을 비교할 수 있습니다. 평균에도 오차가 남을 수 있습니다.'),
+          h('h2', null, '실험 기록장'), h('p', null, observation ? '조건별 관찰 내용을 비교하세요. 구조와 경로에는 수치 평균을 내지 않습니다.' : '같은 조건에서 여러 번 재면 평균을 비교할 수 있습니다. 평균에도 오차가 남을 수 있습니다.'),
           h('div', { class: 'record-axes' }, h('label', null, '가로축 ', xSel), h('label', null, '세로축 ', ySel)), chart,
           h('p', { class: 'pnote' }, '점 하나는 측정 한 번입니다. 선으로 잇지 않습니다. 좁은 화면에서는 그래프를 좌우로 밀거나 방향키로 이동하세요. 조건이 다른 점은 아래 표에서 구별하세요.'), allTables));
       document.body.append(dlg);
+      if (observation) {
+        dlg.querySelector('.record-axes').hidden = true;
+        chart.hidden = true;
+        dlg.querySelector('.pnote').hidden = true;
+      }
       const book = {
         rows, key, summary,
         add(row) {
@@ -631,9 +639,10 @@
         const a = h('a', { href: url, download: `${lab.cfg.id}-records.csv` }); document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
       } }, 'CSV 내보내기');
       const el = h('div', { class: 'records learn-only' }, status, preview,
-        h('button', { class: 'abtn', onclick: () => { renderChart(); dlg.showModal(); } }, '표·평균·그래프 열기'), csvBtn);
+        h('button', { class: 'abtn', onclick: () => { renderChart(); dlg.showModal(); } }, observation ? '관찰 표 열기' : '표·평균·그래프 열기'), csvBtn);
       parent().append(el);
       function renderChart() {
+        if (observation) return;
         const x = o.columns.find(c => c.key === xSel.value), y = o.columns.find(c => c.key === ySel.value);
         const ns = 'http://www.w3.org/2000/svg';
         const svg = document.createElementNS(ns, 'svg');
@@ -660,10 +669,11 @@
         chart.replaceChildren(svg);
       }
       function render() {
-        status.textContent = rows.length ? `${rows.length}회 기록했습니다. 같은 조건의 평균은 기록장에서 확인하세요.` : '아직 기록이 없습니다. 실험해서 측정값을 남겨 보세요.';
+        status.textContent = rows.length ? `${rows.length}회 기록했습니다. ${observation ? '조건별 관찰 내용을 비교하세요.' : '같은 조건의 평균은 기록장에서 확인하세요.'}` : '아직 기록이 없습니다. 실험해서 측정값을 남겨 보세요.';
         preview.replaceChildren(rows.length ? table(o.columns, rows.slice(-3), '최근 측정 기록') : h('p', { class: 'pnote' }, '미션의 다시 하기를 누르면 기록도 함께 지워집니다.'));
-        const meanColumns = [...o.columns.filter(c => o.conditions.includes(c.key)), {key:'count',label:'횟수',numeric:true,digits:0}, {key:'mean',label:`${o.columns.find(c => c.key === o.measure).label} 평균`,numeric:true,digits:2}];
-        allTables.replaceChildren(table(o.columns, rows, '그래프 데이터 표 · 전체 측정 기록'), table(meanColumns, summary(), '같은 조건의 측정 횟수와 평균'));
+        const meanColumns = observation ? [] : [...o.columns.filter(c => o.conditions.includes(c.key)), {key:'count',label:'횟수',numeric:true,digits:0}, {key:'mean',label:`${o.columns.find(c => c.key === o.measure).label} 평균`,numeric:true,digits:2}];
+        allTables.replaceChildren(table(o.columns, rows, observation ? '조건별 관찰 기록' : '그래프 데이터 표 · 전체 측정 기록'));
+        if (!observation) allTables.append(table(meanColumns, summary(), '같은 조건의 측정 횟수와 평균'));
         csvBtn.disabled = !rows.length;
         renderChart();
       }
