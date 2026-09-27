@@ -1,0 +1,69 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>알짜힘과 운동 상태 변화 · CLICK SCIENCE</title><link rel="stylesheet" href="../_kit/kit.css"><link rel="icon" href="data:,"></head><body><script src="../_kit/kit.js"></script><script>
+'use strict';
+const M=.05,V=.6,F=.01,R=.5,G=9.8,DT=1/120,OMEGA=V/R;
+const CASES={still:'정지한 공',none:'바람 없음',back:'뒤에서 바람',front:'앞에서 바람',side:'옆에서 바람',circle:'줄에 매단 공',cut:'줄 끊기',throw:'비스듬히 던진 공'};
+const TYPES=['변하지 않음','속력만 변함','방향만 변함','둘 다 변함'];
+function duration(k){return k==='circle'?2*Math.PI/OMEGA:k==='cut'?3:k==='throw'?4.8/G:2;}
+function at(k,t){
+ let x=0,y=0,vx=V,vy=0,fx=0,fy=0;
+ if(k==='still')vx=0;
+ else if(k==='circle'||k==='cut'){
+  const q=k==='cut'?Math.min(1,t):t,a=OMEGA*q;
+  x=R-R*Math.cos(a);y=R*Math.sin(a);vx=V*Math.sin(a);vy=V*Math.cos(a);
+  if(k==='cut'&&t>=1){x+=vx*(t-1);y+=vy*(t-1);}else{fx=M*V*V/R*Math.cos(a);fy=-M*V*V/R*Math.sin(a);}
+ }else if(k==='throw'){x=1.2*t;y=Math.max(0,2.4*t-G*t*t/2);vx=1.2;vy=2.4-G*t;fy=-M*G;}
+ else{fx=k==='back'?F:k==='front'?-F:0;fy=k==='side'?F:0;x=V*t+fx/M*t*t/2;y=fy/M*t*t/2;vx=V+fx/M*t;vy=fy/M*t;}
+ return{x,y,vx,vy,fx,fy,speed:Math.hypot(vx,vy)};
+}
+const sim={t:0,acc:0,maxDv:0,maxAngle:0,path:[],ended:false,owner:null,mode:null,cutDv:0,cutAngle:0};
+let book,msg,classificationStatus;const observed={},answers={};let classified=false;const explored=new Set();
+const rows=i=>book.rows.filter(r=>r._mission===i);
+function classification(s,k){const initial=at(k,0).speed;return (s.maxDv>Math.max(.05,initial*.03)?1:0)+(s.maxAngle>3?2:0);}
+function rewind(l){Object.assign(sim,{t:0,acc:0,maxDv:0,maxAngle:0,path:[{t:0,...at(l.state.case,0)}],ended:false,owner:null,mode:null,cutDv:0,cutAngle:0});}
+function choose(l,k){l.state.case=k; l.rewind();l.speed=k==='throw'?.25:1;const speedButton=[...document.querySelectorAll('.speed button')].find(b=>b.textContent===(k==='throw'?'아주 느리게':'보통'));if(speedButton)speedButton.click();}
+function validRun(l){return sim.ended&&sim.owner===l.mi&&sim.mode==='learn'&&l.mode==='learn';}
+function advance(dt,l){sim.acc+=dt;const k=l.state.case,initial=at(k,0);while(sim.acc>=DT&&!sim.ended){sim.acc-=DT;sim.t=Math.min(duration(k),sim.t+DT);const v=at(k,sim.t);sim.maxDv=Math.max(sim.maxDv,Math.abs(v.speed-initial.speed));if(initial.speed>.05&&v.speed>.05){const cosine=(v.vx*initial.vx+v.vy*initial.vy)/(v.speed*initial.speed);sim.maxAngle=Math.max(sim.maxAngle,Math.acos(Math.max(-1,Math.min(1,cosine)))*180/Math.PI);}
+ if(k==='cut'&&sim.t>=1){const start=at(k,1);sim.cutDv=Math.max(sim.cutDv,Math.abs(v.speed-start.speed));sim.cutAngle=Math.max(sim.cutAngle,Math.acos(Math.max(-1,Math.min(1,(v.vx*start.vx+v.vy*start.vy)/(v.speed*start.speed))))*180/Math.PI);}
+ const interval=k==='throw'?.05:.25;if(sim.t-sim.path.at(-1).t>=interval-1e-8||sim.t>=duration(k)-1e-8)sim.path.push({t:sim.t,...v});
+ if(sim.t>=duration(k)-1e-8){sim.ended=true;l.setRunning(false);if(validRun(l)){if(l.mi===0)explored.add(k);if(l.mi===5){observed[k]={maxDv:sim.maxDv,maxAngle:sim.maxAngle,type:classification(sim,k)};classificationStatus.textContent=`이 미션에서 ${Object.keys(observed).length}/8개 사례를 재생했습니다. 모두 고른 뒤 채점하세요.`;}}l.update();}
+ }}
+Lab.init({id:'motion',version:1,title:'알짜힘과 운동 상태 변화',subject:'phys',unit:'힘의 작용',grade:'중1',updated:'2026-09-27',board:{w:960,h:600},state:{case:'none',trail:true},
+ sceneNote:'판 위 장면은 위에서 본 모습입니다. 옆모습 창은 중력과 바닥 힘을 보여 줍니다. 파란 점선 나침반은 운동 방향이며 힘 화살표가 아닙니다.',
+ assumptions:['판 위에서는 마찰과 공기 저항을 무시합니다. 중력과 바닥이 떠받치는 힘은 서로 평형입니다.','스펀지 공은 50 g이고 처음 속력은 0.6 m/s입니다. 바람은 2초 동안 일정한 힘을 준다고 단순화했습니다.','줄에 매단 공은 같은 속력으로 원을 돌고, 줄이 끊어진 뒤에는 끊어질 때의 방향으로 갑니다.','던진 공은 공기 저항을 무시하고 땅에 닿는 순간 관찰을 마칩니다. 장면은 느리게 재생합니다.','학습 속력 측정은 최대 0.01 m/s 흔들리고 반올림합니다. 경로와 분류는 정확한 모형값을 씁니다.'],
+ teacher:`<h4>교과서</h4><p>비상교육 중1 p.178–184. 바람 방향에 따른 스펀지 공의 운동, 사례 분류, 바닥이 떠받치는 힘을 다룹니다. 학생 화면에는 관성·F=ma·구심력 용어를 도입하지 않습니다.</p><h4>내부 계산</h4><p>m=0.05 kg, v₀=0.6 m/s, 바람 F=0.01 N. 등가속도 해석해를 1/120초마다 표본화합니다. 앞바람은 2초 뒤 0.2 m/s로 아직 전진합니다. 원운동 r=0.5 m, ω=1.2 rad/s이며 줄이 당기는 힘은 중심 방향입니다. 줄 끊기는 1초 뒤부터 접선 방향 등속 직선 운동입니다. 투사체는 초기 (1.2,2.4) m/s, g=9.8 m/s², 비행 시간 약 0.4898초입니다. 착지 이후 운동은 다루지 않습니다.</p><h4>판정</h4><p>재생 전체의 최대 |속력−처음 속력|과 최대 방향각을 누적합니다. 속력 기준 max(0.05 m/s, 처음 속력의 3%), 방향 3°입니다. 원운동 한 바퀴·포물선의 시작과 끝만 비교하지 않습니다. 줄 끊기 사례 전체는 방향이 변하지만, 끊어진 이후만 보면 방향도 속력도 유지됩니다.</p><h4>보조 표현</h4><p>자국은 일정한 물리 시간 간격입니다(판 0.25초, 투사체 0.05초). 방향 나침반은 크기를 뜻하지 않는 고정 길이 점선입니다. 힘과 분리하여 표시합니다. 위에서 본 판의 힘 축척은 0.01 N=20 논리 px, 옆모습 중력·바닥 힘과 투사체는 0.1 N=14 px입니다. 축척 막대를 각 장면에 표시합니다.</p>`,
+ missions:[
+ {kind:'둘러보기',title:'서로 다른 움직임 세 가지 보기',text:'사례를 바꾸고 재생하세요. 세 가지 사례를 끝까지 관찰하세요.',check:()=>explored.size>=3},
+ {kind:'해 보기',title:'바람 방향과 움직임 비교하기',text:'뒤·앞·옆에서 바람이 부는 사례를 각각 끝까지 재생하고 기록하세요. 자국 간격과 나침반을 함께 보세요.',enter:l=>choose(l,'back'),check:()=>['back','front','side'].every(k=>rows(1).some(r=>r.case===k)),ok:'뒤와 앞 바람은 속력을 바꾸고, 일정한 옆 바람은 속력과 방향을 모두 바꿉니다.'},
+ {kind:'예상',title:'움직이는 공에 알짜힘이 0이면?',text:'바람과 마찰 없이 이미 움직이는 공을 예상한 뒤 끝까지 재생하고 기록하세요.',enter:l=>choose(l,'none'),predict:{options:['같은 속력과 방향으로 계속 갑니다.','힘이 없으니 곧 멈춥니다.','저절로 더 빨라집니다.'],answer:0},check:()=>rows(2).some(r=>r.case==='none'&&r.pred),ok:'알짜힘이 0이면 이미 움직이던 공의 속력과 방향도 유지됩니다.'},
+ {kind:'해 보기',title:'줄이 끊어지는 순간 살펴보기',text:'줄에 매단 공과 줄 끊기 사례를 각각 재생하고 기록하세요. 끊긴 직후 어느 방향으로 가는지 살펴보세요.',enter:l=>choose(l,'circle'),check:()=>['circle','cut'].every(k=>rows(3).some(r=>r.case===k)),ok:'줄이 끊기면 그 순간의 운동 방향으로 곧게 갑니다. 끊기기 전 원운동까지 포함하면 방향 변화가 있었지만, 끊긴 뒤 구간은 변하지 않습니다.'},
+ {kind:'변인 고르기',title:'바람 방향만 바꾸어 실험하기',text:'같은 공과 같은 처음 속력에서 바람 방향을 바꾸고 속력 변화를 비교하세요. 앞·뒤·옆 바람 중 두 조건을 씁니다.',variables:{options:[['case','바람 방향'],['mass','공의 질량'],['initial','처음 속력'],['maxDv','최대 속력 변화']],change:'case',keep:['mass','initial'],measure:'maxDv',recordId:'motion'}},
+ {kind:'찾아내기',title:'모든 사례를 한꺼번에 분류하기',text:'이 미션에서 여덟 사례를 모두 재생하세요. 오른쪽 분류표에 답을 모두 고른 뒤 한꺼번에 채점하세요.',check:()=>classified,ok:'힘이 작용할 때 속력, 방향 또는 둘 다 달라질 수 있습니다. 최대 변화로 비교해야 놓치지 않습니다.'},
+ {kind:'찾아내기',title:'멈춘 공에도 힘이 있을까?',text:'정지한 공의 옆모습 창을 보고 정리하세요.',enter:l=>choose(l,'still'),sentence:'판이 공을 떠받치는 힘은 {위로|아래로} 작용하고, 중력과 크기가 {같습니다|다릅니다}. 정지한 공의 알짜힘은 {0입니다|중력뿐입니다}.',blanks:[0,0,0]}
+ ],
+ quiz:[
+ {kind:'진단',question:'같은 속력으로 직선 운동하는 공의 알짜힘은?',options:['0일 수 있습니다.','항상 앞으로 작용합니다.','항상 뒤로 작용합니다.'],answer:0,feedback:['운동 상태가 유지되면 알짜힘은 0입니다.','앞으로 가는 운동 방향이 알짜힘 방향을 뜻하지 않습니다.','뒤로 작용하면 속력이 달라집니다.']},
+ {kind:'적용',question:'같은 속력으로 원을 도는 공의 운동 상태는 변하나요?',options:['속력이 같으므로 변하지 않습니다.','방향이 변하므로 변합니다.','속력만 변합니다.'],answer:1,feedback:['운동 상태에는 방향도 포함됩니다.','방향이 계속 달라지므로 알짜힘이 0이 아닙니다.','이 사례는 속력은 같고 방향이 변합니다.']},
+ {kind:'새 상황',question:'비스듬히 던진 공이 같은 높이에 돌아올 때 처음과 속력이 같습니다. 내내 속력이 같았나요?',options:['처음과 끝이 같으니 내내 같습니다.','방향만 바뀌었습니다.','중간에 느려졌다가 다시 빨라졌습니다.'],answer:2,feedback:['처음과 끝만 비교하면 중간의 변화를 놓칩니다.','중간의 속력도 비교해야 합니다.','정점 부근에서 속력이 줄었다가 다시 커집니다.']}
+ ],
+ setup(l){const u=l.ui;u.group('움직임 선택');u.choice({key:'case',label:'사례',options:Object.entries(CASES),onChange:(v,l)=>choose(l,v)});u.toggle({key:'trail',label:'같은 시간 간격 자국 보기'});u.note('사례를 고른 뒤 재생하세요. 자국의 간격은 속력, 나침반은 운동 방향을 보여 줍니다.');u.group('모형 관찰');u.readout({label:'재생한 시간',get:s=>sim.t.toFixed(2)+' s'});u.readout({label:'현재 속력',get:s=>at(s.case,sim.t).speed.toFixed(2)+' m/s'});u.readout({label:'재생 중 최대 속력 차이',get:()=>sim.maxDv.toFixed(2)+' m/s'});u.readout({label:'재생 중 최대 방향 차이',get:()=>sim.maxAngle.toFixed(1)+'°'});u.readout({label:'줄 끊은 뒤 속력 차이',get:()=>sim.cutDv.toFixed(2)+' m/s',hide:s=>s.case!=='cut'});u.readout({label:'줄 끊은 뒤 방향 차이',get:()=>sim.cutAngle.toFixed(1)+'°',hide:s=>s.case!=='cut'});
+ u.learnOnly(u.group('측정·기록'));u.readout({label:'속력 측정값',get:(s,l)=>Math.max(0,l.measure('speed',at(s.case,sim.t).speed,{amplitude:.01})).toFixed(2)+' m/s'});
+ book=u.records({id:'motion',version:1,columns:[{key:'case',label:'사례',format:v=>CASES[v]},{key:'time',label:'관찰 시간(s)',numeric:true},{key:'measured',label:'끝 속력 측정(m/s)',numeric:true},{key:'maxDv',label:'최대 속력 차이(m/s)',numeric:true},{key:'angle',label:'최대 방향 차이(°)',numeric:true}],conditions:['case'],measure:'measured',x:'case',y:'maxDv',validate:r=>Object.hasOwn(CASES,r.case)&&Math.abs(r.time-duration(r.case))<1e-6&&Math.abs(r.measured-at(r.case,r.time).speed)<=.015001&&r.mass===M&&r.initial===at(r.case,0).speed});
+ msg=u.note('현재 미션에서 처음부터 끝까지 재생한 뒤 기록하세요. 분류는 정확한 모형값으로 합니다.');u.button({label:'운동 측정·기록',onClick:l=>{const k=l.state.case;if(!validRun(l)){msg.textContent='현재 미션에서 처음부터 끝까지 재생한 뒤 기록하세요.';return;}if(l.mi===4&&!['front','back','side'].includes(k)){msg.textContent='앞·뒤·옆 바람 중에서 비교하세요.';return;}book.add({case:k,time:duration(k),measured:+Math.max(0,l.measure('speed',at(k,sim.t).speed,{amplitude:.01,fresh:true})).toFixed(2),maxDv:sim.maxDv,angle:sim.maxAngle,mass:M,initial:at(k,0).speed,pred:l.mi===2&&l.prediction!=null});}});
+ const classifyGroup=u.group('사례 분류');u.learnOnly(classifyGroup);u.note('현재 미션에서 모든 사례를 재생하고 모든 답을 고른 뒤 채점하세요. 줄 끊기도 끊기기 전부터 전체 구간을 분류합니다.');
+ for(const [key,name]of Object.entries(CASES)){const label=document.createElement('label');label.style.cssText='display:block;margin:10px 0';label.append(name+' ');const select=document.createElement('select');select.setAttribute('aria-label',name+' 분류');select.dataset.classify=key;const empty=new Option('고르세요','');select.append(empty);TYPES.forEach((t,i)=>select.append(new Option(t,String(i))));select.addEventListener('change',()=>{answers[key]=select.value;classified=false;});label.append(select);classifyGroup.append(label);}
+ classificationStatus=u.note('아직 이 미션에서 관찰한 사례가 없습니다.');u.button({label:'여덟 사례 한꺼번에 채점',onClick:l=>{if(l.mi!==5){classificationStatus.textContent='사례 분류 미션을 선택하세요.';return;}if(Object.keys(CASES).some(k=>!observed[k]||answers[k]==null||answers[k]==='')){classificationStatus.textContent='모든 사례를 재생하고 여덟 답을 모두 골라 주세요.';return;}const wrong=Object.keys(CASES).filter(k=>+answers[k]!==observed[k].type);classified=!wrong.length;classificationStatus.textContent=classified?'여덟 사례의 분류가 모두 맞았습니다.':wrong.map(k=>`${CASES[k]}: 최대 속력 차이 ${observed[k].maxDv.toFixed(2)} m/s, 방향 차이 ${observed[k].maxAngle.toFixed(1)}°. 다시 살펴보세요.`).join(' ');}});
+ u.graphData({columns:[{key:'t',label:'시간(s)',numeric:true},{key:'x',label:'위치 x(m)',numeric:true},{key:'y',label:'위치 y(m)',numeric:true},{key:'speed',label:'속력(m/s)',numeric:true}],getRows:()=>sim.path});rewind(l);
+ },onPlay(l){if(sim.ended)rewind(l);if(sim.t===0){sim.owner=l.mi;sim.mode=l.mode;}},step:advance,rewind,reset:rewind,onModeChange(){sim.owner=null;},onMissionSelect(){sim.owner=null;for(const k of Object.keys(observed))delete observed[k];classified=false;explored.clear();},onMissionsReset(){for(const k of Object.keys(observed))delete observed[k];for(const k of Object.keys(answers))delete answers[k];document.querySelectorAll('[data-classify]').forEach(e=>e.value='');classified=false;explored.clear();},
+ draw(c,l){const k=l.state.case,v=at(k,sim.t),projectile=k==='throw',scale=projectile?350:180,origin={x:200,y:projectile?450:350},px=x=>origin.x+x*scale,py=y=>origin.y-y*scale,d=l.draw,z=l.fs(14),text=(x,y,t,col='#334155',align='center')=>d.text(c,x,y,t,{size:z,color:col,align});c.fillStyle='#f5fafc';c.fillRect(0,0,960,600);text(470,35,CASES[k]);text(390,78,projectile?'옆에서 본 모습입니다.':'판을 위에서 본 모습입니다.');
+ c.strokeStyle='#cbd5e1';c.lineWidth=2;c.strokeRect(110,115,500,380);if(projectile){c.fillStyle='#cbd5e1';c.fillRect(110,465,500,10);}if(k==='circle'||k==='cut'){c.fillStyle='#475569';c.beginPath();c.arc(px(R),py(0),6,0,Math.PI*2);c.fill();if(k==='circle'||sim.t<1){c.strokeStyle='#64748b';c.lineWidth=3;c.beginPath();c.moveTo(px(R),py(0));c.lineTo(px(v.x),py(v.y));c.stroke();}else text(370,155,'줄이 끊어졌습니다.');}
+ if(l.modelVisible&&l.state.trail){c.fillStyle='#94a3b8';for(const p of sim.path){c.beginPath();c.arc(px(p.x),py(p.y),4,0,Math.PI*2);c.fill();}}
+ if(['back','front','side'].includes(k)){const fanX=k==='front'?565:145,fanY=k==='side'?450:350;c.strokeStyle='#64748b';c.lineWidth=3;c.beginPath();c.arc(fanX,fanY,23,0,Math.PI*2);c.stroke();for(let i=0;i<3;i++){const a=sim.t*15+i*Math.PI*2/3;c.beginPath();c.moveTo(fanX,fanY);c.lineTo(fanX+18*Math.cos(a),fanY+18*Math.sin(a));c.stroke();}text(fanX,k==='side'?420:305,'선풍기');}
+ c.fillStyle='#f3c667';c.strokeStyle='#b78326';c.lineWidth=2;c.beginPath();c.arc(px(v.x),py(v.y),15,0,Math.PI*2);c.fill();c.stroke();if(projectile&&sim.ended)text(380,165,'착지 직전에서 관찰을 멈췄습니다.');
+ if(l.modelVisible){const forceScale=projectile?140:2000;d.arrow(c,px(v.x),py(v.y),v.fx*forceScale,-v.fy*forceScale,{color:projectile?'#d14e55':'#e77822',width:4});c.strokeStyle=projectile?'#d14e55':'#e77822';c.lineWidth=3;c.beginPath();c.moveTo(130,530);c.lineTo(130+(projectile?14:20),530);c.stroke();text(170,539,projectile?'0.1 N（옆모습）':'0.01 N（위 모습）',undefined,'left');
+  const cx=780,cy=420;c.strokeStyle='#93c5fd';c.lineWidth=2;c.beginPath();c.arc(cx,cy,58,0,Math.PI*2);c.stroke();if(v.speed>.05){c.setLineDash([6,4]);d.arrow(c,cx,cy,v.vx/v.speed*50,-v.vy/v.speed*50,{color:'#2563eb',width:3});c.setLineDash([]);}text(cx,338,'운동 방향','#2563eb');text(cx,515,v.speed.toFixed(2)+' m/s','#2563eb');text(cx,555,v.speed>.05?'점선은 힘이 아닙니다.':'정지 상태입니다.','#2563eb');
+  if(!projectile){text(780,91,'판의 옆모습');c.fillStyle='#cbd5e1';c.fillRect(680,190,200,9);c.fillStyle='#f3c667';c.beginPath();c.arc(780,175,15,0,Math.PI*2);c.fill();d.arrow(c,780,175,0,M*G*140,{color:'#d14e55',width:4});d.arrow(c,780,190,0,-M*G*140,{color:'#16a085',width:4});text(678,139,'바닥 힘','#16a085');text(859,259,'중력','#d14e55');c.strokeStyle='#475569';c.lineWidth=3;c.beginPath();c.moveTo(650,290);c.lineTo(664,290);c.stroke();text(785,298,'0.1 N (옆모습)');}
+ }
+ text(340,586,projectile?'자국 간격은 0.05초입니다.':'자국 간격은 0.25초입니다.');
+ }
+});
+</script></body></html>
