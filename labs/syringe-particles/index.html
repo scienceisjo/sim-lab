@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>입자로 보는 기체의 성질 · CLICK SCIENCE</title><link rel="stylesheet" href="../_kit/kit.css"><link rel="icon" href="data:,"></head><body><script src="../_kit/kit.js"></script><script>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>입자로 보는 기체의 성질 · CLICK SCIENCE</title><link rel="stylesheet" href="../_kit/kit.css"><link rel="icon" href="data:,"></head><body><script src="../_kit/kit.js"></script><script src="../_kit/thermal.js"></script><script>
 'use strict';
 const DT=1/240,V0=150,NAMES={walls:'입자와 압력',volume:'온도를 같게 두기',heat:'압력을 같게 두기'};
 function values(s){
@@ -86,7 +86,7 @@ const gasLab=Lab.init({id:'syringe-particles',version:3,title:'입자로 보는 
   {kind:'찾아내기',title:'조건과 결과를 연결하기',text:'기체의 양이 같을 때 두 관계를 설명하세요.',sentence:'온도가 같을 때 부피가 줄면 압력은 {커집니다|작아집니다}. 이때 전체 운동의 빠르기 지표는 {같습니다|커집니다}. 압력이 같을 때 데우면 부피는 {늘어납니다|줄어듭니다}. 입자 자체의 크기는 {같습니다|커집니다}.',blanks:[0,0,0,0]}
  ],
  quiz:[{kind:'진단',question:'기체 입자가 용기의 위쪽 벽에도 충돌하나요?',options:['모든 방향으로 움직여 위쪽 벽에도 충돌합니다.','기체 압력은 아래쪽에만 있습니다.','따뜻할 때만 위쪽에 충돌합니다.'],answer:0,feedback:['기체 압력은 모든 방향으로 작용합니다.','기체 압력을 아래쪽 힘만으로 생각하면 안 됩니다.','온도가 일정해도 모든 방향으로 움직입니다.']},{kind:'적용',question:'기체의 온도를 일정하게 유지하며 부피를 줄이면?',options:['입자 자체가 작아집니다.','입자 수는 그대로이며 평균적인 간격이 줄어듭니다.','입자가 더 생깁니다.'],answer:1,feedback:['입자 자체의 크기를 줄이는 것이 아닙니다.','같은 양의 기체가 더 작은 공간에 있습니다.','밀봉한 기체의 양은 그대로입니다.']},{kind:'새 상황',question:'같은 압력에서 20 ℃ 기체를 40 ℃로 데우면 부피는?',options:['섭씨 숫자가 두 배라서 두 배가 됩니다.','전혀 달라지지 않습니다.','늘어나지만 두 배가 되지는 않습니다.'],answer:2,feedback:['섭씨 숫자를 그대로 비례식에 넣을 수 없습니다.','피스톤이 움직일 수 있으면 데울 때 부피가 늘어납니다.','모형에서 약 40 mL가 약 42.7 mL로 늘어납니다.']}],
- setup(l){
+ setup(l){Thermal.note(l,'추적 입자는 노란 테두리로 구별합니다. 빠르기는 절대온도에 따른 계산값이며 색과 함께 비교하세요.',[0,20,100,200,300]);
   const u=l.ui;u.group('같게 둘 조건');u.choice({key:'scene',label:'비교 장면',options:Object.entries(NAMES),onChange:(v,l)=>retune(l)});
   groups.walls=u.group('같은 부피·같은 온도');u.choice({key:'count',label:'대표 입자 수',options:[[10,'10개'],[20,'20개'],[30,'30개']],onChange:(v,l)=>retune(l)});u.note('부피는 40 mL, 온도는 20 ℃입니다.');
   groups.volume=u.group('같은 양·같은 온도');u.slider({key:'volume',label:'기체의 부피',min:20,max:60,step:1,unit:'mL',onChange:(v,l)=>retune(l)});u.note('온도는 20 ℃입니다. 피스톤을 원하는 부피에 고정합니다.');
@@ -127,7 +127,7 @@ const gasLab=Lab.init({id:'syringe-particles',version:3,title:'입자로 보는 
     if(s.trails&&sim.trace.length){c.strokeStyle='#fcd34d';c.lineWidth=2.5;c.beginPath();sim.trace.forEach((p,i)=>i?c.lineTo(x+p.x,y+p.y):c.moveTo(x+p.x,y+p.y));c.stroke();}
     for(const [i,p] of sim.ps.entries()){
       if(s.vectors)d.arrow(c,x+p.x,y+p.y,p.vx*.18,p.vy*.18,{color:'#86d7f4',width:2,head:6,dot:false});
-      c.fillStyle=i===0&&s.trails?'#fde047':'#7dd3fc';c.beginPath();c.arc(x+p.x,y+p.y,5,0,2*Math.PI);c.fill();
+      c.fillStyle=Thermal.color(a.T);c.beginPath();c.arc(x+p.x,y+p.y,5,0,2*Math.PI);c.fill();if(i===0&&s.trails){c.strokeStyle='#fde047';c.lineWidth=2;c.beginPath();c.arc(x+p.x,y+p.y,8,0,2*Math.PI);c.stroke();}
       c.fillStyle='#e0f2fe';c.beginPath();c.arc(x+p.x-1,y+p.y-1,1.6,0,2*Math.PI);c.fill();
     }c.restore();
     if(s.scene!=='walls'){c.setLineDash([5,6]);c.strokeStyle='#d29b48';c.lineWidth=2;c.beginPath();c.moveTo(x+300,y-7);c.lineTo(x+300,y+h+7);c.stroke();c.setLineDash([]);}

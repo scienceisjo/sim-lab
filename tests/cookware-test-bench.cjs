@@ -9,7 +9,7 @@ async function done(i){assert.equal(await p.evaluate(i=>!!lab.done[i],i),true);r
 await rec();await click('.seg[aria-label="불판"] button','철');await click('.seg[aria-label="받침"] button','물');await click('.seg button','잘 전달되지 않음');await rec();await done(0);
 await card(1);await click('.seg button','잘 전달됨');await rec();assert.equal(await p.evaluate(()=>!!lab.done[1]),false);await click('.seg button','잘 전달되지 않음');await rec();await done(1);
 await card(2);await p.select('.mcard.on select[aria-label="바꿀 것"]','base');await p.select('.mcard.on select[aria-label="잴 것"]','measuredBase');for(const k of ['plate','handle','minutes'])await p.click(`.mcard.on input[value="${k}"]`);await click('.mcard.on .abtn','이 설계로 실험하기');await rec();await rec();assert.equal(await p.evaluate(()=>!!lab.done[2]),false);await click('.seg[aria-label="받침"] button','철');await rec();await done(2);
-await card(3,true);await rec();await p.click('summary');await p.focus('input[aria-label="받침 냉각 시간"]');await p.keyboard.press('End');await rec();await done(3);
+await card(3,true);await rec();await click('summary','더 해 보기 · 냉각·열변색');await p.focus('input[aria-label="받침 냉각 시간"]');await p.keyboard.press('End');await rec();await done(3);
 await card(4,true);await rec();await p.focus('input[aria-label="받침 냉각 시간"]');await p.keyboard.press('End');await rec();await done(4);
 await card(5);for(const b of await p.$$('.mcard.on .blank'))await(await b.$$('button'))[0].click();await done(5);
 for(const [i,a]of [0,1,2].entries()){await p.click(`.quiz-question:nth-of-type(${i+1}) .quiz-options button:nth-child(${a+1})`);assert.match(await p.$eval(`.quiz-question:nth-of-type(${i+1}) .quiz-feedback`,e=>e.textContent),/맞았습니다/);}

@@ -10,7 +10,7 @@ async function rec(){await click('.abtn','관찰 측정·기록');}
 async function slider(T){await p.focus('input[aria-label="바이메탈 온도"]');await p.keyboard.press('Home');for(let i=-20;i<T;i+=10)await p.keyboard.press('ArrowRight');}
 async function done(i){assert.equal(await p.evaluate(i=>!!lab.done[i],i),true);result.missions.push(i+1);}
 await slider(80);await rec();await slider(0);await rec();await done(0);
-await card(1,true);await p.click('.pbtn.main');await p.waitForFunction(()=>!lab.running&&sim.ended,{timeout:45000});await rec();await p.click('summary');await click('.seg button','직접 가열');await click('.seg button','켜지는 접점');await slider(120);await rec();await done(1);
+await card(1,true);await p.click('.pbtn.main');await p.waitForFunction(()=>!lab.running&&sim.ended,{timeout:45000});await rec();await click('summary','더 해 보기 · 기기와 접점');await click('.seg button','직접 가열');await click('.seg button','켜지는 접점');await slider(120);await rec();await done(1);
 await card(2,true);await rec();assert.equal(await p.evaluate(()=>!!lab.done[2]),false);await p.click('.mcard.on .pred button:nth-child(1)');await slider(0);await rec();await done(2);
 await card(3,true);await p.select('.mcard.on select[aria-label="바꿀 것"]','target');await p.select('.mcard.on select[aria-label="잴 것"]','closed');for(const k of ['upper','lower','contact','side','heater','scene'])await p.click(`.mcard.on input[value="${k}"]`);await click('.mcard.on .abtn','이 설계로 실험하기');await rec();await rec();assert.equal(await p.evaluate(()=>!!lab.done[3]),false);await slider(120);await rec();await done(3);
 await card(4,true);await click('.seg button','아래에서');await rec();await click('.seg button','위에서');await rec();await click('.seg[aria-label="아래 금속"] button','구리');await rec();await done(4);

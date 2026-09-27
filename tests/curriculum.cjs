@@ -5,7 +5,7 @@ const pp=require(process.env.PUPPETEER_PATH||'puppeteer-core');
 const defs=require('./fixtures/curriculum.json');
 const out=process.env.TEST_OUTPUT||path.resolve('test-results/curriculum');fs.mkdirSync(out,{recursive:true});
 const report={labs:[],errors:[],started:new Date().toISOString()};let browser;
-const selected=process.env.LAB_FILTER?defs.filter(d=>d.id.includes(process.env.LAB_FILTER)):defs;
+const selected=process.env.LAB_FILTER?defs.filter(d=>process.env.LAB_FILTER.split(',').some(f=>d.id.includes(f.trim()))):defs;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 (async()=>{
  browser=await pp.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});

@@ -53,7 +53,7 @@ function start(d){
   teacher:`<h4>교육과정</h4><p>${d.codes.join(', ')} · ${d.core}</p><h4>계산·모형 규칙</h4><p>${d.rule}</p><h4>범위와 한계</h4><p>${d.limit}</p><h4>창의 장치</h4><p>${d.creative} 비교판은 현재 조건의 모형값을 고정합니다. 실제 물체나 에너지가 복제되는 뜻이 아닙니다.</p>`,
   missions,quiz:d.quiz,
   setup(l){
-   const u=l.ui;u.group('직접 바꾸어 보세요');
+   const u=l.ui;if(d.temperatureColor)Thermal.note(l,'물질의 종류나 상태와 온도를 구별하세요. 같은 온도에는 같은 색을 사용합니다.');u.group('직접 바꾸어 보세요');
    d.controls.forEach(o=>u[o.options?'choice':'slider']({...o,onChange:()=>{}}));
    u.note(d.prompt);u.group('현재 관찰');
    d.outputs.forEach(o=>u.readout({label:o.label,get:s=>{const v=d.evaluate(s)[o.key];return o.numeric===false?v:l.measure(o.key,v,{amplitude:o.noise||0}).toFixed(o.digits??2)+(o.unit?' '+o.unit:'');}}));
