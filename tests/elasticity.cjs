@@ -1,0 +1,22 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');const pp=require(process.env.PUPPETEER_PATH||'puppeteer-core');
+const out=process.env.TEST_OUTPUT||path.resolve('test-results/elasticity');fs.mkdirSync(out,{recursive:true});const result={numbers:[],missions:[],screenshots:[],errors:[]};let browser;
+(async()=>{browser=await pp.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});const p=await browser.newPage();p.on('pageerror',e=>result.errors.push(e.message));p.on('console',m=>{if(m.type()==='error')result.errors.push(m.text());});await p.setViewport({width:1920,height:1080});const url='http://127.0.0.1:7101/labs/elasticity/';
+ for(const mode of ['model','learn']){await p.goto(url+'?mode='+mode);const a=await p.evaluate(()=>{const out=[];for(const spring of ['a','b'])for(const delta of [-10,0,5,10,15,20,25]){Object.assign(lab.state,{spring,delta});out.push({spring,delta,total:L0+delta,F:force(lab.state),right:rightForce(lab.state)});}return out;});for(const r of a){const k=r.spring==='a'?.072:.12;assert.ok(Math.abs(r.F-k*Math.abs(r.delta))<1e-9);assert.ok(Math.abs(r.right+k*r.delta)<1e-9);assert.equal(r.total,30+r.delta);}result.numbers.push({mode,values:a});}assert.deepEqual(result.numbers[0].values,result.numbers[1].values);
+ await p.evaluate(()=>localStorage.clear());await p.goto(url+'?mode=learn');
+ async function click(sel,t){const e=await p.evaluateHandle((sel,t)=>[...document.querySelectorAll(sel)].find(e=>e.textContent.trim()===t),sel,t);assert.ok(e.asElement(),t);await e.asElement().click();}
+ async function setDelta(x){await p.focus('input[aria-label="원래 끝에서 센서 이동"]');await p.keyboard.press('Home');for(let i=-10;i<x;i++)await p.keyboard.press('ArrowRight');}
+ async function card(i,enter=false){await p.click(`.mcard:nth-child(${i+1}) .t`);if(enter)await p.click('.mcard.on .enter-btn');}
+ async function rec(){await click('.abtn','탄성력 측정·기록');}
+ async function done(i){assert.equal(await p.evaluate(i=>!!lab.done[i],i),true);result.missions.push(i+1);}
+ await setDelta(10);await done(0);
+ await card(1,true);for(const x of [5,10,15,20]){await setDelta(x);await rec();}await done(1);
+ await card(2,true);const old=await p.evaluate(()=>book.rows.length);await rec();assert.equal(await p.evaluate(()=>book.rows.length),old);await p.click('.mcard.on .pred button:nth-child(2)');await setDelta(25);await rec();await done(2);
+ await card(3,true);await setDelta(-10);assert.equal(await p.evaluate(()=>!!lab.done[3]),false);const before=await p.evaluate(()=>book.rows.length);await rec();assert.equal(await p.evaluate(()=>book.rows.length),before);await setDelta(10);await done(3);
+ await card(4);await p.select('.mcard.on select[aria-label="바꿀 것"]','extension');await p.select('.mcard.on select[aria-label="잴 것"]','measured');await p.click('.mcard.on input[value="spring"]');await click('.mcard.on .abtn','이 설계로 실험하기');await rec();await rec();assert.equal(await p.evaluate(()=>!!lab.done[4]),false);await setDelta(15);await rec();await done(4);
+ await card(5);const blanks=await p.$$('.mcard.on .blank');for(const [i,a]of [0,1,0].entries())await(await blanks[i].$$('button'))[a].click();await done(5);
+ for(const [i,a]of [0,1,2].entries()){await p.click(`.quiz-question:nth-of-type(${i+1}) .quiz-options button:nth-child(${a+1})`);assert.match(await p.$eval(`.quiz-question:nth-of-type(${i+1}) .quiz-feedback`,e=>e.textContent),/맞았습니다/);}
+ assert.ok(await p.evaluate(()=>book.rows.every(r=>Math.abs(r.measured-SPRING[r.spring].k*r.extension)<=.010001)));
+ for(const [w,h]of [[1920,1080],[1366,768],[1024,768],[390,844]])for(const mode of ['model','learn'])for(const delta of [20,-10]){
+  await p.setViewport({width:w,height:h});await p.goto(url+'?mode='+mode);await p.evaluate(delta=>{lab.state.delta=delta;lab.update();},delta);await new Promise(r=>setTimeout(r,120));assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));const name=`elasticity-${mode}-${delta<0?'compress':'stretch'}-${w}x${h}.png`;await p.screenshot({path:path.join(out,name)});result.screenshots.push(name);
+ }assert.deepEqual(result.errors,[]);console.log('PASS elasticity: both modes, 28 numeric cases, 6 missions, 3 quizzes, 16 screens');
+})().catch(e=>{result.failure=e.stack;console.error(e);process.exitCode=1;}).finally(async()=>{fs.writeFileSync(path.join(out,'validation.json'),JSON.stringify(result,null,2));if(browser)await browser.close();});

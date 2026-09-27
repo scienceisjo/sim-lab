@@ -21,7 +21,7 @@ Lab.init({
   '지구에서 1 kg의 무게는 약 9.8 N이며, 달에서는 그 6분의 1로 계산합니다.',
   '저울에 매단 물체는 멈춰 있습니다. 6 kg 추는 100 N까지 재는 큰 용수철저울을 씁니다.',
   '위로 던진 공은 공기 저항을 받지 않고, 이 장면 안에서 중력의 크기는 일정하다고 봅니다.',
-  '학습 모드의 무게 측정값에만 최대 0.04 N의 흔들림을 넣습니다. 양팔저울의 기울기는 질량을 비교하는 표현이며 수치 눈금이 아닙니다.'
+  '학습 측정값에는 최대 0.04 N 흔들림을 넣고 소수 둘째 자리로 반올림합니다. 양팔저울 기울기는 질량을 비교하는 표현이며 수치 눈금이 아닙니다.'
  ],
  teacher:`<h4>교과서 연결</h4><p>비상교육 중1 p.164–165. 질량은 장소가 달라도 같고 무게는 중력의 크기입니다. 6 kg은 지구 58.8 N, 달 9.8 N입니다.</p><h4>계산과 표현</h4><p>무게는 질량×지역 중력 값(지구 9.8 N/kg, 달 9.8/6 N/kg)입니다. 모든 장면의 힘 축척은 1 N=3 논리 px이며 지구·달 전환 시 바꾸지 않습니다. 양팔저울은 같은 길이의 두 팔과 같은 질량 분동으로 비교합니다. 질량 차가 있을 때의 저울 기울기는 비교용이고 질량 눈금이 아닙니다.</p><p>공의 초기 위쪽 속도는 3 m/s이며 공기 저항은 없습니다. 고정 시간 간격 1/120초에서 등가속도 해를 계산하고 바닥에 돌아오면 멈춥니다. 위로 이동하는 공에도 중력은 아래로 작용합니다. 지역 장면의 아래는 해당 천체 중심 쪽입니다.</p><h4>활동과 한계</h4><p>무게 막대는 같은 물체의 지구·달 무게를 같은 눈금으로 비교하는 보조 표현입니다. 행성의 크기·거리를 뜻하지 않습니다. 학습 기록은 정지한 저울 장면에서만 남기며 무게 측정에 ±0.04 N 오차를 넣습니다. 정밀 질량 측정의 마찰·기기 보정은 다루지 않습니다.</p>`,
  missions:[
@@ -51,7 +51,7 @@ Lab.init({
   u.readout({label:'공의 움직임',get:()=>sim.ended?'바닥에 돌아왔습니다.':sim.v>0?'올라가는 중입니다.':sim.v<0?'내려오는 중입니다.':'가장 높은 곳입니다.',hide:s=>s.scene!=='throw'});
   u.readout({label:'중력 방향',get:s=>s.scene==='globe'?'천체의 중심 쪽입니다.':'아래쪽(천체 중심 쪽)입니다.'});
   u.learnOnly(u.group('실험 기록장'));
-  book=u.records({id:'weights',version:1,columns:[{key:'planet',label:'장소',format:v=>PLACE[v]},{key:'mass',label:'물체(kg)',numeric:true,digits:0},{key:'reference',label:'분동(kg)',numeric:true,digits:0},{key:'measured',label:'무게 측정(N)',numeric:true}],conditions:['planet','mass','reference'],measure:'measured',x:'planet',y:'measured',validate:r=>Object.hasOwn(G,r.planet)&&Number.isInteger(r.mass)&&r.mass>=1&&r.mass<=6&&Number.isInteger(r.reference)&&r.reference>=1&&r.reference<=6&&Math.abs(r.measured-r.mass*G[r.planet])<=.040001});
+  book=u.records({id:'weights',version:1,columns:[{key:'planet',label:'장소',format:v=>PLACE[v]},{key:'mass',label:'물체(kg)',numeric:true,digits:0},{key:'reference',label:'분동(kg)',numeric:true,digits:0},{key:'measured',label:'무게 측정(N)',numeric:true}],conditions:['planet','mass','reference'],measure:'measured',x:'planet',y:'measured',validate:r=>Object.hasOwn(G,r.planet)&&Number.isInteger(r.mass)&&r.mass>=1&&r.mass<=6&&Number.isInteger(r.reference)&&r.reference>=1&&r.reference<=6&&Math.abs(r.measured-r.mass*G[r.planet])<=.045001});
   const msg=u.note('두 저울 장면에서 여러 번 측정하세요. 무게 측정값은 최대 ±0.04 N 흔들리며 평균에도 오차가 남을 수 있습니다.');
   u.button({label:'무게 측정·기록',onClick:l=>{if(l.state.scene!=='weigh'){msg.textContent='두 저울 장면에서 멈춰 있는 물체를 측정하세요.';return;}if(l.mi===1&&l.prediction==null){msg.textContent='먼저 미션 카드에서 예상한 답을 고르세요.';return;}const s=l.state;book.add({planet:s.planet,mass:s.mass,reference:s.reference,measured:+l.measure('weight',weight(s),{amplitude:.04,fresh:true}).toFixed(2),pred:l.mi===1&&l.prediction!=null});}});
  },

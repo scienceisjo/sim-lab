@@ -1,0 +1,51 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>탄성력 · CLICK SCIENCE</title><link rel="stylesheet" href="../_kit/kit.css"><link rel="icon" href="data:,"></head><body><script src="../_kit/kit.js"></script><script>
+'use strict';
+const SPRING={a:{name:'용수철 A',k:.072},b:{name:'용수철 B',k:.12}},L0=30,PP=6,K=40;
+const force=s=>SPRING[s.spring].k*Math.abs(s.delta),rightForce=s=>-SPRING[s.spring].k*s.delta;
+const seen={stretch:false,compress:false};let book,msg;
+function changed(v,l){if(l.mode==='learn'&&l.mi===3&&l.modelVisible){if(l.state.delta>0)seen.stretch=true;if(l.state.delta<0)seen.compress=true;}}
+function configure(l,s){Object.assign(l.state,s);seen.stretch=seen.compress=false;}
+const rows=i=>book.rows.filter(r=>r._mission===i);
+Lab.init({id:'elasticity',version:1,title:'탄성력',subject:'phys',unit:'힘의 작용',grade:'중1',updated:'2026-09-27',board:{w:960,h:600},state:{spring:'a',delta:5,ends:true},
+ sceneNote:'용수철이 센서와 고정부에 주는 힘을 표시합니다. 확대 창은 같은 용수철의 양 끝을 따로 살펴보는 그림입니다.',
+ assumptions:[
+  '용수철의 왼쪽 끝은 고정되어 있고, 오른쪽 센서를 아주 천천히 움직여 멈춘 상태를 비교합니다.',
+  '원래 길이는 30 cm로 정했습니다. 늘어난 길이는 전체 길이에서 원래 길이를 뺀 값입니다.',
+  '용수철 A는 5 cm 늘어날 때마다 약 0.36 N, 비교용 B는 0.60 N씩 힘이 커지는 모형입니다.',
+  '조작 범위 안에서 용수철은 원래 모양으로 돌아옵니다. 진동과 영구 변형은 다루지 않습니다.',
+  '학습 측정값에는 최대 0.01 N 흔들림을 넣고 소수 둘째 자리로 반올림합니다. 힘 화살표와 길이는 정확한 모형값입니다.'
+ ],
+ teacher:`<h4>교과서</h4><p>비상교육 중1 p.166–169. 고정한 용수철을 힘 센서로 5·10·15·20 cm까지 당기고 힘을 읽는 탐구입니다. A는 0.072 N/cm이므로 5 cm당 0.36 N, 25 cm에서 1.8 N입니다. 비교용 B의 0.12 N/cm와 원래 길이 30 cm는 도해를 위해 정한 모형값입니다.</p><h4>계산·힘의 대상</h4><p>변형량을 x라 할 때 오른쪽 센서에 용수철이 주는 힘은 −kx, 고정부에 주는 힘은 +kx입니다. 왼쪽 고정부와 오른쪽 센서가 용수철의 양 끝에 힘을 가하여 변형을 유지합니다. 진동을 생략한 준정적 장면입니다. 화면은 힘의 크기와 방향을 다루며 용수철 상수라는 용어, 직렬·병렬은 도입하지 않습니다.</p><p>늘린 상태에서만 기록합니다. 누른 상태는 방향 관찰용이며 늘어난 길이–힘 그래프에 섞지 않습니다. 전체 길이–힘 그래프도 직선일 수 있지만 원점을 지나는 정비례는 아니라는 점에 유의하세요.</p><h4>확대 창의 한계</h4><p>하단의 양 끝 창은 같은 용수철의 양 끝을 2배 축척으로 분리한 그림입니다. 새 용수철이나 다른 힘을 추가하지 않습니다. 창을 꺼도 본체의 힘 화살표는 남습니다.</p>`,
+ missions:[
+ {kind:'둘러보기',title:'용수철을 늘리고 눌러 보기',text:'센서 위치와 용수철 종류를 바꾸어 보세요. 길이와 힘 화살표를 살펴보세요.',check:(s,l)=>l.touches>=3},
+ {kind:'해 보기',title:'네 길이에서 힘 측정하기',text:'용수철 A를 5·10·15·20 cm 늘려 각각 기록하세요. 원래 길이를 빼서 늘어난 길이를 확인하세요.',enter:l=>configure(l,{spring:'a',delta:5}),check:()=>[5,10,15,20].every(x=>rows(1).some(r=>r.spring==='a'&&r.extension===x)),ok:'모형값은 0.36·0.72·1.08·1.44 N입니다. 측정값에는 오차가 조금 남습니다. 기록장 가로축을 늘어난 길이로 골라 비교하세요.'},
+ {kind:'예상',title:'25 cm 늘리면 얼마나 셀까?',text:'용수철 A를 25 cm 늘렸을 때를 예상하고 측정하세요. 5 cm 늘릴 때마다 약 0.36 N 커졌습니다.',enter:l=>configure(l,{spring:'a',delta:20}),predict:{options:['약 1.44 N입니다.','약 1.80 N입니다.','약 3.96 N입니다.'],answer:1},check:()=>rows(2).some(r=>r.spring==='a'&&r.extension===25&&r.pred),ok:'25 cm는 5 cm의 다섯 배이므로 힘의 모형값도 0.36 N의 다섯 배인 1.80 N입니다.'},
+ {kind:'해 보기',title:'누를 때는 어느 방향일까?',text:'센서 위치를 원래 끝보다 왼쪽으로 옮겨 누르고, 다시 오른쪽으로 옮겨 늘려 보세요. 센서에 작용하는 탄성력 방향을 비교하세요.',enter:l=>configure(l,{delta:0,ends:true}),check:()=>seen.stretch&&seen.compress,ok:'누르면 센서를 오른쪽으로, 늘리면 왼쪽으로 밀거나 당깁니다. 변형을 되돌리는 방향입니다.'},
+ {kind:'변인 고르기',title:'늘어난 길이만 바꾸어 비교하기',text:'늘어난 길이에 따라 탄성력이 어떻게 달라지는지 실험을 설계하세요. 같은 용수철을 써야 합니다.',variables:{options:[['extension','늘어난 길이'],['spring','용수철 종류'],['measured','측정한 탄성력']],change:'extension',keep:['spring'],measure:'measured',recordId:'spring'},ok:'같은 용수철에서 늘어난 길이만 달리한 측정 기록이 모였습니다.'},
+ {kind:'찾아내기',title:'전체 길이와 구별하기',text:'실험한 내용을 문장으로 정리하세요.',sentence:'원래 길이가 30 cm이고 전체 길이가 40 cm이면 늘어난 길이는 {10 cm|40 cm}입니다. 같은 용수철의 탄성력 크기는 {전체 길이|늘어난 길이}에 비례하고, 힘은 변형을 {되돌리는|더하는} 방향입니다.',blanks:[0,1,0],ok:'용수철의 전체 길이와 늘어난 길이를 구별했습니다.'}
+ ],
+ quiz:[
+ {kind:'진단',question:'원래 30 cm인 용수철의 전체 길이가 35 cm입니다. 늘어난 길이는 얼마인가요?',options:['5 cm입니다.','30 cm입니다.','35 cm입니다.'],answer:0,feedback:['전체 길이에서 원래 길이를 빼면 5 cm입니다.','30 cm는 원래 길이입니다.','35 cm는 전체 길이입니다.']},
+ {kind:'적용',question:'같은 용수철을 5 cm에서 10 cm로 더 늘렸습니다. 탄성력은 어떻게 되나요?',options:['그대로입니다.','약 두 배가 됩니다.','약 절반이 됩니다.'],answer:1,feedback:['늘어난 길이가 커지면 탄성력도 커집니다.','늘어난 길이가 두 배이면 탄성력도 두 배입니다.','더 늘렸으므로 힘은 줄지 않습니다.']},
+ {kind:'새 상황',question:'고정된 용수철의 오른쪽 끝을 왼쪽으로 눌렀습니다. 용수철이 오른쪽 센서에 주는 힘은 어느 쪽인가요?',options:['왼쪽입니다.','힘이 없습니다.','오른쪽입니다.'],answer:2,feedback:['왼쪽으로 누른 변형을 되돌리는 쪽을 생각해 보세요.','눌려 변형된 용수철도 탄성력을 냅니다.','눌린 용수철이 원래 길이를 되찾으려 센서를 오른쪽으로 밉니다.']}
+ ],
+ setup(l){const u=l.ui;u.group('변형시키기');u.choice({key:'spring',label:'용수철',options:[['a','용수철 A'],['b','용수철 B']],onChange:changed});u.slider({key:'delta',label:'원래 끝에서 센서 이동',min:-10,max:25,step:1,unit:'cm',onChange:changed});u.note('오른쪽(+)으로 옮기면 늘어나고, 왼쪽(−)으로 옮기면 눌립니다.');u.toggle({key:'ends',label:'양 끝의 힘 확대 보기'});
+ u.group('길이와 힘');u.readout({label:'원래 길이',get:()=>L0+' cm'});u.readout({label:'전체 길이',get:s=>L0+s.delta+' cm'});u.readout({label:'변형한 길이',get:s=>s.delta>=0?'늘어남 '+s.delta+' cm':'줄어듦 '+(-s.delta)+' cm'});u.readout({label:'탄성력(모형값)',get:s=>force(s).toFixed(2)+' N'});u.readout({label:'센서가 받는 탄성력',get:s=>s.delta>0?'← 왼쪽':s.delta<0?'오른쪽 →':'0 N입니다.'});
+ u.learnOnly(u.group('측정·기록'));u.readout({label:'힘 센서 측정값',get:(s,l)=>l.measure('elastic',force(s),{amplitude:.01}).toFixed(2)+' N'});
+ book=u.records({id:'spring',version:1,columns:[{key:'spring',label:'용수철',format:v=>SPRING[v].name},{key:'total',label:'전체 길이(cm)',numeric:true,digits:0},{key:'extension',label:'늘어난 길이(cm)',numeric:true,digits:0},{key:'measured',label:'탄성력 측정(N)',numeric:true}],conditions:['spring','extension'],measure:'measured',x:'extension',y:'measured',validate:r=>Object.hasOwn(SPRING,r.spring)&&Number.isInteger(r.extension)&&r.extension>=0&&r.extension<=25&&r.total===L0+r.extension&&Math.abs(r.measured-SPRING[r.spring].k*r.extension)<=.015001});
+ msg=u.note('늘린 상태에서 여러 번 측정하세요. 측정값은 최대 ±0.01 N 흔들리며 평균에도 오차가 남을 수 있습니다.');u.button({label:'탄성력 측정·기록',onClick:l=>{const s=l.state;if(s.delta<0){msg.textContent='누르기는 방향 관찰 장면입니다. 늘린 상태에서 늘어난 길이–탄성력 기록을 남겨 주세요.';return;}if(l.mi===2&&l.prediction==null){msg.textContent='먼저 미션 카드에서 예상을 고르세요.';return;}book.add({spring:s.spring,total:L0+s.delta,extension:s.delta,measured:+l.measure('elastic',force(s),{amplitude:.01,fresh:true}).toFixed(2),pred:l.mi===2&&l.prediction!=null});}});
+ },
+ onModeChange(){seen.stretch=seen.compress=false;},onMissionSelect(){seen.stretch=seen.compress=false;},onMissionsReset(){seen.stretch=seen.compress=false;},
+ draw(c,l){const s=l.state,d=l.draw,z=l.fs(15),x0=160,natural=x0+L0*PP,end=natural+s.delta*PP,y=310,F=force(s),sign=Math.sign(s.delta),color='#e07800';
+ c.fillStyle='#fffaf0';c.fillRect(0,0,960,600);const text=(x,y,t,col='#334155',align='center')=>d.text(c,x,y,t,{size:z,color:col,align});text(480,42,SPRING[s.spring].name+'를 천천히 변형시킵니다.');
+ c.fillStyle='#94a3b8';c.fillRect(x0-32,y-70,32,140);c.strokeStyle='#475569';c.lineWidth=4;c.beginPath();c.moveTo(x0,y);for(let i=1;i<=32;i++){const x=x0+(end-x0)*i/32,yy=y+(i===32?0:i%2?16:-16);c.lineTo(x,yy);}c.stroke();
+ c.fillStyle='#dce8ec';c.strokeStyle='#475569';c.lineWidth=2;c.beginPath();c.roundRect(end,y-30,150,60,12);c.fill();c.stroke();c.fillStyle='#a7f3d0';c.fillRect(end+15,y-17,115,34);text(end+72,y+10,F.toFixed(2)+' N','#065f46');
+ text(110,214,'고정부');text(end+75,248,'힘 센서');
+ c.setLineDash([5,5]);c.strokeStyle='#64748b';c.beginPath();c.moveTo(natural,142);c.lineTo(natural,270);c.moveTo(natural,350);c.lineTo(natural,398);c.stroke();c.setLineDash([]);text(natural,127,'원래 끝');
+ text(720,116,'원래 '+L0+' cm');text(720,157,'전체 '+(L0+s.delta)+' cm');text(720,198,s.delta>=0?'늘어난 길이 '+s.delta+' cm':'줄어든 길이 '+(-s.delta)+' cm',color);
+ c.strokeStyle='#64748b';c.lineWidth=2;for(let cm=0;cm<=60;cm+=5){const x=x0+cm*PP;c.beginPath();c.moveTo(x,380);c.lineTo(x,390);c.stroke();if(cm%10===0)text(x,420,String(cm));}text(880,420,'cm');
+ if(l.modelVisible){d.arrow(c,x0,y,sign*F*K,0,{color,width:5});d.arrow(c,end,y,-sign*F*K,0,{color,width:5});c.strokeStyle=color;c.lineWidth=3;c.beginPath();c.moveTo(40,80);c.lineTo(40+K,80);c.stroke();text(100,88,'1 N',color,'left');}
+ if(l.modelVisible&&s.ends){text(240,472,'고정부가 받는 힘');text(710,472,'센서가 받는 힘');c.fillStyle='#cbd5e1';c.fillRect(84,504,24,34);c.fillRect(844,504,24,34);d.arrow(c,96,520,sign*F*K*2,0,{color,width:5});d.arrow(c,856,520,-sign*F*K*2,0,{color,width:5});text(480,580,'양 끝 확대 ×2 · 화살표 길이도 두 배입니다.');}
+ }
+});
+</script></body></html>
