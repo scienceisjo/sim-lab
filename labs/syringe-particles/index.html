@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>입자로 보는 기체의 성질 · CLICK SCIENCE</title><link rel="stylesheet" href="../_kit/kit.css"><link rel="icon" href="data:,"></head><body><script src="../_kit/kit.js"></script><script>
+'use strict';
+const DT=1/120,V0=70,NAMES={walls:'입자와 압력',volume:'온도를 같게 두기',heat:'압력을 같게 두기'};
+function values(s){
+  const T=s.scene==='heat'?s.temperature:20,n=s.scene==='walls'?s.count:20,ratio=(T+273.15)/293.15;
+  const V=s.scene==='volume'?s.volume:s.scene==='heat'?40*ratio:40;
+  return {T,n,V,P:s.scene==='volume'?40/V:s.scene==='walls'?n/20:1,motion:100*Math.sqrt(ratio)};
+}
+function makeGas(s){
+  const a=values(s),w=320*a.V/40,h=175,ps=[];let seed=727;
+  const rng=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+  for(let i=0;i<a.n;i++){
+    let p;do{p={x:3+rng()*(w-6),y:3+rng()*(h-6),vx:V0*a.motion/100*Math.cos((i+.5)*2*Math.PI/a.n),vy:V0*a.motion/100*Math.sin((i+.5)*2*Math.PI/a.n)};}while(ps.some(q=>Math.hypot(q.x-p.x,q.y-p.y)<7));ps.push(p);
+  }
+  return {w,h,ps,t:0,acc:0,hits:[0,0,0,0],impulse:[0,0,0,0],flash:[-1,-1,-1,-1]};
+}
+function gasWall(p,e){
+  for(const [axis,v,size,low,high]of [['x','vx',e.w,0,1],['y','vy',e.h,2,3]]){
+    const side=p[axis]<2?low:p[axis]>size-2?high:-1;if(side<0)continue;
+    const outward=side===low?p[v]<0:p[v]>0;p[axis]=side===low?2:size-2;
+    if(outward){e.hits[side]++;e.impulse[side]+=2*Math.abs(p[v]);e.flash[side]=e.t;p[v]*=-1;}
+  }
+}
+function advanceGas(e,dt){
+  e.acc+=dt;while(e.acc+1e-12>=DT){e.acc-=DT;e.t+=DT;
+    for(const p of e.ps){p.x+=p.vx*DT;p.y+=p.vy*DT;gasWall(p,e);}
+    for(let i=0;i<e.ps.length;i++)for(let j=i+1;j<e.ps.length;j++){
+      const p=e.ps[i],q=e.ps[j],dx=q.x-p.x,dy=q.y-p.y,r=Math.hypot(dx,dy);
+      if(r>0&&r<4){const nx=dx/r,ny=dy/r,ov=(4-r)/2,v=(q.vx-p.vx)*nx+(q.vy-p.vy)*ny;
+        p.x-=ov*nx;p.y-=ov*ny;q.x+=ov*nx;q.y+=ov*ny;
+        if(v<0){p.vx+=v*nx;p.vy+=v*ny;q.vx-=v*nx;q.vy-=v*ny;}
+      }
+    }
+    e.ps.forEach(p=>gasWall(p,e));
+  }
+}
+const rms=e=>Math.sqrt(e.ps.reduce((v,p)=>v+p.vx*p.vx+p.vy*p.vy,0)/e.ps.length)/V0*100;
+const kineticPressure=e=>e.impulse.reduce((a,b)=>a+b,0)/(2*(e.w+e.h)*Math.max(e.t,1e-9));
+let sim,message;const books={},groups={},recordGroups={};
+const rows=(k,i)=>books[k].rows.filter(r=>r._mission===i);
+const spans=(rs,key,min)=>rs.length>1&&Math.max(...rs.map(r=>r[key]))-Math.min(...rs.map(r=>r[key]))>=min;
+function rewind(l){
+  sim=makeGas(l.state);
+  for(const [k,g]of Object.entries(groups))g.style.display=k===l.state.scene?'':'none';
+  for(const [k,g]of Object.entries(recordGroups))g.style.display=k===l.state.scene?'':'none';
+}
+function configure(l,s){Object.assign(l.state,s);l.rewind();}
+function measured(l,key,value,fresh=false){return l.measure(key,value,{amplitude:key==='pressure'?.002:.1,fresh});}
+function record(l){
+  if(l.mode!=='learn')return;
+  const s=l.state,a=values(s);
+  if(l.mi===1&&l.prediction==null){message.textContent='먼저 예상을 고르세요.';return;}
+  if(s.scene==='walls'&&sim.t<3){message.textContent='입자가 모든 벽에 닿도록 3모형초 이상 재생하세요.';return;}
+  const r={temperature:a.T,volume:s.scene==='heat'?+measured(l,'volume',a.V,true).toFixed(1):a.V,pressure:s.scene==='heat'?1:+measured(l,'pressure',a.P,true).toFixed(3),particles:a.n,motion:rms(sim),visible:l.modelVisible,pred:l.prediction!=null};
+  if(s.scene==='walls')Object.assign(r,{seconds:sim.t,left:sim.hits[0],right:sim.hits[1],top:sim.hits[2],bottom:sim.hits[3]});
+  books[s.scene].add(r);message.textContent='기록했습니다. 같은 조건에서 다시 재면 평균을 비교할 수 있습니다.';
+}
+const cols=[{key:'temperature',label:'온도(℃)',numeric:true,digits:0},{key:'volume',label:'부피(mL)',numeric:true,digits:1},{key:'pressure',label:'압력(기압)',numeric:true,digits:3},{key:'particles',label:'대표 입자 수',numeric:true,digits:0},{key:'motion',label:'운동 지표',numeric:true,digits:1}];
+function graphRows(s){return (s.scene==='volume'?Array.from({length:41},(_,i)=>({temperature:20,volume:20+i,pressure:40/(20+i)})):s.scene==='heat'?Array.from({length:81},(_,i)=>({temperature:i,volume:40*(i+273.15)/293.15,pressure:1})):Array.from({length:3},(_,i)=>({temperature:20,volume:40,pressure:(i+1)/2}))).map(r=>({...r,particles:s.scene==='walls'?20*r.pressure:20}));}
+Lab.init({id:'syringe-particles',version:2,title:'입자로 보는 기체의 성질',subject:'chem',unit:'기체의 성질',grade:'중1',updated:'2026-09-27',board:{w:960,h:600},
+ state:{scene:'walls',count:20,volume:40,temperature:20,vectors:false},
+ sceneNote:'손잡이를 바꾸면 충분히 기다린 새 평형 상태를 준비합니다. 재생은 그 상태의 입자 운동이며, 재생 빠르기는 온도를 바꾸지 않습니다. 대표 입자는 실제보다 크고 적게 그렸습니다.',
+ assumptions:['기체는 새지 않습니다. 두 관계를 비교할 때 기체의 양은 같습니다.','피스톤은 마찰 없이 움직이거나 원하는 부피에 고정할 수 있다고 가정합니다.','온도를 같게 두는 비교에서는 열을 주고받으며 충분히 기다립니다. 빠른 압축 직후의 변화는 나타내지 않습니다.','압력을 같게 두는 비교에서는 피스톤이 움직여 부피가 변합니다.','입자 자체의 부피와 서로 끌어당기는 힘은 무시합니다. 입자 그림은 2차원 확대 모형입니다.'],
+ teacher:`<h4>교과서와 핵심 개념</h4><p>비상교육 p.199–201, 206–213, 214–215. 입자의 모든 방향 운동과 압력, 일정한 온도에서 압력과 부피, 일정한 압력에서 온도와 부피를 탐색합니다. 압력은 일정한 면적에 작용하는 힘이며, 기체 입자가 벽과 충돌하며 힘을 줍니다. 특정 스포이트나 병의 절차를 재현하지 않습니다.</p><h4>계산 (중학교 범위 밖)</h4><p>기준은 20 ℃, 40 mL, 1기압, 대표 입자 20개입니다. 온도 일정: P=40/V 기압, V=20–60 mL. 압력 일정: V=40(T+273.15)/293.15 mL, T=0–80 ℃. 기체 양 비교: P=N/20 기압, N=10/20/30. 거시 값은 이상 기체식으로 계산합니다. 압력 일정 장면의 안쪽 기체와 바깥쪽 압력은 모두 1기압인 평형이며, 온도 일정 장면의 피스톤은 부피에 맞춰 고정합니다. 교과서 실측값에 맞추어 법칙을 바꾸지 않습니다. 섭씨 숫자의 두 배가 부피 두 배는 아닙니다.</p><h4>입자 모형과 한계</h4><p>같은 질량의 탄성 원판, 반지름 2, 기준 너비 320·높이 175, DT=1/120초입니다. 충돌 법선 성분의 충격량으로 운동에너지를 보존합니다. 초기 속력은 같고 방향은 균등하며 충돌하면서 개별 속력이 달라집니다. 20 ℃=100인 운동 지표는 속력 제곱 평균의 제곱근(RMS)이며 절대온도의 제곱근에 비례합니다. 속도 화살표는 속도에 비례합니다. 원통의 깊이는 같다고 두어 그림 면적과 부피를 연결합니다.</p><p>조건을 바꾸면 새 평형 상태를 준비합니다. 이동 중인 벽의 일을 계산하지 않으므로 빠른 압축 과정으로 해석하면 안 됩니다. 작은 수의 유한 원판으로 잰 순간 충돌 통계는 거시 압력과 정확히 일치하지 않습니다. 긴 시간 평균도 원판 크기·시간 간격에 따른 근사입니다. 기체는 모든 방향으로 움직이며 중력에 의한 바닥 쏠림을 그리지 않습니다.</p><h4>학습과 창의 장치</h4><p>학습 측정값에만 압력 ±0.002기압·부피 ±0.1 mL 흔들림을 더합니다. 온도와 고정 압력은 설정값입니다. 40 mL 기준선과 20 ℃ 운동 기준 막대는 같은 축척으로 비교하며 모형 층과 함께 끌 수 있습니다. 막대는 모든 입자가 똑같이 움직인다는 뜻이 아닙니다. 확대 배율을 비선형으로 바꾸지 않습니다. 실생활은 온도·압력·양이 함께 변할 수 있으므로 이 모형의 조건을 먼저 확인합니다.</p>`,
+ missions:[
+  {kind:'둘러보기',title:'벽 전체에 작용하는 압력',text:'입자 수를 바꾸어 두 조건에서 각각 3모형초 이상 재생하고 기록하세요. 네 벽의 충돌을 살펴보세요.',check:()=>{const rs=rows('walls',0).filter(r=>r.visible&&['left','right','top','bottom'].every(k=>r[k]>0));return spans(rs,'particles',10);}},
+  {kind:'예상',title:'누르면 입자가 빨라질까요?',text:'온도가 같을 때를 예상하세요. 부피 차이가 10 mL 이상인 두 조건을 골라 모형을 보며 기록하세요.',enter:l=>configure(l,{scene:'volume',volume:40}),predict:{options:['전체적으로 더 빨라집니다.','전체 운동의 빠르기 지표는 같습니다.','입자가 모두 멈춥니다.'],answer:1},check:()=>spans(rows('volume',1).filter(r=>r.pred&&r.visible),'volume',10),ok:'온도가 같으면 전체 운동 지표는 같습니다. 공간이 좁아지면 벽에 더 자주 충돌합니다.'},
+  {kind:'변인 고르기',title:'부피와 압력을 공정하게 비교하기',text:'부피에 따른 압력을 알아보려면 무엇을 같게 두어야 할까요? 설계 후 서로 다른 부피에서 기록하세요.',enter:l=>configure(l,{scene:'volume',volume:40}),variables:{options:[['volume','기체의 부피'],['temperature','기체의 온도'],['particles','기체의 양'],['pressure','기체의 압력']],change:'volume',keep:['temperature','particles'],measure:'pressure',recordId:'gas-volume'}},
+  {kind:'해 보기',title:'데우면 무엇이 달라질까요?',text:'압력을 같게 두세요. 온도 차이가 30 ℃ 이상인 두 조건을 직접 골라 모형을 보며 기록하세요.',enter:l=>configure(l,{scene:'heat',temperature:20}),check:()=>spans(rows('heat',3).filter(r=>r.visible),'temperature',30)},
+  {kind:'해 보기',title:'같은 출발점에서 두 관계 비교하기',text:'두 장면에서 각각 서로 다른 조건을 기록하세요. 부피 차이 10 mL, 온도 차이 30 ℃ 이상으로 비교하고 무엇을 같게 두었는지 보세요.',enter:l=>configure(l,{scene:'volume',volume:40}),check:()=>spans(rows('volume',4).filter(r=>r.visible),'volume',10)&&spans(rows('heat',4).filter(r=>r.visible),'temperature',30)},
+  {kind:'찾아내기',title:'조건과 결과를 연결하기',text:'기체의 양이 같을 때 두 관계를 설명하세요.',sentence:'온도가 같을 때 부피가 줄면 압력은 {커집니다|작아집니다}. 이때 전체 운동의 빠르기 지표는 {같습니다|커집니다}. 압력이 같을 때 데우면 부피는 {늘어납니다|줄어듭니다}. 입자 자체의 크기는 {같습니다|커집니다}.',blanks:[0,0,0,0]}
+ ],
+ quiz:[{kind:'진단',question:'기체 입자가 용기의 위쪽 벽에도 충돌하나요?',options:['모든 방향으로 움직여 위쪽 벽에도 충돌합니다.','기체 압력은 아래쪽에만 있습니다.','따뜻할 때만 위쪽에 충돌합니다.'],answer:0,feedback:['기체 압력은 모든 방향으로 작용합니다.','기체 압력을 아래쪽 힘만으로 생각하면 안 됩니다.','온도가 일정해도 모든 방향으로 움직입니다.']},{kind:'적용',question:'기체의 온도를 일정하게 유지하며 부피를 줄이면?',options:['입자 자체가 작아집니다.','입자 수는 그대로이며 평균적인 간격이 줄어듭니다.','입자가 더 생깁니다.'],answer:1,feedback:['입자 자체의 크기를 줄이는 것이 아닙니다.','같은 양의 기체가 더 작은 공간에 있습니다.','밀봉한 기체의 양은 그대로입니다.']},{kind:'새 상황',question:'같은 압력에서 20 ℃ 기체를 40 ℃로 데우면 부피는?',options:['섭씨 숫자가 두 배라서 두 배가 됩니다.','전혀 달라지지 않습니다.','늘어나지만 두 배가 되지는 않습니다.'],answer:2,feedback:['섭씨 숫자를 그대로 비례식에 넣을 수 없습니다.','피스톤이 움직일 수 있으면 데울 때 부피가 늘어납니다.','모형에서 약 40 mL가 약 42.7 mL로 늘어납니다.']}],
+ setup(l){
+  const u=l.ui;u.group('같게 둘 조건');u.choice({key:'scene',label:'비교 장면',options:Object.entries(NAMES),onChange:(v,l)=>l.rewind()});
+  groups.walls=u.group('같은 부피·같은 온도');u.choice({key:'count',label:'대표 입자 수',options:[[10,'10개'],[20,'20개'],[30,'30개']],onChange:(v,l)=>l.rewind()});u.note('부피는 40 mL, 온도는 20 ℃입니다.');
+  groups.volume=u.group('같은 양·같은 온도');u.slider({key:'volume',label:'기체의 부피',min:20,max:60,step:1,unit:'mL',onChange:(v,l)=>l.rewind()});u.note('온도는 20 ℃입니다. 피스톤을 원하는 부피에 고정합니다.');
+  groups.heat=u.group('같은 양·같은 압력');u.slider({key:'temperature',label:'기체의 온도',min:0,max:80,step:1,unit:'℃',onChange:(v,l)=>l.rewind()});u.note('안팎 압력은 1기압입니다. 피스톤은 자유롭게 움직입니다.');
+  u.group('현재 상태');u.readout({label:'기체의 압력',get:s=>{const a=values(s);return(s.scene==='heat'?a.P:measured(l,'pressure',a.P)).toFixed(3)+' 기압'+(s.scene==='heat'?' (설정)':'');}});u.readout({label:'기체의 부피',get:s=>{const a=values(s);return(s.scene==='heat'?measured(l,'volume',a.V):a.V).toFixed(1)+' mL'+(s.scene!=='heat'?' (설정)':'');}});u.readout({label:'온도',get:s=>values(s).T+' ℃ (설정)'});u.readout({label:'전체 운동의 지표',get:()=>rms(sim).toFixed(1)+' (20 ℃=100)'});u.toggle({key:'vectors',label:'입자 운동 화살표'});
+  u.learnOnly(u.group('측정하기'));message=u.note('현재 장면의 결과를 기록합니다. 다른 장면의 기록은 장면을 바꾸면 볼 수 있습니다.');u.button({label:'현재 결과 측정·기록',onClick:record});
+  for(const k of Object.keys(NAMES)){
+    recordGroups[k]=u.group(NAMES[k]+' 기록');u.learnOnly(recordGroups[k]);
+    const cs=k==='walls'?[...cols,...['left','right','top','bottom'].map((key,i)=>({key,label:['왼벽 충돌','오른벽 충돌','윗벽 충돌','아랫벽 충돌'][i],numeric:true,digits:0}))]:cols;
+    books[k]=u.records({id:'gas-'+k,version:1,columns:cs,conditions:k==='walls'?['particles','volume','temperature']:k==='volume'?['volume','temperature','particles']:['temperature','pressure','particles'],measure:k==='heat'?'volume':'pressure',x:k==='walls'?'particles':k==='volume'?'pressure':'temperature',y:k==='walls'?'pressure':'volume',validate:r=>{
+      if(Math.abs(r.motion-100*Math.sqrt((r.temperature+273.15)/293.15))>1e-7)return false;
+      if(k==='walls')return [10,20,30].includes(r.particles)&&r.volume===40&&r.temperature===20&&Math.abs(r.pressure-r.particles/20)<=.002501&&r.seconds>=3&&['left','right','top','bottom'].every(key=>Number.isInteger(r[key])&&r[key]>=0);
+      if(k==='volume')return r.particles===20&&r.volume>=20&&r.volume<=60&&r.temperature===20&&Math.abs(r.pressure-40/r.volume)<=.002501;
+      return r.particles===20&&r.temperature>=0&&r.temperature<=80&&r.pressure===1&&Math.abs(r.volume-40*(r.temperature+273.15)/293.15)<=.150001;
+    }});
+  }
+  u.learnOnly(u.group('그래프의 모형값'));const details=u.graphData({columns:cols.slice(0,4),getRows:()=>graphRows(l.state)});details.querySelector('summary').textContent='관계 그래프 데이터 표';const labelTable=()=>{const cap=details.querySelector('caption');if(cap)cap.textContent='관계 그래프 데이터 표 · 계산한 평형값';};details.addEventListener('toggle',labelTable);details.addEventListener('click',labelTable);u.note('실험판의 선은 계산한 관계이며 점은 현재 모형 상태입니다. 측정값의 점 그래프는 기록장에서 볼 수 있습니다.');
+  rewind(l);
+ },rewind,reset:rewind,onMissionsReset:rewind,onModeChange:rewind,onMissionSelect:rewind,step(dt){advanceGas(sim,dt);},
+ draw(c,l){
+  const s=l.state,a=values(s),d=l.draw,z=l.fs(14),text=(x,y,t,col='#334155')=>d.text(c,x,y,t,{size:z,color:col,align:'center'});
+  c.fillStyle='#fbfcff';c.fillRect(0,0,960,600);text(480,30,NAMES[s.scene]);
+  text(480,76,s.scene==='walls'?'같은 부피와 온도에서 양을 바꿉니다.':s.scene==='volume'?'같은 양의 기체를 20 ℃로 유지합니다.':'같은 양의 기체를 1기압으로 유지합니다.');
+  const x=55,y=112,w=sim.w,h=sim.h;
+  c.strokeStyle='#c5d0dd';c.lineWidth=2;if(s.scene!=='walls')c.strokeRect(x,y,480,h);c.fillStyle='#edf6fc';c.fillRect(x,y,w,h);c.strokeStyle='#6e8ba7';c.lineWidth=3;c.strokeRect(x,y,w,h);
+  if(s.scene!=='walls'){c.strokeStyle='#647d93';c.lineWidth=9;c.beginPath();c.moveTo(x+w,y);c.lineTo(x+w,y+h);c.stroke();c.lineWidth=6;c.beginPath();c.moveTo(x+w,y+h/2);c.lineTo(575,y+h/2);c.stroke();}
+  if(l.modelVisible){
+    c.save();c.beginPath();c.rect(x,y,w,h);c.clip();
+    for(const p of sim.ps){c.fillStyle='#527eab';c.beginPath();c.arc(x+p.x,y+p.y,3,0,2*Math.PI);c.fill();if(s.vectors)d.arrow(c,x+p.x,y+p.y,p.vx*.3,p.vy*.3,{color:'#79a4b8',width:1.5,head:5,dot:false});}c.restore();
+    if(s.scene!=='walls'){c.setLineDash([6,6]);c.strokeStyle='#b3895d';c.lineWidth=2;c.beginPath();c.moveTo(x+320,y-8);c.lineTo(x+320,y+h+8);c.stroke();c.setLineDash([]);}
+    for(let i=0;i<4;i++)if(sim.t-sim.flash[i]<.12){c.strokeStyle='#e4a450';c.lineWidth=5;c.beginPath();if(i<2){c.moveTo(x+(i?w:0),y);c.lineTo(x+(i?w:0),y+h);}else{c.moveTo(x,y+(i===3?h:0));c.lineTo(x+w,y+(i===3?h:0));}c.stroke();}
+  }
+  text(760,127,'압력 '+(s.scene==='heat'?a.P:measured(l,'pressure',a.P)).toFixed(3)+' 기압');
+  text(760,180,'부피 '+(s.scene==='heat'?measured(l,'volume',a.V):a.V).toFixed(1)+' mL');text(760,233,'온도 '+a.T+' ℃');
+  text(295,329,l.modelVisible?(s.scene==='walls'?'대표 입자 '+a.n+'개를 봅니다.':'점선은 기준 부피 40 mL입니다.'):'입자 모형을 켜서 안을 살펴보세요.');
+  if(l.modelVisible){
+    const bx=625,bw=260,by=277,scale=bw/125;c.fillStyle='#dce5ef';c.fillRect(bx,by,bw,12);c.fillStyle='#6394b5';c.fillRect(bx,by,a.motion*scale,12);c.strokeStyle='#9e673b';c.lineWidth=3;c.beginPath();c.moveTo(bx+100*scale,by-7);c.lineTo(bx+100*scale,by+20);c.stroke();text(760,329,'운동 지표 '+rms(sim).toFixed(1));
+  }
+  if(s.scene==='walls'){
+    text(480,399,'왼쪽 '+sim.hits[0]+'회 · 오른쪽 '+sim.hits[1]+'회');text(480,447,'위쪽 '+sim.hits[2]+'회 · 아래쪽 '+sim.hits[3]+'회');text(480,514,'입자는 모든 방향으로 스스로 움직입니다.');text(480,566,'넓이가 다른 벽은 충돌 수만으로 비교하지 않습니다.');return;
+  }
+  text(480,380,l.modelVisible?'운동 막대의 기준선은 20 ℃의 100입니다.':'기체의 조건을 바꾸며 관계를 살펴보세요.');
+  const gx=150,gy=428,gw=660,gh=95,xMax=s.scene==='volume'?2.2:80,yMax=60;
+  const line=graphRows(s).map(r=>[s.scene==='volume'?r.pressure:r.temperature,r.volume]).sort((a,b)=>a[0]-b[0]);
+  d.graph(c,{x:gx,y:gy,w:gw,h:gh,xMax,yMax,xLabel:'',yLabel:'부피(mL)',yLabelOffset:80,fontSize:z,xTicks:s.scene==='volume'?2:4,xDigits:s.scene==='volume'?1:0,yTicks:2,yDigits:0,line,lineColor:'#90aabb'});
+  const px=gx+(s.scene==='volume'?a.P:a.T)/xMax*gw,py=gy+gh-a.V/yMax*gh;c.fillStyle='#b36a40';c.beginPath();c.arc(px,py,6,0,2*Math.PI);c.fill();text(480,588,s.scene==='volume'?'기체의 압력(기압)':'기체의 온도(℃)');
+ }
+});
+</script></body></html>
