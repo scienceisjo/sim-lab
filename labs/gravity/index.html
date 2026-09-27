@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>중력 — 질량과 무게 · CLICK SCIENCE</title><link rel="stylesheet" href="../_kit/kit.css"><link rel="icon" href="data:,"></head><body>
+<script src="../_kit/kit.js"></script><script>
+'use strict';
+const G={earth:9.8,moon:9.8/6},PLACE={earth:'지구',moon:'달'},K=3,DT=1/120,V0=3;
+const sim={t:0,acc:0,y:0,v:V0,ended:false};
+const evidence={rise:false,fall:false};
+let book;
+const weight=s=>s.mass*G[s.planet];
+const instrument=s=>s.mass===6?'큰 용수철저울(100 N)':'힘 센서(50 N)';
+function resetMotion(l){Object.assign(sim,{t:0,acc:0,y:0,v:V0,ended:false});l.t=0;evidence.rise=evidence.fall=false;}
+function change(v,l){l.setRunning(false);resetMotion(l);}
+function setScene(l,s){Object.assign(l.state,s);change(null,l);}
+const freshRows=mi=>book.rows.filter(r=>r._mission===mi);
+Lab.init({
+ id:'gravity',version:1,title:'중력 — 질량과 무게',subject:'phys',unit:'힘의 작용',grade:'중1',updated:'2026-09-27',
+ state:{planet:'earth',mass:6,reference:6,scene:'weigh',angle:45},board:{w:960,h:600},
+ sceneNote:'지구와 달을 바꿔도 힘 화살표의 축척은 같습니다. 천체와 장치는 실제 크기 비율로 그린 것이 아닙니다.',
+ assumptions:[
+  '같은 물체를 지구와 달로 옮깁니다. 물체의 질량은 변하지 않습니다.',
+  '지구에서 1 kg의 무게는 약 9.8 N이며, 달에서는 그 6분의 1로 계산합니다.',
+  '저울에 매단 물체는 멈춰 있습니다. 6 kg 추는 100 N까지 재는 큰 용수철저울을 씁니다.',
+  '위로 던진 공은 공기 저항을 받지 않고, 이 장면 안에서 중력의 크기는 일정하다고 봅니다.',
+  '학습 모드의 무게 측정값에만 최대 0.04 N의 흔들림을 넣습니다. 양팔저울의 기울기는 질량을 비교하는 표현이며 수치 눈금이 아닙니다.'
+ ],
+ teacher:`<h4>교과서 연결</h4><p>비상교육 중1 p.164–165. 질량은 장소가 달라도 같고 무게는 중력의 크기입니다. 6 kg은 지구 58.8 N, 달 9.8 N입니다.</p><h4>계산과 표현</h4><p>무게는 질량×지역 중력 값(지구 9.8 N/kg, 달 9.8/6 N/kg)입니다. 모든 장면의 힘 축척은 1 N=3 논리 px이며 지구·달 전환 시 바꾸지 않습니다. 양팔저울은 같은 길이의 두 팔과 같은 질량 분동으로 비교합니다. 질량 차가 있을 때의 저울 기울기는 비교용이고 질량 눈금이 아닙니다.</p><p>공의 초기 위쪽 속도는 3 m/s이며 공기 저항은 없습니다. 고정 시간 간격 1/120초에서 등가속도 해를 계산하고 바닥에 돌아오면 멈춥니다. 위로 이동하는 공에도 중력은 아래로 작용합니다. 지역 장면의 아래는 해당 천체 중심 쪽입니다.</p><h4>활동과 한계</h4><p>무게 막대는 같은 물체의 지구·달 무게를 같은 눈금으로 비교하는 보조 표현입니다. 행성의 크기·거리를 뜻하지 않습니다. 학습 기록은 정지한 저울 장면에서만 남기며 무게 측정에 ±0.04 N 오차를 넣습니다. 정밀 질량 측정의 마찰·기기 보정은 다루지 않습니다.</p>`,
+ missions:[
+  {kind:'둘러보기',title:'같은 물체를 두 곳으로 옮기기',text:'질량과 장소를 바꾸고, 세 장면을 살펴보세요. 무엇이 바뀌고 무엇이 그대로인지 찾아보세요.',check:(s,l)=>l.touches>=3},
+  {kind:'예상',title:'6 kg 추를 달로 가져가면?',text:'6 kg 추를 지구와 달에서 각각 측정해 기록하세요. 무게와 질량은 어떻게 될까요?',enter:l=>setScene(l,{scene:'weigh',mass:6,planet:'earth'}),predict:{options:['질량과 무게가 모두 줄어듭니다.','무게만 줄고 질량은 같습니다.','질량과 무게가 모두 같습니다.'],answer:1},check:()=>['earth','moon'].every(p=>freshRows(1).some(r=>r.mass===6&&r.planet===p&&r.pred)),ok:'질량은 두 곳 모두 6 kg입니다. 무게의 모형값은 지구 58.8 N, 달 9.8 N입니다. 측정값에는 작은 오차가 남습니다.'},
+  {kind:'해 보기',title:'달에서도 같은 분동으로 맞추기',text:'물체의 질량을 6 kg으로 두고, 양팔저울이 수평이 되도록 분동을 맞추세요. 지구와 달에서 각각 기록하세요.',enter:l=>setScene(l,{scene:'weigh',mass:6,reference:1,planet:'earth'}),check:()=>['earth','moon'].every(p=>freshRows(2).some(r=>r.planet===p&&r.mass===6&&r.reference===6)),ok:'양쪽 물체의 무게가 같은 비율로 줄어 양팔저울은 달에서도 수평입니다. 질량이 줄어든 것이 아닙니다.'},
+  {kind:'해 보기',title:'올라가는 공에도 중력이 있을까?',text:'공을 위로 던져 재생하세요. 공이 올라갈 때와 내려올 때 중력 화살표의 방향을 모두 살펴보세요.',enter:l=>setScene(l,{scene:'throw',planet:'earth'}),check:()=>evidence.rise&&evidence.fall,ok:'올라갈 때도 내려갈 때도 중력은 아래로 작용합니다. 공의 이동 방향과 힘의 방향은 같아야 하는 것이 아닙니다.'},
+  {kind:'변인 고르기',title:'장소만 바꾸어 비교하기',text:'장소에 따라 같은 물체의 무게가 어떻게 달라지는지 설계하고 측정하세요. 물체와 분동의 질량은 같게 두세요.',variables:{options:[['planet','장소'],['mass','물체의 질량'],['reference','분동의 질량'],['measured','측정한 무게']],change:'planet',keep:['mass','reference'],measure:'measured',recordId:'weights'},ok:'물체와 분동을 바꾸지 않고 장소만 달리한 기록이 모였습니다.'},
+  {kind:'찾아내기',title:'질량·무게·중력 방향 정리',text:'관찰한 내용으로 문장을 완성하세요.',sentence:'장소를 바꾸어도 물체의 질량은 {같고|달라지고}, 달에서의 무게는 지구보다 {작습니다|큽니다}. 중력은 천체의 {중심|바깥}을 향합니다.',blanks:[0,0,0],ok:'무게는 중력의 크기이며, 질량과 구별합니다.'}
+ ],
+ quiz:[
+  {kind:'진단',question:'지구의 6 kg 물체를 달로 옮기면 질량은 얼마인가요?',options:['1 kg입니다.','6 kg입니다.','9.8 kg입니다.'],answer:1,feedback:['줄어드는 것은 무게입니다. 질량은 같습니다.','같은 물체의 질량은 장소가 바뀌어도 같습니다.','9.8은 이 물체의 달 무게를 N으로 나타낸 값입니다.']},
+  {kind:'적용',question:'지구에서 질량 2 kg인 물체의 무게는 약 얼마인가요?',options:['2 N입니다.','9.8 N입니다.','19.6 N입니다.'],answer:2,feedback:['kg은 질량 단위이고 N은 힘의 단위입니다.','9.8 N은 지구에서 1 kg 물체의 무게입니다.','1 kg당 9.8 N이므로 2 kg의 무게는 19.6 N입니다.']},
+  {kind:'새 상황',question:'위로 던진 공이 가장 높은 곳에 도달한 순간 중력은 어느 방향인가요?',options:['위쪽입니다.','중력이 잠시 없어집니다.','아래쪽입니다.'],answer:2,feedback:['올라가던 방향이 중력 방향인 것은 아닙니다.','순간적으로 멈춰도 중력은 계속 작용합니다.','정점에서도 중력은 천체의 중심 쪽인 아래를 향합니다.']}
+ ],
+ setup(l){const u=l.ui;
+  u.group('실험 조건');u.choice({key:'planet',label:'장소',options:[['earth','지구'],['moon','달']],onChange:change});
+  u.slider({key:'mass',label:'물체의 질량',min:1,max:6,step:1,unit:'kg',onChange:change});
+  u.choice({key:'scene',label:'살펴볼 장면',options:[['weigh','두 저울'],['throw','위로 던진 공'],['globe','천체 전체']],onChange:change});
+  u.slider({key:'reference',label:'분동의 질량',min:1,max:6,step:1,unit:'kg',hide:s=>s.scene!=='weigh',onChange:change});
+  u.slider({key:'angle',label:'천체 둘레의 위치',min:0,max:315,step:45,unit:'°',hide:s=>s.scene!=='globe',onChange:change});
+  u.group('측정값');u.readout({label:'물체의 질량',get:s=>s.mass+' kg'});
+  u.readout({label:'무게(모형값)',get:s=>weight(s).toFixed(2)+' N'});
+  u.readout({label:'측정 기구',get:instrument,hide:s=>s.scene!=='weigh'});
+  u.readout({label:'무게 측정값',get:(s,l)=>l.measure('weight',weight(s),{amplitude:.04}).toFixed(2)+' N',hide:s=>s.scene!=='weigh'});
+  u.readout({label:'양팔저울',get:s=>s.mass===s.reference?'수평입니다.':s.mass>s.reference?'물체 쪽이 무겁습니다.':'분동 쪽이 무겁습니다.',hide:s=>s.scene!=='weigh'});
+  u.readout({label:'공의 움직임',get:()=>sim.ended?'바닥에 돌아왔습니다.':sim.v>0?'올라가는 중입니다.':sim.v<0?'내려오는 중입니다.':'가장 높은 곳입니다.',hide:s=>s.scene!=='throw'});
+  u.readout({label:'중력 방향',get:s=>s.scene==='globe'?'천체의 중심 쪽입니다.':'아래쪽(천체 중심 쪽)입니다.'});
+  u.learnOnly(u.group('실험 기록장'));
+  book=u.records({id:'weights',version:1,columns:[{key:'planet',label:'장소',format:v=>PLACE[v]},{key:'mass',label:'물체(kg)',numeric:true,digits:0},{key:'reference',label:'분동(kg)',numeric:true,digits:0},{key:'measured',label:'무게 측정(N)',numeric:true}],conditions:['planet','mass','reference'],measure:'measured',x:'planet',y:'measured',validate:r=>Object.hasOwn(G,r.planet)&&Number.isInteger(r.mass)&&r.mass>=1&&r.mass<=6&&Number.isInteger(r.reference)&&r.reference>=1&&r.reference<=6&&Math.abs(r.measured-r.mass*G[r.planet])<=.040001});
+  const msg=u.note('두 저울 장면에서 여러 번 측정하세요. 무게 측정값은 최대 ±0.04 N 흔들리며 평균에도 오차가 남을 수 있습니다.');
+  u.button({label:'무게 측정·기록',onClick:l=>{if(l.state.scene!=='weigh'){msg.textContent='두 저울 장면에서 멈춰 있는 물체를 측정하세요.';return;}if(l.mi===1&&l.prediction==null){msg.textContent='먼저 미션 카드에서 예상한 답을 고르세요.';return;}const s=l.state;book.add({planet:s.planet,mass:s.mass,reference:s.reference,measured:+l.measure('weight',weight(s),{amplitude:.04,fresh:true}).toFixed(2),pred:l.mi===1&&l.prediction!=null});}});
+ },
+ onPlay(l){if(sim.ended)resetMotion(l);},rewind:resetMotion,reset:resetMotion,onModeChange:resetMotion,onMissionsReset:resetMotion,onMissionSelect(){evidence.rise=evidence.fall=false;},
+ step(dt,l){if(l.state.scene!=='throw'){l.setRunning(false);return;}sim.acc+=dt;const g=G[l.state.planet],end=2*V0/g;
+  while(sim.acc>=DT&&!sim.ended){sim.acc-=DT;sim.t=Math.min(end,sim.t+DT);sim.y=Math.max(0,V0*sim.t-g*sim.t*sim.t/2);sim.v=V0-g*sim.t;if(l.mode==='learn'&&l.mi===3&&l.modelVisible){if(sim.v>.05)evidence.rise=true;if(sim.v<-.05)evidence.fall=true;}if(sim.t>=end){sim.ended=true;l.setRunning(false);}}
+  l.t=sim.t;l.update();
+ },
+ draw(c,l){const s=l.state,d=l.draw,w=weight(s),z=l.fs(15),col='#3b5bdb',support='#d9480f';
+  c.fillStyle=s.planet==='earth'?'#f4fbff':'#f4f4f8';c.fillRect(0,0,960,600);
+  const text=(x,y,t,color='#334155',align='center')=>d.text(c,x,y,t,{size:z,color,align});
+  text(480,38,PLACE[s.planet]+'에서 살펴봅니다.');
+  if(l.modelVisible){c.strokeStyle=col;c.lineWidth=4;c.beginPath();c.moveTo(28,76);c.lineTo(28+10*K,76);c.stroke();text(76,82,'10 N',col,'left');}
+  if(s.scene==='weigh'){
+   // Stationary hanging object: tension at the hook and gravity at the centre.
+   c.strokeStyle='#526477';c.lineWidth=8;c.beginPath();c.moveTo(80,540);c.lineTo(80,112);c.lineTo(240,112);c.stroke();
+   const end=s.mass===6?185+w*.8:237,top=end+73;
+   c.fillStyle='#dbe5ee';c.strokeStyle='#526477';c.lineWidth=2;c.beginPath();c.roundRect(180,125,120,s.mass===6?160:112,12);c.fill();c.stroke();
+   if(s.mass===6){c.beginPath();for(let i=0;i<=12;i++){const yy=145+(end-145)*i/12,xx=240+(i===0||i===12?0:i%2?15:-15);i?c.lineTo(xx,yy):c.moveTo(xx,yy);}c.stroke();c.beginPath();c.moveTo(272,185);c.lineTo(272,265);for(let n=0;n<=100;n+=20){c.moveTo(268,185+n*.8);c.lineTo(280,185+n*.8);}c.stroke();d.tag(c,130,205,w.toFixed(1)+' N',{size:z,color:'#064e3b'});}
+   else{c.fillStyle='#a7f3d0';c.fillRect(185,165,110,38);text(240,192,w.toFixed(1)+' N','#064e3b');}
+   text(240,110,s.mass===6?'큰 용수철저울 (100 N)':'힘 센서 (50 N)');
+   c.beginPath();c.moveTo(240,end);c.lineTo(240,top);c.stroke();c.fillStyle='#9ca6b7';c.fillRect(199,top,82,72);text(240,top+43,s.mass+' kg','#152238');
+   if(l.modelVisible){d.arrow(c,240,top+36,0,w*K,{color:col,width:5});d.arrow(c,240,top,0,-w*K,{color:support,width:5});text(120,570,'중력 '+w.toFixed(1)+' N ↓',col);text(320,570,'당기는 힘 ↑',support);}
+   // Equal-arm balance; gravitational factor cancels from both sides.
+   const theta=Math.atan((s.reference-s.mass)/20),a=135,cy=330,cx=700;
+   c.strokeStyle='#526477';c.lineWidth=5;c.beginPath();c.moveTo(cx,cy);c.lineTo(cx,525);c.moveTo(cx-65,525);c.lineTo(cx+65,525);c.stroke();
+   const ends=[[-1,s.mass,'물체'],[1,s.reference,'분동']];c.beginPath();c.moveTo(cx-a*Math.cos(theta),cy-a*Math.sin(theta));c.lineTo(cx+a*Math.cos(theta),cy+a*Math.sin(theta));c.stroke();
+   for(const [sign,m,label] of ends){const x=cx+sign*a*Math.cos(theta),y=cy+sign*a*Math.sin(theta);c.lineWidth=2;c.beginPath();c.moveTo(x,y);c.lineTo(x-43,y+88);c.lineTo(x+43,y+88);c.closePath();c.stroke();c.fillStyle=sign<0?'#9ca6b7':'#c8b69e';c.fillRect(x-30,y+51,60,35);text(x,y+118,label+' '+m+' kg');}
+   text(700,290,'양팔저울');
+   if(l.modelVisible){text(695,122,'같은 물체의 무게 비교');for(const [i,p]of ['earth','moon'].entries()){const y=160+i*48;c.fillStyle=p==='earth'?'#2563eb':'#64748b';c.fillRect(610,y,s.mass*G[p]*K,14);text(595,y+16,PLACE[p],'#334155','right');text(610+s.mass*G[p]*K+12,y+16,(s.mass*G[p]).toFixed(1)+' N','#334155','left');}}
+  } else if(s.scene==='throw'){
+   const x=430,y=390-sim.y*80;c.fillStyle='#d8e1e8';c.fillRect(0,412,960,188);c.fillStyle='#f59e0b';c.beginPath();c.arc(x,y,22,0,Math.PI*2);c.fill();
+   text(740,145,sim.ended?'바닥에 돌아왔습니다.':sim.v>0?'공이 올라갑니다.':'공이 내려옵니다.');
+   if(l.modelVisible){d.arrow(c,x,y,0,w*K,{color:col,width:5});text(690,210,'중력은 계속 아래쪽입니다.',col);for(let t=0;t<sim.t;t+=.08){const yy=390-(V0*t-G[s.planet]*t*t/2)*80;c.fillStyle='#d5a349';c.beginPath();c.arc(x,yy,2,0,Math.PI*2);c.fill();}}
+   text(740,495,'공기 저항은');text(740,540,'생략합니다.');
+  } else {
+   const cx=480,cy=325,r=130,a=s.angle*Math.PI/180,x=cx+210*Math.cos(a),y=cy+210*Math.sin(a);
+   c.fillStyle=s.planet==='earth'?'#83c2ed':'#bcc2cc';c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fill();text(cx,cy+8,PLACE[s.planet]);
+   c.fillStyle='#f59e0b';c.beginPath();c.arc(x,y,17,0,Math.PI*2);c.fill();
+   if(l.modelVisible){d.arrow(c,x,y,-w*K*Math.cos(a),-w*K*Math.sin(a),{color:col,width:5});c.fillStyle='#334155';c.beginPath();c.arc(cx,cy,4,0,Math.PI*2);c.fill();text(480,586,'어디에 놓아도 중력은 중심 쪽입니다.',col);}
+  }
+ }
+});
+</script></body></html>
