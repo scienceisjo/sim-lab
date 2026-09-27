@@ -18,7 +18,7 @@
 - [x] 전도·대류·복사 (p.82, 90, 92–94), 상세: heat-three-ways-review.md
 - [x] 비열 (p.96–99, 104, 107), 상세: specific-heat-review.md
 - [x] 액체·고체의 열팽창 (p.100–101, 103–104, 106), 상세: thermal-expansion-review.md
-- [ ] 바이메탈
+- [x] 바이메탈 (p.101–103, 107), 상세: bimetal-switch-review.md
 - [ ] 해풍·육풍
 - [ ] 조리 도구 재료 비교
 - [ ] 확산·증발
