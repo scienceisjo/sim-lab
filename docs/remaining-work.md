@@ -20,7 +20,7 @@
 - [x] 액체·고체의 열팽창 (p.100–101, 103–104, 106), 상세: thermal-expansion-review.md
 - [x] 바이메탈 (p.101–103, 107), 상세: bimetal-switch-review.md
 - [x] 해풍·육풍 (p.97, 99, 108), 상세: sea-land-breeze-review.md
-- [ ] 조리 도구 재료 비교
+- [x] 조리 도구 재료 비교·열변색 설계 (p.95, 97–99, 103–105, 109), 상세: cookware-test-bench-review.md
 - [ ] 확산·증발
 - [ ] 세 가지 상태·상태 변화·질량과 부피
 - [ ] 가열·냉각 곡선·열에너지
