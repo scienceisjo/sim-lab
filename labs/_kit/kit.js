@@ -17,6 +17,7 @@
  *   pointer:{down,move,up,hover},     // 실험판 끌기(p = 논리 좌표). down 이 false 를 돌려주면 끌기 아님
  *   onPlay(lab), rewind(lab), reset(lab), onMissionsReset(lab),
  *   assumptions:[학생용 문장], quiz:[{kind,question,options:[문장],answer,feedback:[문장]}],
+ *   viewLabels:{scene:'실제 모습',model:'모형 보기'}, // 선택 상태가 표시되는 화면 표현 단추 이름(선택 사항)
  *   onModeChange(lab), onMissionSelect(lab), // 모형/학습 전환과 미션 선택 시 휘발성 증거 정리
  *   missions[].variables:{options:[[key,label]],change,keep:[key],measure,recordId,minRows?}
  * })
@@ -116,17 +117,21 @@
     const modeBar = h('div', { class: 'mode-switch', role: 'group', 'aria-label': '실험실 모드' },
       ['model', 'learn'].map(mode => h('button', { 'data-mode': mode, onclick: () => lab.setMode(mode) }, mode === 'model' ? '모형' : '학습')));
     root.querySelector('.lab-top').append(modeBar);
-    const modelButton = h('button', { class: 'pbtn model-view', onclick: () => {
-      lab.modelVisible = !lab.modelVisible; syncMode(); lab.update();
-    } }, '');
-    play.prepend(modelButton);
+    const viewLabels = cfg.viewLabels || { scene: '실제 모습', model: '모형 보기' };
+    const viewButtons = [false, true].map(visible => h('button', {
+      class: visible ? 'view-button' : 'view-button model-view',
+      'data-view': visible ? 'model' : 'scene',
+      onclick: () => { lab.modelVisible = visible; syncMode(); lab.update(); }
+    }, visible ? viewLabels.model : viewLabels.scene));
+    const viewSelect = h('div', {class:'view-select',role:'group','aria-label':'화면 표현 선택'},
+      h('span',{class:'view-label'},'보기'), ...viewButtons);
+    play.prepend(viewSelect);
     const sceneNote = h('p', { class: 'scene-note' }, '화살표를 끄면 물체와 장치의 모습이 보입니다. 실제 장면을 단순하게 그린 모형입니다.' + (cfg.sceneNote ? ' '+cfg.sceneNote : ''));
     stage.append(sceneNote);
     function syncMode() {
       root.dataset.mode = lab.mode;
       [...modeBar.children].forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === lab.mode)));
-      modelButton.textContent = lab.modelVisible ? '모형 켜짐 · 실제 모습 보기' : '실제 모습 · 모형 켜기';
-      modelButton.setAttribute('aria-pressed', String(lab.modelVisible));
+      viewButtons.forEach((button, i) => button.setAttribute('aria-pressed', String(lab.modelVisible === !!i)));
       if (lab.mode === 'model') root.classList.remove('m-open');
       fit();
     }
