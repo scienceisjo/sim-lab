@@ -86,7 +86,7 @@ select.unit{border:1px solid var(--line);background:var(--panel);color:var(--ink
 .body{padding:13px 15px 15px;display:flex;flex-direction:column;gap:6px;flex:1}
 .meta{font-size:12.5px;color:var(--c);font-weight:700}
 .meta span{color:var(--sub);font-weight:500}
-.body h3{margin:0;font-size:17px;line-height:1.35;font-weight:750}
+.body h4{margin:0;font-size:17px;line-height:1.35;font-weight:750}
 .body p{margin:0;font-size:13.5px;color:var(--sub);line-height:1.5}
 .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
 .tag{font-size:11.5px;padding:2px 8px;border-radius:6px;background:var(--soft);color:var(--sub)}
@@ -123,7 +123,7 @@ h2.sec{font-size:22px;margin:10px 0 14px}
 .progress-dots i.done{background:#168348;border-color:#168348}
 .mode-actions{display:flex;gap:8px;padding:0 14px 14px}.mode-actions a,.path a{display:inline-block;text-decoration:none;border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-size:13px;background:var(--soft);margin-top:6px}
 .mode-actions a:last-child{background:var(--brand);color:white;border-color:var(--brand)}
-.body h3 a{text-decoration:none}.body .progress-dots{margin-top:3px}
+.body h4 a{text-decoration:none}.body .progress-dots{margin-top:3px}
 @media(max-width:760px){.path ol{grid-template-columns:1fr 1fr}.mode-actions{gap:5px;padding:0 8px 10px}.mode-actions a{font-size:12px;padding:5px 8px}.path{padding:14px}}
 
 @media (max-width:860px){
@@ -137,11 +137,14 @@ h2.sec{font-size:22px;margin:10px 0 14px}
   .filters{position:static}
   .grid{grid-template-columns:1fr 1fr;gap:10px}
   .body{padding:10px 11px 12px}
-  .body h3{font-size:15px}
+  .body h4{font-size:15px}
   .body p{display:none}
   .plist{grid-template-columns:1fr}
   .count{margin-left:0;width:100%}
 }
+.grades{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.grades .subj{background:var(--panel);color:var(--ink);border:1px solid var(--line);min-height:170px;padding:16px;gap:12px}.grades .subj strong{color:var(--brand);font-size:26px}.grades .subj[aria-pressed=true]{border:2px solid var(--brand);background:var(--soft)}
+.grade-section{margin:30px 0 55px}.grade-section>h2{font-size:30px;border-bottom:2px solid var(--brand);padding-bottom:12px;display:flex;align-items:center;gap:14px}.grade-section>h2 small{font-size:14px;color:var(--sub);font-weight:500}.unit-section{scroll-margin-top:235px}.unit-section>h3{font-size:21px;margin:25px 0 14px}.unit-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.unit-shortcuts strong{display:block;color:var(--brand);margin-bottom:8px}.unit-shortcuts a{display:block;margin-top:5px}.path{margin-bottom:18px}
+@media(max-width:560px){.grades .subj{min-height:145px;padding:12px}.grades .subj strong{font-size:23px}.grades .subj span{font-size:12px}.unit-shortcuts{grid-template-columns:1fr;gap:12px}.unit-shortcuts>div{display:flex;flex-wrap:wrap;gap:6px}.unit-shortcuts strong{width:100%;margin:0}.unit-shortcuts a{display:inline-block;margin:0;font-size:12px}.grade-section>h2{font-size:26px}.unit-section{scroll-margin-top:80px}}
 </style>
 </head>
 <body>
@@ -169,16 +172,17 @@ h2.sec{font-size:22px;margin:10px 0 14px}
       <p class="curriculum-link"><a href="curriculum/">교육과정 탐구 지도 · 23개 단원 살펴보기 →</a></p>
       <div class="stats"><div><b id="nSim">0</b>시뮬레이션</div><div><b id="nPart">0</b>실험 화면</div><div><b id="nUnit">0</b>단원</div></div>
     </div>
-    <div class="subjects" id="subjects"></div>
+    <div class="subjects grades" id="grades" aria-label="학년 선택"></div>
   </section>
 
-  <section class="path" id="inquiryPath" aria-label="단원별 탐구 경로"></section>
+  <details class="path" id="inquiryPath" aria-label="단원별 탐구 경로"></details>
   <div class="filters" id="filters">
+    <div class="row" id="gradeRow" aria-label="학년"></div>
     <div class="row" id="subjRow"></div>
     <div class="row" id="tagRow"><span class="lab">방식</span></div>
   </div>
 
-  <div class="grid" id="grid"></div>
+  <div id="grid" aria-live="polite"></div>
 
   <h2 class="sec">이렇게 쓰면 좋아요</h2>
   <section class="guide">
@@ -190,6 +194,7 @@ h2.sec{font-size:22px;margin:10px 0 14px}
 
 <dialog id="dlg"></dialog>
 
+<script src="curriculum/order.js"></script>
 <script src="sims.js"></script>
 <script>
 const SUBJ = {
@@ -199,7 +204,9 @@ const SUBJ = {
   earth:{name:'지구과학', hint:'태양계·별·암석'},
 };
 const TAGS = { sim:'시뮬레이션', game:'게임형', '3d':'3D', data:'표·그래프', mic:'마이크', cam:'카메라', sensor:'센서' };
-const state = { s:'all', t:new Set(), q:'' };
+const state = { s:'all', g:'all', t:new Set(), q:'' };
+const placement=s=>CurriculumOrder.locate(s);
+const gradeLabel=s=>placement(s).grade?'중학 '+placement(s).grade:s.grade;
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const thumbOf = s => 'thumbs/' + s.id + '.jpg';
@@ -208,16 +215,18 @@ const partsOf = s => s.parts || [];
 // 숫자
 $('nSim').textContent = SIMS.length;
 $('nPart').textContent = SIMS.reduce((a, s) => a + Math.max(1, partsOf(s).length), 0);
-$('nUnit').textContent = new Set(SIMS.map(s => s.unit)).size;
+$('nUnit').textContent = CurriculumOrder.units.length;
 
-// 과목 타일
-$('subjects').innerHTML = Object.entries(SUBJ).map(([k, v]) => {
-  const n = SIMS.filter(s => s.subject === k).length;
-  return `<button class="subj" data-s="${k}"><span>${v.hint}</span><strong>${v.name} <small style="font-weight:600;opacity:.8">${n}</small></strong></button>`;
+// 학년 타일
+$('grades').innerHTML = CurriculumOrder.groups.map(g=>{
+ const n=SIMS.filter(s=>placement(s).grade===g.grade).length;
+ return `<button class="subj" data-g="${g.grade}"><strong>${g.label}</strong><span>${n}개 실험실·수업 자료</span><span>${g.titles[0]}부터<br>${g.titles.at(-1)}까지</span></button>`;
 }).join('');
-$('subjects').onclick = e => { const b = e.target.closest('.subj'); if (!b) return; setSubj(b.dataset.s); $('filters').scrollIntoView({behavior:'smooth'}); };
+$('grades').onclick=e=>{const b=e.target.closest('[data-g]');if(b){state.g=b.dataset.g;render();$('filters').scrollIntoView({behavior:'smooth'});}};
 
 // 거르개
+$('gradeRow').innerHTML='<span class="lab">학년</span>'+[['all','전체'],['1','중학 1'],['2','중학 2'],['3','중학 3'],['0','공통·심화']].map(([g,label])=>`<button class="chip" data-g="${g}" aria-pressed="false">${label}</button>`).join('');
+$('gradeRow').onclick=e=>{const b=e.target.closest('[data-g]');if(b){state.g=b.dataset.g;render();}};
 $('subjRow').innerHTML = `<button class="chip" data-s="all">전체</button>` +
   Object.entries(SUBJ).map(([k, v]) => `<button class="chip" data-s="${k}"><i style="background:var(--${k})"></i>${v.name}</button>`).join('') +
   `<span class="count" id="count"></span>`;
@@ -233,18 +242,33 @@ $('q').oninput = e => { state.q = e.target.value.trim().toLowerCase(); render();
 function setSubj(s) { state.s = s; render(); }
 
 function render() {
+  document.querySelectorAll('[data-g]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.g===state.g));
+  renderPath();
   document.querySelectorAll('#subjRow [data-s]').forEach(b => b.setAttribute('aria-pressed', b.dataset.s === state.s));
   document.querySelectorAll('#tagRow [data-t]').forEach(b => b.setAttribute('aria-pressed', state.t.has(b.dataset.t)));
   const q = state.q;
   const list = SIMS.filter(s =>
+    (state.g==='all'||String(placement(s).grade)===state.g) &&
     (state.s === 'all' || s.subject === state.s) &&
     [...state.t].every(t => s.tags.includes(t)) &&
-    (!q || [s.title, s.desc, s.unit, s.grade, ...partsOf(s).map(p => p[0])].join(' ').toLowerCase().includes(q)));
+    (!q || [s.title, s.desc, s.unit, s.grade, gradeLabel(s), "중"+placement(s).grade, ...partsOf(s).map(p => p[0])].join(' ').toLowerCase().includes(q)));
   $('count').textContent = `${list.length}개`;
-  $('grid').innerHTML = list.length ? list.map(card).join('') :
+  $('grid').innerHTML = list.length ? catalogue(list) :
     `<div class="empty">찾는 시뮬이 없습니다. 다른 낱말로 찾아보세요.</div>`;
   const u = new URL(location); state.s === 'all' ? u.searchParams.delete('s') : u.searchParams.set('s', state.s);
+  state.g==='all'?u.searchParams.delete('grade'):u.searchParams.set('grade',state.g);
   history.replaceState(null, '', u);
+}
+
+function catalogue(list){
+ return [...CurriculumOrder.groups,{grade:0,label:'공통 도구·심화 탐구'}].map(g=>{
+  const items=list.filter(s=>placement(s).grade===g.grade);if(!items.length)return '';
+  const units=g.grade?CurriculumOrder.units.filter(u=>u.grade===g.grade):[CurriculumOrder.extra];
+  return `<section class="grade-section" data-grade="${g.grade}" aria-labelledby="grade-title-${g.grade}"><h2 id="grade-title-${g.grade}">${g.label}<small>${items.length}개</small></h2>${units.map(u=>{
+   const cards=items.filter(s=>placement(s).id===u.id);if(!cards.length)return '';
+   return `<section class="unit-section" id="catalog-${u.id}" data-order="${u.order}"><h3>${u.sequence?u.sequence+'. ':''}${esc(u.title)}</h3><div class="grid">${cards.map(card).join('')}</div></section>`;
+  }).join('')}</section>`;
+ }).join('');
 }
 
 function card(s) {
@@ -256,8 +280,8 @@ function card(s) {
       ${s.own ? '<span class="own">NEW · 클릭 실험실</span>' : ''}
       <div class="play"><span><svg width="22" height="22" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#111"/></svg></span></div></div>
     <div class="body">
-      <div class="meta">${SUBJ[s.subject].name} <span>· ${esc(s.unit)} · ${esc(s.grade)}</span></div>
-      <h3>${s.own?`<a href="labs/${s.id}/">${esc(s.title)}</a>`:esc(s.title)}</h3>
+      <div class="meta">${SUBJ[s.subject].name} <span>· ${esc(s.unit)} · ${esc(gradeLabel(s))}</span></div>
+      <h4>${s.own?`<a href="labs/${s.id}/">${esc(s.title)}</a>`:esc(s.title)}</h4>
       <p>${esc(s.desc)}</p>
       <div class="tags">${s.tags.map(t => `<span class="tag">${TAGS[t]}</span>`).join('')}</div>
       ${s.own?progressDots(s):''}
@@ -270,12 +294,11 @@ function progressDots(s){
   return `<div class="progress-dots" aria-label="미션 ${s.missions}개 중 ${count}개 완료">${Array.from({length:s.missions||0},(_,i)=>`<i aria-hidden="true" class="${done[i]?'done':''}"></i>`).join('')}<span>${count}/${s.missions}</span></div>`;
 }
 function renderPath(){
-  const route=[['force-balance','힘의 표현과 평형','157–161'],['gravity','중력','164–165'],['elasticity','탄성력','166–169'],['friction','마찰력','170–171'],['buoyancy','부력','172–173'],['motion','알짜힘과 운동 상태 변화','178–184']];
-  $('inquiryPath').innerHTML='<h2>탐구 경로 · 힘의 작용</h2><p>교과서 순서대로 살펴보세요. 점 하나는 미션 하나이며, 이 기기의 학습 진행을 보여 줍니다.</p><ol>'+route.map(([id,title,pages],i)=>{
-    const s=SIMS.find(s=>s.id===id&&s.own);
-    return `<li class="${s?'':'pending'}"><strong>${i+1}. ${title}</strong><small>교과서 p.${pages}</small>${s?`<div><a href="labs/${id}/?mode=model">모형</a> <a href="labs/${id}/?mode=learn">학습</a></div>${progressDots(s)}`:'<p>준비 중입니다.</p>'}</li>`;
-  }).join('')+'</ol>';
+ const groups=CurriculumOrder.groups.filter(g=>state.g==='all'||String(g.grade)===state.g);
+ $('inquiryPath').hidden=!groups.length;
+ $('inquiryPath').innerHTML='<summary>교육과정 단원 순서 · 바로가기</summary><p>학년과 단원을 고르세요. 카드의 점은 이 기기에 저장된 미션 진행입니다.</p><div class="unit-shortcuts">'+groups.map(g=>`<div><strong>${g.label}</strong>${CurriculumOrder.units.filter(u=>u.grade===g.grade&&SIMS.some(s=>placement(s).id===u.id)).map(u=>`<a href="#catalog-${u.id}" data-unit="${u.id}">${u.sequence}. ${u.title}</a>`).join('')}</div>`).join('')+'</div>';
 }
+$('inquiryPath').onclick=e=>{const a=e.target.closest('[data-unit]');if(!a)return;state.g=String(CurriculumOrder.units.find(u=>u.id===a.dataset.unit).grade);state.s='all';state.t.clear();state.q='';$('q').value='';const id=a.dataset.unit;render();document.getElementById('catalog-'+id)?.scrollIntoView({behavior:'smooth'});e.preventDefault();};
 window.addEventListener('storage',()=>{renderPath();render();});
 window.addEventListener('pageshow',()=>{renderPath();render();});
 window.addEventListener('focus',()=>{renderPath();render();});
@@ -293,7 +316,7 @@ function openDlg(s) {
   d.style.setProperty('--c', `var(--${s.subject})`);
   d.innerHTML = `<div class="dhead"><img src="${thumbOf(s)}" alt=""><button class="dx" aria-label="닫기">×</button></div>
     <div class="dbody">
-      <div class="meta" style="color:var(--c);font-size:13px;font-weight:700">${SUBJ[s.subject].name} · ${esc(s.unit)} · ${esc(s.grade)}</div>
+      <div class="meta" style="color:var(--c);font-size:13px;font-weight:700">${SUBJ[s.subject].name} · ${esc(s.unit)} · ${esc(gradeLabel(s))}</div>
       <h2>${esc(s.title)}</h2><p>${esc(s.desc)}</p>
       <ul class="plist">${s.parts.map(p => `<li><a href="${esc(p[1])}" target="_blank" rel="noopener">${esc(p[0])}</a></li>`).join('')}</ul>
       <a class="open-main" href="${esc(s.url)}" target="_blank" rel="noopener">처음부터 열기</a>
@@ -313,10 +336,12 @@ $('theme').onclick = () => {
   try { localStorage.setItem('cs-theme', next); } catch (e) {}
 };
 
+state.g=new URLSearchParams(location.search).get('grade')||'all';
+if(!['all','0','1','2','3'].includes(state.g))state.g='all';
 state.s = new URLSearchParams(location.search).get('s') || 'all';
 if (state.s !== 'all' && !SUBJ[state.s]) state.s = 'all';
 render();
 </script>
-<footer id="app-credit" style="width:100%;box-sizing:border-box;margin:2.5rem 0 0;padding:14px 12px;text-align:center;font-size:12.5px;line-height:1.6;color:#8a8f98;font-family:system-ui,-apple-system,'Segoe UI','Malgun Gothic',sans-serif;border-top:1px solid rgba(128,128,128,.25);">제작 : 과학을 사랑하는 선생님 · © 2026 · All rights reserved<br><span style="font-size:11px;opacity:.85;">최종 업데이트: 2026-09-27</span></footer>
+<footer id="app-credit" style="width:100%;box-sizing:border-box;margin:2.5rem 0 0;padding:14px 12px;text-align:center;font-size:12.5px;line-height:1.6;color:#8a8f98;font-family:system-ui,-apple-system,'Segoe UI','Malgun Gothic',sans-serif;border-top:1px solid rgba(128,128,128,.25);">제작 : 과학을 사랑하는 선생님 · © 2026 · All rights reserved<br><span style="font-size:11px;opacity:.85;">최종 업데이트: 2026-09-28</span></footer>
 </body>
 </html>

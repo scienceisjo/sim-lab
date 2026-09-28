@@ -20,3 +20,4 @@ https://scienceisjo.github.io/sim-lab/
 - [교육과정 실험실 검증과 반박 검토](docs/curriculum-review.md)
 - [갤러리 등록과 공개 배포 기록](docs/gallery-release.md)
 - [온도색과 전도·대류 재설계 검증](docs/thermal-remodel-review.md)
+- [중학 1·2·3 갤러리 배치](docs/grade-catalog.md)
