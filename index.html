@@ -196,6 +196,20 @@ h2.sec{font-size:22px;margin:10px 0 14px}
 
 <script src="curriculum/order.js"></script>
 <script src="sims.js"></script>
+<script src="auto-labs.js" onerror="window.AUTO_LABS=[]"></script>
+<script>
+/* 단원 레포에서 자동 등록된 실험실(auto-labs.js, tools/sync_labs.py 가 씀)을 목록에 합친다.
+   같은 id 나 같은 주소가 sims.js 에 있으면 그 카드를 페이지 쪽 내용으로 갈아 끼운다. */
+(function(){
+ const list=(typeof AUTO_LABS!=='undefined'&&Array.isArray(AUTO_LABS))?AUTO_LABS:[];
+ const norm=u=>String(u||'').replace(/\/(index\.html)?$/,'/');
+ list.forEach(a=>{
+  const i=SIMS.findIndex(s=>s.id===a.id||norm(s.url)===norm(a.url));
+  if(i>=0){const own=SIMS[i].own;SIMS[i]=Object.assign({},SIMS[i],a,{id:SIMS[i].id,thumbId:a.id});if(own)SIMS[i].own=own;}
+  else SIMS.push(Object.assign({},a));
+ });
+})();
+</script>
 <script>
 const SUBJ = {
   phys:{name:'물리', hint:'빛·소리·전기·자기'},
@@ -209,8 +223,9 @@ const placement=s=>CurriculumOrder.locate(s);
 const gradeLabel=s=>placement(s).grade?'중학 '+placement(s).grade:s.grade;
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const thumbOf = s => 'thumbs/' + s.id + '.jpg';
+const thumbOf = s => 'thumbs/' + (s.thumbId || s.id) + '.jpg';
 const partsOf = s => s.parts || [];
+const isFresh = s => !!s.added && (Date.now() - Date.parse(s.added)) < 30*864e5;   // 자동 등록 뒤 30일
 
 // 숫자
 $('nSim').textContent = SIMS.length;
@@ -277,7 +292,7 @@ function card(s) {
   return `<${tag} class="card" style="--c:var(--${s.subject})" data-id="${s.id}">
     <div class="thumb"><img src="${thumbOf(s)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">
       ${n > 1 ? `<span class="n">실험 ${n}개</span>` : ''}
-      ${s.own ? '<span class="own">NEW · 클릭 실험실</span>' : ''}
+      ${s.own ? '<span class="own">NEW · 클릭 실험실</span>' : (isFresh(s) ? '<span class="own">NEW</span>' : '')}
       <div class="play"><span><svg width="22" height="22" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="#111"/></svg></span></div></div>
     <div class="body">
       <div class="meta">${SUBJ[s.subject].name} <span>· ${esc(s.unit)} · ${esc(gradeLabel(s))}</span></div>

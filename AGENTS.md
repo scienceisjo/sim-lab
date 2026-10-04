@@ -35,6 +35,14 @@
 - `labs/<id>/index.html` — 실험실 한 개 = 파일 한 개. `Lab.init({...})` 한 번만 부른다.
 - `.nojekyll` — 지우지 말 것(없으면 GitHub Pages 가 `_kit` 폴더를 숨겨 404).
 
+## 다른 레포의 실험실 자동 등록 (auto-labs.js)
+단원 레포(electricity 등)에 있는 가상 실험실은 **페이지 안 카드 표시**로 갤러리에 저절로 올라온다(2026-10-04).
+- 실험실 페이지 `<head>` 에 `<script type="application/json" id="click-science">{"id","subject","unit","grade","tags","title","desc","shot","added"}</script>` 를 넣는다. 형식은 `tools/sync_labs.py` 머리 주석이 정본.
+- 그 단원 레포를 이 컴퓨터에서 main 으로 push 하면 `.git/hooks/pre-push`(설치: `python tools/install_hook.py <레포 폴더>`)가 `tools/sync_labs.py` 를 불러 `auto-labs.json`·`auto-labs.js`·`thumbs/<id>.jpg` 를 고치고 sim-lab 에 커밋·push 한다.
+- `auto-labs.js` 는 **손으로 고치지 않는다.** 카드 내용을 바꾸려면 그 실험실 페이지의 카드 표시를 고쳐 다시 배포한다.
+- `index.html` 은 sims.js 다음에 auto-labs.js 를 읽어 합친다. 같은 id 나 같은 주소가 sims.js 에 있으면 그 카드를 페이지 쪽 내용으로 갈아 끼우고(썸네일은 `thumbId`), 없으면 새 카드로 붙인다. `added` 뒤 30일은 NEW.
+- 썸네일은 `shot`(예 `?thumb=1`)을 붙인 주소를 헤드리스 크롬으로 찍는다. 페이지는 thumb 모드에서 안내 창 없이 실험판만 보이게 하고, 화면 갱신에 기대지 말고 고정 간격으로 직접 돌려 장면을 맞춘다.
+
 ## 공통 틀 계약 (kit.js 머리 주석이 정본)
 ```
 Lab.init({ id, version, title, subject:'phys'|'chem'|'life'|'earth', unit, grade, updated,
