@@ -46,13 +46,17 @@ TAG_RE = re.compile(r'<script[^>]*\bid=["\']click-science["\'][^>]*>(.*?)</scrip
 ID_RE = re.compile(r'^[a-z0-9][a-z0-9\-]*$')
 
 
+# 훅 안에서는 git 이 GIT_DIR 같은 값을 넘겨 준다 — 그대로 두면 sim-lab 대신 push 중인 레포를 건드린다.
+CLEAN_ENV = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+
+
 def say(msg):
     print('[CLICK SCIENCE] ' + msg, flush=True)
 
 
 def git(args, cwd=None, git_dir=None, binary=False, check=True):
     cmd = ['git'] + (['--git-dir', git_dir] if git_dir else []) + args
-    r = subprocess.run(cmd, cwd=cwd, capture_output=True)
+    r = subprocess.run(cmd, cwd=cwd, capture_output=True, env=CLEAN_ENV)
     if check and r.returncode:
         raise RuntimeError('git %s 실패: %s' % (' '.join(args), r.stderr.decode('utf-8', 'replace').strip()))
     return r.stdout if binary else r.stdout.decode('utf-8', 'replace')
@@ -65,7 +69,7 @@ class GitTree:
         self.files = [f for f in git(['ls-tree', '-r', '--name-only', sha], git_dir=git_dir).splitlines() if f]
 
     def read(self, path):
-        r = subprocess.run(['git', '--git-dir', self.git_dir, 'show', '%s:%s' % (self.sha, path)], capture_output=True)
+        r = subprocess.run(['git', '--git-dir', self.git_dir, 'show', '%s:%s' % (self.sha, path)], capture_output=True, env=CLEAN_ENV)
         return r.stdout if r.returncode == 0 else None
 
 
@@ -287,6 +291,10 @@ def main():
     ids = [c['id'] for c in changed] + ['-' + i for i in removed]
     say('%s: 카드 %d개 (바뀜 %s)' % (repo, len(keep), ', '.join(ids)))
 
+    top = os.path.normcase(os.path.normpath(git(['rev-parse', '--show-toplevel'], cwd=SIMLAB).strip()))
+    if top != os.path.normcase(os.path.normpath(SIMLAB)):
+        say('⚠ sim-lab 폴더를 확인하지 못해 커밋하지 않았습니다 (%s)' % top)
+        return
     paths = ['auto-labs.json', 'auto-labs.js'] + ['thumbs/%s.jpg' % c['id'] for c in changed
                                                    if os.path.exists(os.path.join(THUMBS, c['id'] + '.jpg'))]
     git(['add', '--'] + paths, cwd=SIMLAB)
@@ -302,8 +310,8 @@ def main():
         say('sim-lab 이 main 이 아니라(%s) push 하지 않았습니다' % branch)
         return
     for i in range(3):
-        r = subprocess.run(['git', 'pull', '--rebase', '--autostash', '-q'], cwd=SIMLAB, capture_output=True)
-        p = subprocess.run(['git', 'push', '-q', 'origin', 'main'], cwd=SIMLAB, capture_output=True)
+        r = subprocess.run(['git', 'pull', '--rebase', '--autostash', '-q'], cwd=SIMLAB, capture_output=True, env=CLEAN_ENV)
+        p = subprocess.run(['git', 'push', '-q', 'origin', 'main'], cwd=SIMLAB, capture_output=True, env=CLEAN_ENV)
         if p.returncode == 0:
             say('sim-lab 배포 완료 → https://scienceisjo.github.io/sim-lab/ (1~2분 뒤 반영)')
             return
