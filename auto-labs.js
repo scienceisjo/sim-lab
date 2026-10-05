@@ -3,6 +3,23 @@
 // 실험실 페이지 안 <script type="application/json" id="click-science"> 가 원본입니다.
 const AUTO_LABS = [
  {
+  "id": "gyrodrop-brake",
+  "subject": "phys",
+  "unit": "전기와 자기",
+  "grade": "중2",
+  "tags": [
+   "sim",
+   "3d"
+  ],
+  "title": "자이로드롭 자석 브레이크 3D",
+  "desc": "닿지도 않는 자석이 어떻게 시속 90 km로 떨어지던 놀이기구를 멈출까? 판 재료·자석·탄 사람 수를 바꿔 타 보고, 구리판 속 소용돌이 전류와 구리관 속 자석 낙하로 원리를 확인합니다. (교과서 밖 · 다음 학년 예고편)",
+  "url": "https://scienceisjo.github.io/electricity/3d-gyrodrop.html",
+  "repo": "electricity",
+  "path": "3d-gyrodrop.html",
+  "auto": true,
+  "added": "2026-10-05"
+ },
+ {
   "id": "coil-ask",
   "subject": "phys",
   "unit": "전기와 자기",
