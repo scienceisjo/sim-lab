@@ -3,6 +3,23 @@
 // 실험실 페이지 안 <script type="application/json" id="click-science"> 가 원본입니다.
 const AUTO_LABS = [
  {
+  "id": "coil-ask",
+  "subject": "phys",
+  "unit": "전기와 자기",
+  "grade": "중2",
+  "tags": [
+   "sim",
+   "3d"
+  ],
+  "title": "코일 주위의 자기장 3D",
+  "desc": "교과서 순서대로 스위치를 눌러 나침반 바늘과 매단 클립의 움직임을 관찰합니다. 실험 뒤에는 철 가루와 작은 나침반, 오른손으로 눈에 보이지 않던 자기장을 확인합니다.",
+  "url": "https://scienceisjo.github.io/electricity/ask-coil.html",
+  "repo": "electricity",
+  "path": "ask-coil.html",
+  "auto": true,
+  "added": "2026-10-04"
+ },
+ {
   "id": "electrophorus",
   "subject": "phys",
   "unit": "전기와 자기",
